@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Applauncher</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <link rel="manifest" href="app.webmanifest">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <style>
+        .title-row {
+            cursor: pointer;
+        }
+
+        .table-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        table td {
+            word-break: keep-all;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        table th {
+            word-break: keep-all;
+            white-space: nowrap;
+            text-align: center;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            // 获取语言切换器组件
+            const langSelector = document.getElementById("lang-selector");
+            // 添加监听器，当用户选择语言时触发
+            langSelector.addEventListener("change", (event) => {
+                // 获取用户选择的语言
+                const lang = event.target.value;
+                // 将语言设置为 cookie，过期时间为一年
+                document.cookie = `lang=${lang};max-age=${60 * 60 * 24 * 365}`;
+                // 刷新页面，使语言生效
+                location.reload();
+            });
+
+            // 保存页面collapse状态
+            $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
+                var id = this.id;
+                var state = this.classList.contains('in') ? 'show' : 'hide';
+                var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
+                collapseStates[id] = state;
+                localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
+            });
+
+            // 保存滚动位置到 localStorage 中
+            window.addEventListener('beforeunload', function () {
+                localStorage.setItem('scrollPosition', window.pageYOffset);
+            });
+
+            // 在加载时恢复页面collapse状态
+            const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
+            for (var id in collapseStates) {
+                var state = collapseStates[id];
+                var elem = document.getElementById(id);
+                if (state === 'hide') {
+                    elem.classList.remove('in');
+                } else {
+                    elem.classList.add('in');
+                }
+                // localStorage.removeItem('collapseStates');
+            }
+
+            // 在页面加载完成后恢复滚动位置
+            const scrollPosition = window.localStorage.getItem('scrollPosition');
+            if (scrollPosition !== null) {
+                window.scrollTo(0, scrollPosition);
+                // localStorage.removeItem('scrollPosition');
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h2>{{ _("Applauncher") }}</h2>
+            <p class="instructions">{{ _("Config and run programs from the web!") }}</p>
+            <select id="lang-selector" style="display: inline-flex; justify-content: flex-end; float: right;">
+                {% for code, name in languages.items() %}
+                {% if code == get_locale() %}
+                <option value="{{ code }}" selected>{{ name }}</option>
+                {% else %}
+                <option value="{{ code }}">{{ name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <div class="col-md-4">
+                <h3>{{ _("Options") }}</h3><br \>
+                <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program"
+                    aria-expanded="false" aria-controls="add-program">
+                    {{ _("Add Program") }}
+                </button>
+                <div class="collapse" id="add-program"><br \>
+                    <form method="POST" action="{{ url_for('add_program') }}">
+                        <input type="hidden" id="program_id" name="program_id" value="0" autocomplete="off">
+                        <div class="form-group">
+                            <label for="program_name">{{ _("Name") }}:</label>
+                            <input type="text" class="form-control" id="program_name" name="program_name"
+                                autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="program_workdir">{{ _("Working directory") }}:</label>
+                            <input type="text" class="form-control" id="program_workdir" name="program_workdir"
+                                autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud ,etc...)") }}:</label>
+                            <input type="text" class="form-control" id="program_prefix" name="program_prefix"
+                                autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="program_command">{{ _("Command") }}:</label>
+                            <input type="text" class="form-control" id="program_command" name="program_command"
+                                autocomplete="off">
+                        </div>
+                        <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
+                    </form>
+                </div><br \>
+                <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#edit-config"
+                    aria-expanded="false" aria-controls="edit-config">
+                    {{ _("Settings") }}
+                </button>
+                <div class="collapse" id="edit-config"><br \>
+                    <form method="POST" action="{{ url_for('config') }}">
+                        {% for config in configs %}
+                        <div class="form-group">
+                            <label for="{{ config.name }}">{{ configlocalizedname(config) }}:</label>
+                            <input type="text" class="form-control" name="{{ config.name }}" value="{{ config.value }}"
+                                autocomplete="off">
+                        </div>
+                        {% endfor %}
+                        <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
+                    </form>
+                </div><br \>
+            </div>
+            <div class="title-row col-md-8" data-toggle="collapse" data-target="#program-table"
+                aria-controls="program-table">
+                <h3>{{ _("List") }}:</h3>
+            </div>
+            <div class="collapse col-md-8 table-container" id="program-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ _("ID") }}</th>
+                            <th>{{ _("Actions") }}</th>
+                            <th>{{ _("Name") }}</th>
+                        </tr>
+                    </thead>
+                    <col width="1%" />
+                    <col width="1%" />
+                    <col width="100%" />
+                    <tbody>
+                        {% for program in programs %}
+                        <tr>
+                            <td>{{ program.id }}</td>
+                            <td>
+                                <a href="{{ url_for('launch', program_id=program.id) }}">
+                                    {{ _("Start") }}
+                                </a> / <a href="{{ url_for('delete_program', program_id=program.id) }}">
+                                    {{ _("Delete") }}
+                                </a> / <a href="{{ url_for('detail', program_id=program.id) }}"
+                                    onclick="DetailNewWindow(event,400,600)">
+                                    {{ _("Detail") }}
+                                </a>
+                                <script>
+                                    function DetailNewWindow(event, x, y) {
+                                        event.preventDefault();
+                                        let url = event.target.href;
+                                        var screenWidth = window.screen.width;
+                                        var screenHeight = window.screen.height;
+                                        var windowWidth = x; // 新窗口的宽度
+                                        var windowHeight = y; // 新窗口的高度
+                                        var left = (screenWidth - windowWidth) / 2;
+                                        var top = (screenHeight - windowHeight) / 2;
+                                        window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
+                                    }
+                                </script>
+                            </td>
+                            <td>{{ program.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

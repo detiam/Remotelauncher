@@ -1,0 +1,36 @@
+{
+    "name": "Applauncher",
+    "short_name": "applauncher",
+    "theme_color": "white",
+    "background_color": "silver",
+    "start_url": "./",
+    "id": "applauncher-1",
+    "display": "standalone",
+    "scope": "./",
+    "icons": [
+       {
+          "src": "favicon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+       },
+       {
+          "src": "favicon.png",
+          "type": "image/png",
+          "sizes": "192x192",
+          "purpose": "maskable"
+       }
+     ],
+     "description": "A launcher to launche a program",
+     "screenshots": [
+       {
+          "src": "favicon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+       },
+       {
+          "src": "favicon.png",
+          "type": "image/png",
+          "sizes": "192x192"
+       }
+     ]   
+  }

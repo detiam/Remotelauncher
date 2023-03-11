@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<head>
+    <title>{{ program.name }} - details</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</head>
+
+<html>
+
+<body>
+    <div class="container"><br \>
+        <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program"
+            aria-expanded="false" aria-controls="add-program">
+            {{ _("Modify Settings") }}
+        </button>
+        <div class="collapse in" id="add-program"><br \>
+            <form method="POST" action="{{ url_for('add_program') }}">
+                <div class="form-group">
+                    <label for="program_name">{{ _("ID") }}:</label>
+                    <input type="text" class="form-control" id="program_id" name="program_id" value="{{ program.id }}"
+                        autocomplete="off" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="program_name">{{ _("Name") }}:</label>
+                    <input type="text" class="form-control" id="program_name" name="program_name"
+                        value="{{ program.name }}" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="program_workdir">{{ _("Working directory") }}:</label>
+                    <input type="text" class="form-control" id="program_workdir" name="program_workdir"
+                        value="{{ program.workdir }}" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud ,etc...)") }}:</label>
+                    <input type="text" class="form-control" id="program_prefix" name="program_prefix"
+                        value="{{ program.prefix }}" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="program_command">{{ _("Command") }}:</label>
+                    <input type="text" class="form-control" id="program_command" name="program_command"
+                        value="{{ program.command }}" autocomplete="off">
+                </div>
+                <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
+            </form>
+        </div><br \>
+</body>
+
+</html>
