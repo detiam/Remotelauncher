@@ -12,16 +12,28 @@
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="favicon.png">
     <style>
-        table td {
+        td {
+            word-break: keep-all;
+            white-space: nowrap;
+            text-align: center;
+            border-right: 1px solid #dee2e6;
+            border-left: 1px solid #dee2e6;
+        }
+
+        th {
             word-break: keep-all;
             white-space: nowrap;
             text-align: center;
         }
 
-        table th {
-            word-break: keep-all;
-            white-space: nowrap;
-            text-align: center;
+        /* 奇数行颜色 */
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        /* 偶数行颜色 */
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
 
         @media(max-width:992px) {
@@ -59,6 +71,7 @@
         }
     </style>
     <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
         $(document).ready(function () {
             // 获取语言切换器组件
             const langSelector = document.getElementById("lang-selector");
@@ -185,7 +198,8 @@
                         <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
                     </form>
                 </div><br \>
-                <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table" aria-controls="program-table">
+                <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table"
+                    aria-controls="program-table">
                     {{ _("List") }}
                 </button><br \>
             </div>
@@ -236,7 +250,8 @@
                             </div>
                             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
                                 aria-labelledby="headingThree">
-                                <div style="overflow-x:auto; max-width: 100%;" class="panel panel-default table-container">
+                                <div style="overflow-x:auto; max-width: 100%;"
+                                    class="panel panel-default table-container">
                                     <table class="table">
                                         <thead>
                                             <tr>
@@ -255,7 +270,8 @@
                                                 <td>
                                                     <a href="{{ url_for('launch', program_id=program.id) }}">
                                                         {{ _("Start") }}
-                                                    </a> / <a href="{{ url_for('delete_program', program_id=program.id) }}">
+                                                    </a> / <a
+                                                        href="{{ url_for('delete_program', program_id=program.id) }}">
                                                         {{ _("Delete") }}
                                                     </a> / <a href="{{ url_for('detail', program_id=program.id) }}"
                                                         onclick="DetailNewWindow(event,400,600)">
