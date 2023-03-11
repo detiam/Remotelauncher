@@ -12,29 +12,29 @@
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="favicon.png">
     <style>
-        td {
+        /*td {
             word-break: keep-all;
             white-space: nowrap;
             text-align: center;
             border-right: 1px solid #dee2e6;
             border-left: 1px solid #dee2e6;
-        }
-
+        }*/
+        td,
         th {
             word-break: keep-all;
             white-space: nowrap;
-            text-align: center;
+            text-align: justify;
         }
 
-        /* 奇数行颜色 */
+        /* 奇数行颜色
         tr:nth-child(odd) {
             background-color: #ffffff;
-        }
+        } */
 
-        /* 偶数行颜色 */
+        /* 偶数行颜色
         tr:nth-child(even) {
             background-color: #f2f2f2;
-        }
+        } */
 
         @media(max-width:992px) {
             .wrapper {
@@ -130,6 +130,29 @@
             $('.panel-collapse').on('hide.bs.collapse', function () {
                 $(this).siblings('.panel-heading').removeClass('active');
             });
+            
+            // 绑定表头点击事件
+            $('th').click(function () {
+                var index = $(this).index();
+                // 选择要排序的列
+                var rows = $('tbody tr').get();
+                // 排序
+                rows.sort(function (a, b) {
+                    var A = $(a).children('td').eq(index).text().toUpperCase();
+                    var B = $(b).children('td').eq(index).text().toUpperCase();
+                    if (A < B) {
+                        return -1;
+                    }
+                    if (A > B) {
+                        return 1;
+                    }
+                    return 0;
+                });
+                // 将排序后的行重新插入表格中
+                $.each(rows, function (index, row) {
+                    $('tbody').append(row);
+                });
+            });
         });
     </script>
 </head>
@@ -200,11 +223,11 @@
                 </div><br \>
                 <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table"
                     aria-controls="program-table">
-                    {{ _("List") }}
-                </button><br \>
+                    {{ _("Show List") }}
+                </button>
             </div>
             <div class="col-md-8 collapse" id="program-table">
-                <h3>{{ _("List") }}:</h3>
+                <h3>{{ _("Lists") }}:</h3>
                 <div class="center-block">
                     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                         <div class="panel panel-default">
@@ -212,7 +235,7 @@
                                 <h4 class="panel-title">
                                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
                                         aria-expanded="false" aria-controls="collapseOne">
-                                        {{ _("About") }}
+                                        {{ _("Favorites") }}
                                     </a>
                                 </h4>
                             </div>
@@ -250,9 +273,9 @@
                             </div>
                             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
                                 aria-labelledby="headingThree">
-                                <div style="overflow-x:auto; max-width: 100%;"
+                                <div style="overflow-x:hidden; max-width: 100%;"
                                     class="panel panel-default table-container">
-                                    <table class="table">
+                                    <table class="table table-bordered table-hover table-striped">
                                         <thead>
                                             <tr>
                                                 <th>{{ _("ID") }}</th>
@@ -291,7 +314,8 @@
                                                         }
                                                     </script>
                                                 </td>
-                                                <td>{{ program.name }}</td>
+                                                <td data-toggle="tooltip" title="{{ program.name }}">{{ program.name }}
+                                                </td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
