@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-10 05:42+0800\n"
-"PO-Revision-Date: 2023-03-10 05:43+0800\n"
+"POT-Creation-Date: 2023-03-11 21:43+0800\n"
+"PO-Revision-Date: 2023-03-11 22:31+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -20,71 +20,81 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 "X-Generator: Lokalize 22.12.3\n"
 
-#: templates/detail.html:18
+#: templates/detail.html:38
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:23 templates/index.html:165
+#: templates/detail.html:47 templates/index.html:160
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:28 templates/index.html:119 templates/index.html:167
+#: templates/detail.html:59 templates/index.html:113 templates/index.html:162
 msgid "Name"
-msgstr "程序名称"
+msgstr "名称"
 
-#: templates/detail.html:33 templates/index.html:123
+#: templates/detail.html:71 templates/index.html:118
 msgid "Working directory"
-msgstr "运行目录"
+msgstr "工作目录"
 
-#: templates/detail.html:38 templates/index.html:128
-msgid "Prefix ( gamescope, mangohud ,etc...)"
-msgstr "前缀 ( gamescope, mangohud ,etc...)"
+#: templates/detail.html:83 templates/index.html:123
+msgid "Prefix ( gamescope, mangohud, etc...)"
+msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:43 templates/index.html:133
+#: templates/detail.html:95 templates/index.html:128
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:47 templates/index.html:137 templates/index.html:153
+#: templates/detail.html:114
+msgid "ID already exists."
+msgstr "此 ID 被占用"
+
+#: templates/detail.html:118 templates/index.html:132 templates/index.html:148
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:96
+#: templates/index.html:90
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:97
+#: templates/index.html:91
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:110
+#: templates/index.html:104
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:113
+#: templates/index.html:107
 msgid "Add Program"
 msgstr "添加程序"
 
-#: templates/index.html:142
+#: templates/index.html:137
 msgid "Settings"
 msgstr "设置"
 
-#: templates/index.html:159
+#: templates/index.html:154
 msgid "List"
-msgstr "程序列表"
+msgstr "列表"
 
-#: templates/index.html:166
+#: templates/index.html:161
 msgid "Actions"
 msgstr "操作"
 
-#: templates/index.html:179
+#: templates/index.html:174
 msgid "Start"
 msgstr "启动"
 
-#: templates/index.html:181
+#: templates/index.html:176
 msgid "Delete"
 msgstr "删除"
 
-#: templates/index.html:184
+#: templates/index.html:179
 msgid "Detail"
 msgstr "详情"
+
+#~ msgid "Prefix ( gamescope, mangohud ,etc...)"
+#~ msgstr ""
+
+#~ msgid "Only accept numbers."
+#~ msgstr "只能包含数字"
 

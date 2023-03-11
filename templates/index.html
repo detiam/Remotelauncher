@@ -12,15 +12,6 @@
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="favicon.png">
     <style>
-        .title-row {
-            cursor: pointer;
-        }
-
-        .table-container {
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
         table td {
             word-break: keep-all;
             white-space: nowrap;
@@ -31,6 +22,40 @@
             word-break: keep-all;
             white-space: nowrap;
             text-align: center;
+        }
+
+        @media(max-width:992px) {
+            .wrapper {
+                width: 100%;
+            }
+        }
+
+        .panel-heading {
+            padding: 0;
+            border: 0;
+        }
+
+        .panel-title>a,
+        .panel-title>a:active {
+            display: block;
+            padding: 10px;
+            color: #555;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .panel-heading a:before {
+            font-family: 'Glyphicons Halflings';
+            content: "\e114";
+            float: right;
+            /*transition: all 0.2s;*/
+        }
+
+        .panel-heading.active a:before {
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            transform: rotate(180deg);
         }
     </style>
     <script>
@@ -67,9 +92,13 @@
                 var state = collapseStates[id];
                 var elem = document.getElementById(id);
                 if (state === 'hide') {
+                    //$(elem).collapse('hide');
                     elem.classList.remove('in');
+                    $(elem).siblings('.panel-heading').removeClass('active');
                 } else {
+                    //$(elem).collapse('show');
                     elem.classList.add('in');
+                    $(elem).siblings('.panel-heading').addClass('active');
                 }
                 // localStorage.removeItem('collapseStates');
             }
@@ -80,11 +109,19 @@
                 window.scrollTo(0, scrollPosition);
                 // localStorage.removeItem('scrollPosition');
             }
+
+            $('.panel-collapse').on('show.bs.collapse', function () {
+                $(this).siblings('.panel-heading').addClass('active');
+            });
+
+            $('.panel-collapse').on('hide.bs.collapse', function () {
+                $(this).siblings('.panel-heading').removeClass('active');
+            });
         });
     </script>
 </head>
 
-<body>
+<body style="user-select: none;">
     <div class="container">
         <div class="page-header">
             <h2>{{ _("Applauncher") }}</h2>
@@ -101,18 +138,18 @@
         </div>
         <div>
             <div class="col-md-4">
-                <h3>{{ _("Options") }}</h3><br \>
+                <h3>{{ _("Options") }}:</h3><br \>
                 <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program"
                     aria-expanded="false" aria-controls="add-program">
                     {{ _("Add Program") }}
                 </button>
                 <div class="collapse" id="add-program"><br \>
-                    <form method="POST" action="{{ url_for('add_program') }}">
+                    <form method="POST" action="{{ url_for('add_program', program_realid='0') }}">
                         <input type="hidden" id="program_id" name="program_id" value="0" autocomplete="off">
                         <div class="form-group">
                             <label for="program_name">{{ _("Name") }}:</label>
                             <input type="text" class="form-control" id="program_name" name="program_name"
-                                autocomplete="off">
+                                autocomplete="off" required>
                         </div>
                         <div class="form-group">
                             <label for="program_workdir">{{ _("Working directory") }}:</label>
@@ -120,14 +157,14 @@
                                 autocomplete="off">
                         </div>
                         <div class="form-group">
-                            <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud ,etc...)") }}:</label>
+                            <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud, etc...)") }}:</label>
                             <input type="text" class="form-control" id="program_prefix" name="program_prefix"
                                 autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label for="program_command">{{ _("Command") }}:</label>
                             <input type="text" class="form-control" id="program_command" name="program_command"
-                                autocomplete="off">
+                                autocomplete="off" required>
                         </div>
                         <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
                     </form>
@@ -148,55 +185,106 @@
                         <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
                     </form>
                 </div><br \>
+                <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table" aria-controls="program-table">
+                    {{ _("List") }}
+                </button><br \>
             </div>
-            <div class="title-row col-md-8" data-toggle="collapse" data-target="#program-table"
-                aria-controls="program-table">
+            <div class="col-md-8 collapse" id="program-table">
                 <h3>{{ _("List") }}:</h3>
-            </div>
-            <div class="collapse col-md-8 table-container" id="program-table">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>{{ _("ID") }}</th>
-                            <th>{{ _("Actions") }}</th>
-                            <th>{{ _("Name") }}</th>
-                        </tr>
-                    </thead>
-                    <col width="1%" />
-                    <col width="1%" />
-                    <col width="100%" />
-                    <tbody>
-                        {% for program in programs %}
-                        <tr>
-                            <td>{{ program.id }}</td>
-                            <td>
-                                <a href="{{ url_for('launch', program_id=program.id) }}">
-                                    {{ _("Start") }}
-                                </a> / <a href="{{ url_for('delete_program', program_id=program.id) }}">
-                                    {{ _("Delete") }}
-                                </a> / <a href="{{ url_for('detail', program_id=program.id) }}"
-                                    onclick="DetailNewWindow(event,400,600)">
-                                    {{ _("Detail") }}
-                                </a>
-                                <script>
-                                    function DetailNewWindow(event, x, y) {
-                                        event.preventDefault();
-                                        let url = event.target.href;
-                                        var screenWidth = window.screen.width;
-                                        var screenHeight = window.screen.height;
-                                        var windowWidth = x; // 新窗口的宽度
-                                        var windowHeight = y; // 新窗口的高度
-                                        var left = (screenWidth - windowWidth) / 2;
-                                        var top = (screenHeight - windowHeight) / 2;
-                                        window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
-                                    }
-                                </script>
-                            </td>
-                            <td>{{ program.name }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="center-block">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                        aria-expanded="false" aria-controls="collapseOne">
+                                        {{ _("About") }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
+                                aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    ...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingTwo">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                                        href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        {{ _("Picture View") }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
+                                aria-labelledby="headingTwo">
+                                <div class="panel-body">
+                                    Placeholder
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingThree">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                                        href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        {{ _("Table View") }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
+                                aria-labelledby="headingThree">
+                                <div style="overflow-x:auto; max-width: 100%;" class="panel panel-default table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ _("ID") }}</th>
+                                                <th>{{ _("Actions") }}</th>
+                                                <th>{{ _("Name") }}</th>
+                                            </tr>
+                                        </thead>
+                                        <col width="1%" />
+                                        <col width="1%" />
+                                        <col width="100%" />
+                                        <tbody>
+                                            {% for program in programs %}
+                                            <tr>
+                                                <td>{{ program.id }}</td>
+                                                <td>
+                                                    <a href="{{ url_for('launch', program_id=program.id) }}">
+                                                        {{ _("Start") }}
+                                                    </a> / <a href="{{ url_for('delete_program', program_id=program.id) }}">
+                                                        {{ _("Delete") }}
+                                                    </a> / <a href="{{ url_for('detail', program_id=program.id) }}"
+                                                        onclick="DetailNewWindow(event,400,600)">
+                                                        {{ _("Detail") }}
+                                                    </a>
+                                                    <script>
+                                                        function DetailNewWindow(event, x, y) {
+                                                            event.preventDefault();
+                                                            let url = event.target.href;
+                                                            var screenWidth = window.screen.width;
+                                                            var screenHeight = window.screen.height;
+                                                            var windowWidth = x; // 新窗口的宽度
+                                                            var windowHeight = y; // 新窗口的高度
+                                                            var left = (screenWidth - windowWidth) / 2;
+                                                            var top = (screenHeight - windowHeight) / 2;
+                                                            window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
+                                                        }
+                                                    </script>
+                                                </td>
+                                                <td>{{ program.name }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

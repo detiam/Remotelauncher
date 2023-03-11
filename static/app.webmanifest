@@ -1,6 +1,6 @@
 {
     "name": "Applauncher",
-    "short_name": "applauncher",
+    "short_name": "Applauncher",
     "theme_color": "white",
     "background_color": "silver",
     "start_url": "./",
