@@ -1,0 +1,68 @@
+<style>
+    .img-thumbnail {
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        -webkit-user-drag: none;
+        -moz-user-drag: none;
+        -ms-user-drag: none;
+        -user-drag: none;
+        box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .img-thumbnail:hover {
+        transform: scale(1.08);
+        filter: brightness(1.1);
+    }
+
+    .col-md-3 {
+        padding-bottom: 15px;
+    }
+
+    .tooltip .tooltip-arrow {
+        display: none;
+    }
+
+    .picview {
+        background-color: #585858;
+        transition: transform 0.1s ease-in-out, filter 0.1s ease-in-out, background-color 0.2s ease-in-out;
+    }
+
+    .picview:hover img:not(:hover) {
+        filter: brightness(80%);
+    }
+
+    .picview:hover {
+        background-color: #464646;
+    }
+
+    @media (max-width: 991px) {
+        .col-md-3 {
+            width: 50%;
+            float: left;
+        }
+    }
+
+    @media (min-width: 661px) and (max-width: 991px) {
+        .col-md-3 {
+            width: 25%;
+            float: left;
+        }
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltips"]').tooltip();
+    });
+</script>
+<div class="panel-body picview" style="padding: 0; display: block;">
+    <div style="padding-top: 15px;">
+        {% for program in programs %}
+        <div class="col-md-3" href="{{ url_for('launch', program_id=program.id) }}">
+            <img data-toggle="tooltips" data-placement="right" title="{{ program.name }}" class="img-thumbnail"
+                src="{{ program.thumbnail }}" onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';"
+                alt="{{ program.name }}">
+        </div>
+        {% endfor %}
+    </div>
+</div>

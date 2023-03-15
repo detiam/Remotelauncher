@@ -1,7 +1,7 @@
 import os
 from flask import Flask, redirect, render_template, url_for, abort, send_from_directory, g, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_babel import Babel, force_locale
+from flask_babel import Babel
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -56,16 +56,26 @@ def index():
     return render_template('index.html', languages=app.config['LANGUAGES'], get_locale=get_locale, configlocalizedname=configlocalizedname, programs=Program.query.all(), configs=Config.query.all())
 
 
+@app.route('/picview')
+def picview():
+    return render_template('picview.html', programs=Program.query.all(), fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
+
+
+@app.route('/detail/<int:program_id>', methods=['GET'])
+def detail(program_id):
+    return render_template('detail.html', program=Program.query.get_or_404(program_id))
+
+
 @app.route('/favicon.png')
 def favicon_png():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.png')
+                               'pic/logo.png')
 
 
 @app.route('/favicon.ico')
 def favicon_ico():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico')
+                               'pic/favicon.ico')
 
 
 @app.route('/dummy-sw.js')
@@ -78,11 +88,6 @@ def sw():
 def manifest():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'app.webmanifest')
-
-
-@app.route('/detail/<int:program_id>', methods=['GET'])
-def detail(program_id):
-    return render_template('detail.html', program=Program.query.get_or_404(program_id))
 
 
 @app.route('/config', methods=['POST'])
@@ -169,4 +174,4 @@ if __name__ == '__main__':
                             en_name=en_name, value='')
             db.session.add(config)
     db.session.commit()
-    app.run(host='localhost', port=2023, debug=True)
+    app.run(host='0.0.0.0', port=2023, debug=True)
