@@ -5,7 +5,19 @@ from flask_babel import Babel
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///programs.db'
+if os.uname().sysname == 'Windows':
+    data_dir = os.path.join(os.environ['APPDATA'], 'Weblauncher')
+elif os.uname().sysname == 'Linux':
+    if os.environ.get('XDG_DATA_HOME') is not None:
+        data_dir = os.path.expandvars('$XDG_DATA_HOME/Weblauncher')
+    else:
+        data_dir = os.path.expandvars('$HOME/.local/share/Weblauncher')
+else:
+    data_dir = os.path.expanduser('~/.Weblauncher')
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.path.join(
+    'sqlite:///' + data_dir, 'config.db')
 app.config['LANGUAGES'] = {
     'en': 'English',
     'zh': '中文'
@@ -45,25 +57,15 @@ class Config(db.Model):
 class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), unique=False, nullable=False)
-    workdir = db.Column(db.String(), unique=False, nullable=False)
-    prefix = db.Column(db.String(), unique=False, nullable=False)
+    workdir = db.Column(db.String(), unique=False)
+    prefix = db.Column(db.String(), unique=False)
     command = db.Column(db.String(), unique=False, nullable=False)
 
 
-@app.route('/')
-def index():
-    # 渲染 index.html 模板文件，并将 programs, configs 变量传递给模板
-    return render_template('index.html', languages=app.config['LANGUAGES'], get_locale=get_locale, configlocalizedname=configlocalizedname, programs=Program.query.all(), configs=Config.query.all())
-
-
-@app.route('/picview')
-def picview():
-    return render_template('picview.html', programs=Program.query.all(), fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
-
-
-@app.route('/detail/<int:program_id>', methods=['GET'])
-def detail(program_id):
-    return render_template('detail.html', program=Program.query.get_or_404(program_id))
+for program in Program.query.all():
+    program_dir = os.path.join(data_dir, 'resources', str(program.id))
+    if not os.path.exists(program_dir):
+        os.makedirs(program_dir)
 
 
 @app.route('/favicon.png')
@@ -90,6 +92,30 @@ def manifest():
                                'app.webmanifest')
 
 
+@app.route('/')
+def index():
+    # 渲染 index.html 模板文件，并将 programs, configs 变量传递给模板
+    return render_template('index.html', languages=app.config['LANGUAGES'], get_locale=get_locale, configlocalizedname=configlocalizedname, programs=Program.query.all(), configs=Config.query.all())
+
+
+@app.route('/data/<path:filename>')
+def data(filename):
+    directory = data_dir  # 文件所在目录的绝对路径
+    return send_from_directory(directory, filename)
+
+
+@app.route('/picview')
+def picview():
+    def getthumbnail(id):
+        return os.path.join('data/resources', str(id), 'library_600x900.jpg')
+    return render_template('picview.html', programs=Program.query.all(), getthumbnail=getthumbnail, fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
+
+
+@app.route('/detail/<int:program_id>', methods=['GET'])
+def detail(program_id):
+    return render_template('detail.html', program=Program.query.get_or_404(program_id))
+
+
 @app.route('/config', methods=['POST'])
 def config():
     for key, value in request.form.items():
@@ -102,7 +128,7 @@ def config():
             config = Config(name=key, value=value)
             db.session.add(config)
     db.session.commit()
-    return redirect(request.referrer)
+    return ('', 204)
     # return redirect(url_for('index'))
 
 
@@ -154,7 +180,7 @@ def launch(program_id):
              or os.path.expandvars(wideworkdir.value)
              or os.path.expanduser('~'))
     os.popen(command)
-    return redirect(request.referrer)
+    return ('', 204)
     # return redirect(url_for('index'))
 
 

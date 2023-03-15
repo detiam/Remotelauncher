@@ -58,11 +58,11 @@
 <div class="panel-body picview" style="padding: 0; display: block;">
     <div style="padding-top: 15px;">
         {% for program in programs %}
-        <div class="col-md-3" href="{{ url_for('launch', program_id=program.id) }}">
+        <a class="col-md-3" href="{{ url_for('launch', program_id=program.id) }}">
             <img data-toggle="tooltips" data-placement="right" title="{{ program.name }}" class="img-thumbnail"
-                src="{{ program.thumbnail }}" onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';"
+                src="{{ getthumbnail(program.id) }}" onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';"
                 alt="{{ program.name }}">
-        </div>
+        </a>
         {% endfor %}
     </div>
 </div>

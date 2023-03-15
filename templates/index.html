@@ -66,6 +66,19 @@
     </style>
     <script>
         document.addEventListener('contextmenu', event => event.preventDefault());
+
+        function DetailNewWindow(event, x, y) {
+            event.preventDefault();
+            let url = event.target.href;
+            var screenWidth = window.screen.width;
+            var screenHeight = window.screen.height;
+            var windowWidth = x; // 新窗口的宽度
+            var windowHeight = y; // 新窗口的高度
+            var left = (screenWidth - windowWidth) / 2;
+            var top = (screenHeight - windowHeight) / 2;
+            window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
+        }
+
         $(document).ready(function () {
             // 获取语言切换器组件
             const langSelector = document.getElementById("lang-selector");
@@ -296,19 +309,6 @@
                                                         onclick="DetailNewWindow(event,400,600)">
                                                         {{ _("Detail") }}
                                                     </a>
-                                                    <script>
-                                                        function DetailNewWindow(event, x, y) {
-                                                            event.preventDefault();
-                                                            let url = event.target.href;
-                                                            var screenWidth = window.screen.width;
-                                                            var screenHeight = window.screen.height;
-                                                            var windowWidth = x; // 新窗口的宽度
-                                                            var windowHeight = y; // 新窗口的高度
-                                                            var left = (screenWidth - windowWidth) / 2;
-                                                            var top = (screenHeight - windowHeight) / 2;
-                                                            window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
-                                                        }
-                                                    </script>
                                                 </td>
                                                 <td data-toggle="tooltip" title="{{ program.name }}">{{ program.name }}
                                                 </td>
