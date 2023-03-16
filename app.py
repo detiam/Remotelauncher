@@ -3,9 +3,7 @@ from flask import Flask, redirect, render_template, url_for, abort, send_from_di
 from flask_sqlalchemy import SQLAlchemy
 from flask_babel import Babel
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-if os.uname().sysname == 'Windows':
+if os.name == 'nt':
     data_dir = os.path.join(os.environ['APPDATA'], 'Weblauncher')
 elif os.uname().sysname == 'Linux':
     if os.environ.get('XDG_DATA_HOME') is not None:
@@ -16,6 +14,10 @@ else:
     data_dir = os.path.expanduser('~/.Weblauncher')
 if not os.path.exists(data_dir):
     os.makedirs(data_dir)
+
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = os.path.join(
     'sqlite:///' + data_dir, 'config.db')
 app.config['LANGUAGES'] = {
@@ -60,12 +62,6 @@ class Program(db.Model):
     workdir = db.Column(db.String(), unique=False)
     prefix = db.Column(db.String(), unique=False)
     command = db.Column(db.String(), unique=False, nullable=False)
-
-
-for program in Program.query.all():
-    program_dir = os.path.join(data_dir, 'resources', str(program.id))
-    if not os.path.exists(program_dir):
-        os.makedirs(program_dir)
 
 
 @app.route('/favicon.png')
@@ -200,4 +196,8 @@ if __name__ == '__main__':
                             en_name=en_name, value='')
             db.session.add(config)
     db.session.commit()
+    for program in Program.query.all():
+        program_dir = os.path.join(data_dir, 'resources', str(program.id))
+        if not os.path.exists(program_dir):
+            os.makedirs(program_dir)
     app.run(host='0.0.0.0', port=2023, debug=True)
