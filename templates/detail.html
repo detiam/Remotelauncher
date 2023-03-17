@@ -33,7 +33,6 @@
 <html style="user-select: none;">
   <body>
     <div class="container">
-      <br \ />
       <button
         class="btn btn-block"
         type="button"
@@ -45,39 +44,43 @@
         {{ _("Modify Settings") }}
       </button>
       <div class="collapse in" id="add-program">
-        <br \ />
+        <br/>
         <form
           method="POST"
           action="{{ url_for('add_program', program_realid=program.id) }}"
         >
-          <div class="form-group">
-            <label for="program_id">{{ _("ID") }}:</label>
-            <input
-              type="number"
-              class="{% if alert %} error {% endif %} form-control"
-              id="program_id"
-              name="program_id"
-              {% if alert %}
-              value="{{ formerid }}"
-              {% else %}
-              value="{{ program.id }}"
-              {% endif %}
-              autocomplete="off"
-              onclick="this.classList.remove('error')"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="program_name">{{ _("Name") }}:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="program_name"
-              name="program_name"
-              value="{{ program.name }}"
-              autocomplete="off"
-              required
-            />
+          <div class="row">
+            <div class="form-group col-xs-4">
+              <label for="program_id">{{ _("ID") }}:</label>
+              <input
+                type="number"
+                max="2147483647"
+                min="1"
+                class="{% if alert %} error {% endif %} form-control"
+                id="program_id"
+                name="program_id"
+                {% if alert %}
+                value="{{ formerid }}"
+                {% else %}
+                value="{{ program.id }}"
+                {% endif %}
+                autocomplete="off"
+                onclick="this.classList.remove('error')"
+                required
+              />
+            </div>
+            <div class="form-group col-xs-8">
+              <label for="program_name">{{ _("Name") }}:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="program_name"
+                name="program_name"
+                value="{{ program.name }}"
+                autocomplete="off"
+                required
+              />
+            </div>
           </div>
           <div class="form-group">
             <label for="program_workdir">{{ _("Working directory") }}:</label>
@@ -116,7 +119,7 @@
             />
           </div>
           <center>
-            {% if alert %}
+            {% if alert == '1' %}
             <div
               id="alert"
               style="position: fixed; z-index: 2; left: 30%; right: 30%"
@@ -124,6 +127,15 @@
               role="alert"
             >
               {{ _("ID already exists.") }}
+            </div>
+            {% elif alert == '2' %}
+            <div
+              id="alert"
+              style="position: fixed; z-index: 2; left: 30%; right: 30%"
+              class="alert alert-danger"
+              role="alert"
+            >
+              {{ _("Data folder for {id} already exists.").format(id=formerid) }}
             </div>
             {% endif %}
             <button
@@ -136,7 +148,6 @@
           </center>
         </form>
       </div>
-      <br \ />
     </div>
   </body>
 </html>

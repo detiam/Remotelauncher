@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-12 07:15+0800\n"
-"PO-Revision-Date: 2023-03-12 07:20+0800\n"
+"POT-Creation-Date: 2023-03-18 04:07+0800\n"
+"PO-Revision-Date: 2023-03-18 04:23+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -24,87 +24,91 @@ msgstr ""
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:54 templates/index.html:281
+#: templates/detail.html:54 templates/index.html:290
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:71 templates/index.html:186 templates/index.html:283
+#: templates/detail.html:73 templates/index.html:193 templates/index.html:292
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:83 templates/index.html:191
+#: templates/detail.html:85 templates/index.html:198
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:95 templates/index.html:196
+#: templates/detail.html:97 templates/index.html:203
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:107 templates/index.html:201
+#: templates/detail.html:109 templates/index.html:208
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:126
+#: templates/detail.html:128
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: templates/detail.html:134 templates/index.html:205 templates/index.html:221
+#: templates/detail.html:137
+msgid "Data folder for {id} already exists."
+msgstr "ID {id} 数据目录已存在"
+
+#: templates/detail.html:145 templates/index.html:212 templates/index.html:228
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:163
+#: templates/index.html:170
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:164
+#: templates/index.html:171
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:177
+#: templates/index.html:184
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:180
+#: templates/index.html:187
 msgid "Add Program"
 msgstr "添加程序"
 
-#: templates/index.html:210
+#: templates/index.html:217
 msgid "Settings"
 msgstr "设置"
 
-#: templates/index.html:226
+#: templates/index.html:233
 msgid "Show List"
 msgstr "程序列表"
 
-#: templates/index.html:230
+#: templates/index.html:237
 msgid "Lists"
 msgstr "列表"
 
-#: templates/index.html:238
+#: templates/index.html:245
 msgid "Favorites"
 msgstr "收藏夹"
 
-#: templates/index.html:254
+#: templates/index.html:261
 msgid "Picture View"
 msgstr "图片视图"
 
-#: templates/index.html:270
+#: templates/index.html:279
 msgid "Table View"
 msgstr "表格视图"
 
-#: templates/index.html:282
+#: templates/index.html:291
 msgid "Actions"
 msgstr "操作"
 
-#: templates/index.html:295
+#: templates/index.html:304
 msgid "Start"
 msgstr "启动"
 
-#: templates/index.html:298
+#: templates/index.html:307
 msgid "Delete"
 msgstr "删除"
 
-#: templates/index.html:301
+#: templates/index.html:310
 msgid "Detail"
 msgstr "详情"
 

@@ -1,4 +1,5 @@
 import os
+import shutil
 from flask import Flask, redirect, render_template, url_for, abort, send_from_directory, g, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_babel import Babel
@@ -15,9 +16,10 @@ else:
 if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
+resources_dir = os.path.join(data_dir, 'resources')
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.path.join(
     'sqlite:///' + data_dir, 'config.db')
 app.config['LANGUAGES'] = {
@@ -64,12 +66,6 @@ class Program(db.Model):
     command = db.Column(db.String(), unique=False, nullable=False)
 
 
-@app.route('/favicon.png')
-def favicon_png():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'pic/logo.png')
-
-
 @app.route('/favicon.ico')
 def favicon_ico():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -79,7 +75,7 @@ def favicon_ico():
 @app.route('/dummy-sw.js')
 def sw():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'dummy-sw.js')
+                               'js/dummy-sw.js')
 
 
 @app.route('/app.webmanifest')
@@ -136,15 +132,25 @@ def add_program(program_realid):
     prefix = request.form['program_prefix']
     command = request.form['program_command']
     if id == '0':
-        program = Program(name=name, workdir=workdir,
-                          prefix=prefix, command=command)
-        db.session.add(program)
+        new_program = Program(name=name, workdir=workdir,
+                              prefix=prefix, command=command)
+        db.session.add(new_program)
         db.session.commit()
-        return redirect(request.referrer)
+        os.makedirs(os.path.join(resources_dir, str(new_program.id)))
+
     else:
-        if str(program_realid) != id and Program.query.filter_by(id=id).first():
-            return render_template('detail.html', alert='1', formerid=id, program=Program.query.get_or_404(program_realid))
         program = Program.query.get_or_404(program_realid)
+        program_dir = os.path.join(resources_dir, str(program_realid))
+        program_destdir = os.path.join(resources_dir, str(id))
+        # 在更改id的时候移动资源文件夹
+        if str(program_realid) == id:
+            pass
+        elif Program.query.filter_by(id=id).first():
+            return render_template('detail.html', alert='1', formerid=id, program=program)
+        elif os.path.exists(program_destdir):
+            return render_template('detail.html', alert='2', formerid=id, program=program)
+        else:
+            os.rename(program_dir, program_destdir)
         program.id = id
         program.name = name
         program.workdir = workdir
@@ -152,11 +158,15 @@ def add_program(program_realid):
         program.command = command
         db.session.commit()
         return redirect(url_for('detail', program_id=id))
-    # return redirect(request.referrer)
+    return redirect(request.referrer)
 
 
 @app.route('/delete/<int:program_id>', methods=['GET'])
 def delete_program(program_id):
+    try:
+        shutil.rmtree(os.path.join(resources_dir, str(program_id)))
+    except FileNotFoundError:
+        pass
     program = Program.query.get_or_404(program_id)
     db.session.delete(program)
     db.session.commit()
@@ -200,4 +210,4 @@ if __name__ == '__main__':
         program_dir = os.path.join(data_dir, 'resources', str(program.id))
         if not os.path.exists(program_dir):
             os.makedirs(program_dir)
-    app.run(host='0.0.0.0', port=2023, debug=True)
+    app.run(host='::', port=2023, debug=True)

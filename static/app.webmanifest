@@ -9,12 +9,12 @@
     "scope": "./",
     "icons": [
        {
-          "src": "favicon.png",
+          "src": "static/pic/logo.png",
           "type": "image/png",
           "sizes": "512x512"
        },
        {
-          "src": "favicon.png",
+          "src": "static/pic/logo.png",
           "type": "image/png",
           "sizes": "512x512",
           "purpose": "maskable"
@@ -23,12 +23,12 @@
      "description": "A launcher to launche a program",
      "screenshots": [
        {
-          "src": "favicon.png",
+          "src": "static/pic/logo.png",
           "type": "image/png",
           "sizes": "512x512"
        },
        {
-          "src": "favicon.png",
+          "src": "static/pic/logo.png",
           "type": "image/png",
           "sizes": "512x512"
        }
