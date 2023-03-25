@@ -1,18 +1,46 @@
 <style>
     .img-thumbnail {
+        position: relative;
         padding: 0;
-        border: 0;
-        border-radius: 0;
+        transition: filter 0.1s ease-in-out, transform .4s cubic-bezier(.075, .82, .165, 1) 0ms, box-shadow .4s cubic-bezier(.075, .82, .165, 1) 0ms, opacity .4s cubic-bezier(.075, .82, .165, 1) 0ms, border-color .4s cubic-bezier(.075, .82, .165, 1) 0ms;
+        background-color: var(--theme-section-bg-gray);
+        color: var(--theme-page-fg);
+        border: 0px solid transparent;
+        border-color: #585858;
+        border-radius: 5px;
         -webkit-user-drag: none;
         -moz-user-drag: none;
         -ms-user-drag: none;
         -user-drag: none;
-        box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 9px 11.5px -3px rgba(0, 0, 0, .1), 0 18.5px 28.5px 0 rgba(0, 0, 0, .03375), 0 7px 37.5px 0 rgba(0, 0, 0, .02625)
     }
 
     .img-thumbnail:hover {
-        transform: scale(1.08);
-        filter: brightness(1.1);
+        filter: brightness(105%);
+        transform: scale(100%) translateY(-6px);
+        /*border: 1px solid transparent;
+        margin-top: 1px;
+        border-bottom-color: rgba(var(--theme-page-fg-rgb), .08);
+        border-color: rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .25);*/
+        box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .img-thumbnail:active {
+        transform: scale(100%) translateY(3px);
+        box-shadow: 0 .5px 1px 0 rgba(0, 0, 0, .03), 0 2px 2px 0 rgba(0, 0, 0, .00225), 0 .5px 2.5px 0 rgba(0, 0, 0, .01575)
+    }
+
+    .picview {
+        background-color: #686868;
+        transition: translateY 0.2s ease-in-out, background-color 0.1s ease-in-out;
+    }
+
+    .picview:hover {
+        background-color: #424242;
+    }
+
+    .picview:hover img:not(:hover) {
+        filter: brightness(80%);
     }
 
     .col-md-3 {
@@ -21,19 +49,6 @@
 
     .tooltip .tooltip-arrow {
         display: none;
-    }
-
-    .picview {
-        background-color: #585858;
-        transition: transform 0.1s ease-in-out, filter 0.1s ease-in-out, background-color 0.2s ease-in-out;
-    }
-
-    .picview:hover img:not(:hover) {
-        filter: brightness(80%);
-    }
-
-    .picview:hover {
-        background-color: #464646;
     }
 
     @media (max-width: 991px) {
@@ -58,11 +73,14 @@
 <div class="panel-body picview" style="padding: 0; display: block;">
     <div style="padding-top: 15px;">
         {% for program in programs %}
-        <a class="col-md-3" href="{{ url_for('launch', program_id=program.id) }}">
-            <img data-toggle="tooltips" data-placement="right" title="{{ program.name }}" class="img-thumbnail"
-                src="{{ getthumbnail(program.id) }}" onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';"
-                alt="{{ program.name }}">
-        </a>
+        <div id="cover-{{ program.id }}" class="col-md-3">
+            <a href="{{ url_for('launch', program_id=program.id) }}">
+                <img id="p-{{ program.id }}" ondragover="event.preventDefault()" ondrop="handleDrop(event)"
+                    data-toggle="tooltips" data-placement="bottom" title="{{ program.name }}" class="img-thumbnail"
+                    src="{{ url_for('data', filename='resources/' + str(program.id) + '/library.jpg') }}"
+                    onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}">
+            </a>
+        </div>
         {% endfor %}
     </div>
 </div>

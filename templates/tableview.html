@@ -1,0 +1,46 @@
+<style>
+    .picon {
+        display: inline-block;
+        height: 1.3em;
+        width: auto;
+        transform: translateY(-0.1em)
+    }
+</style>
+<div style="overflow-x:hidden; max-width: 100%;" class="panel panel-default table-container">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th>{{ _("ID") }}</th>
+                <th>{{ _("Actions") }}</th>
+                <th>{{ _("Name") }}</th>
+            </tr>
+        </thead>
+        <col width="1%" />
+        <col width="1%" />
+        <col width="100%" />
+        <tbody>
+            {% for program in programs %}
+            <tr>
+                <td>{{ program.id }}</td>
+                <td>
+                    <a href="{{ url_for('launch', program_id=program.id) }}">
+                        {{ _("Start") }}
+                    </a>/<a href="{{ url_for('delete_program', program_id=program.id) }}">
+                        {{ _("Delete") }}
+                    </a>/<a href="{{ url_for('detail', program_id=program.id) }}"
+                        onclick="DetailNewWindow(event,400,600)">
+                        {{ _("Detail") }}
+                    </a>
+                </td>
+                <td id="table-{{ program.id }}" data-toggle="tooltip" title="{{ program.name }}"
+                    ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                    <img id="t-{{ program.id }}" class="picon"
+                        src="{{ url_for('data', filename='resources/' + str(program.id) + '/icon.ico') }}"
+                        onerror="this.onerror=null;this.style.display='none';" alt="icon-{{ program.name }}">
+                    {{ program.name }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

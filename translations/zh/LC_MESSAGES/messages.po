@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-18 04:07+0800\n"
-"PO-Revision-Date: 2023-03-18 04:23+0800\n"
+"POT-Creation-Date: 2023-03-26 00:24+0800\n"
+"PO-Revision-Date: 2023-03-26 00:24+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -20,95 +20,115 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 "X-Generator: Lokalize 22.12.3\n"
 
+#: app.py:112
+msgid "File size exceeds the limit"
+msgstr "文件大小超出限制"
+
+#: app.py:256
+msgid "Just been launched"
+msgstr "刚刚被启动了"
+
+#: app.py:274
+msgid "Global prefix"
+msgstr "全局前缀"
+
+#: app.py:276
+msgid "Default working directory"
+msgstr "默认工作目录"
+
 #: templates/detail.html:45
+msgid "Open Data Folder"
+msgstr "打开资料文件夹"
+
+#: templates/detail.html:49
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:54 templates/index.html:290
+#: templates/detail.html:56 templates/tableview.html:13
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:73 templates/index.html:193 templates/index.html:292
+#: templates/detail.html:63 templates/index.html:99 templates/tableview.html:15
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:85 templates/index.html:198
+#: templates/detail.html:69 templates/index.html:104
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:97 templates/index.html:203
+#: templates/detail.html:74 templates/index.html:109
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:109 templates/index.html:208
+#: templates/detail.html:79 templates/index.html:114
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:128
+#: templates/detail.html:87
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: templates/detail.html:137
+#: templates/detail.html:92
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: templates/detail.html:145 templates/index.html:212 templates/index.html:228
+#: templates/detail.html:96 templates/index.html:118 templates/index.html:134
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:170
+#: templates/index.html:72
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:171
+#: templates/index.html:73
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:184
+#: templates/index.html:86
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:187
-msgid "Add Program"
-msgstr "添加程序"
-
-#: templates/index.html:217
-msgid "Settings"
-msgstr "设置"
-
-#: templates/index.html:233
+#: templates/index.html:89
 msgid "Show List"
 msgstr "程序列表"
 
-#: templates/index.html:237
+#: templates/index.html:93
+msgid "Add Program"
+msgstr "添加程序"
+
+#: templates/index.html:123
+msgid "Settings"
+msgstr "设置"
+
+#: templates/index.html:139
 msgid "Lists"
 msgstr "列表"
 
-#: templates/index.html:245
+#: templates/index.html:147
 msgid "Favorites"
 msgstr "收藏夹"
 
-#: templates/index.html:261
+#: templates/index.html:163
 msgid "Picture View"
 msgstr "图片视图"
 
-#: templates/index.html:279
+#: templates/index.html:181
 msgid "Table View"
 msgstr "表格视图"
 
-#: templates/index.html:291
+#: templates/tableview.html:14
 msgid "Actions"
 msgstr "操作"
 
-#: templates/index.html:304
+#: templates/tableview.html:27
 msgid "Start"
 msgstr "启动"
 
-#: templates/index.html:307
+#: templates/tableview.html:29
 msgid "Delete"
 msgstr "删除"
 
-#: templates/index.html:310
+#: templates/tableview.html:32
 msgid "Detail"
 msgstr "详情"
 

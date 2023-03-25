@@ -4,12 +4,10 @@
   <title>{{ program.name }}</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
-  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script>
     document.addEventListener('contextmenu', event => event.preventDefault());
     $(document).ready(function () {
@@ -20,6 +18,13 @@
       setTimeout(function () {
         $("#alert").fadeOut();
       }, 3000); // 设置5秒后自动隐藏
+      document.addEventListener('keydown', function (event) {
+        // 如果按下的是Ctrl + S, 则触发按钮的单击事件
+        if (event.ctrlKey && event.keyCode === 83) {
+          event.preventDefault(); // 防止默认的保存操作
+          document.getElementById('detail-save-button').click(); // 触发按钮的单击事件
+        }
+      });
     });
   </script>
   <style>
@@ -31,123 +36,69 @@
 </head>
 
 <html style="user-select: none;">
-  <body>
-    <div class="container">
-      <button
-        class="btn btn-block"
-        type="button"
-        data-toggle="collapse"
-        data-target="#add-program"
-        aria-expanded="false"
-        aria-controls="add-program"
-      >
-        {{ _("Modify Settings") }}
-      </button>
-      <div class="collapse in" id="add-program">
-        <br/>
-        <form
-          method="POST"
-          action="{{ url_for('add_program', program_realid=program.id) }}"
-        >
-          <div class="row">
-            <div class="form-group col-xs-4">
-              <label for="program_id">{{ _("ID") }}:</label>
-              <input
-                type="number"
-                max="2147483647"
-                min="1"
-                class="{% if alert %} error {% endif %} form-control"
-                id="program_id"
-                name="program_id"
-                {% if alert %}
-                value="{{ formerid }}"
-                {% else %}
-                value="{{ program.id }}"
-                {% endif %}
-                autocomplete="off"
-                onclick="this.classList.remove('error')"
-                required
-              />
-            </div>
-            <div class="form-group col-xs-8">
-              <label for="program_name">{{ _("Name") }}:</label>
-              <input
-                type="text"
-                class="form-control"
-                id="program_name"
-                name="program_name"
-                value="{{ program.name }}"
-                autocomplete="off"
-                required
-              />
-            </div>
+
+<body>
+  <div class="container"><br>
+    <button class="btn btn-block" type="button"
+      onclick="setCursorAndTimeout('{{ url_for('detail_folder', program_id=program.id) }}', 1000)" aria-expanded="false"
+      aria-controls="detail_folder">
+      {{ _("Open Data Folder") }}
+    </button><br>
+    <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program" aria-expanded="false"
+      aria-controls="add-program">
+      {{ _("Modify Settings") }}
+    </button>
+    <div class="collapse in" id="add-program">
+      <br />
+      <form method="POST" action="{{ url_for('add_program', program_realid=program.id) }}">
+        <div class="row">
+          <div class="form-group col-xs-4">
+            <label for="program_id">{{ _("ID") }}:</label>
+            <input type="number" max="2147483647" min="1" class="{% if alert %} error {% endif %} form-control"
+              id="program_id" name="program_id" {% if alert %} value="{{ formerid }}" {% else %}
+              value="{{ program.id }}" {% endif %} autocomplete="off" onclick="this.classList.remove('error')"
+              required />
           </div>
-          <div class="form-group">
-            <label for="program_workdir">{{ _("Working directory") }}:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="program_workdir"
-              name="program_workdir"
-              value="{{ program.workdir }}"
-              autocomplete="off"
-            />
+          <div class="form-group col-xs-8">
+            <label for="program_name">{{ _("Name") }}:</label>
+            <input type="text" class="form-control" id="program_name" name="program_name" value="{{ program.name }}"
+              autocomplete="off" required />
           </div>
-          <div class="form-group">
-            <label for="program_prefix"
-              >{{ _("Prefix ( gamescope, mangohud, etc...)") }}:</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="program_prefix"
-              name="program_prefix"
-              value="{{ program.prefix }}"
-              autocomplete="off"
-            />
+        </div>
+        <div class="form-group">
+          <label for="program_workdir">{{ _("Working directory") }}:</label>
+          <textarea type="text" class="form-control" id="program_workdir" rows="1" name="program_workdir"
+            autocomplete="off">{{ program.workdir }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud, etc...)") }}:</label>
+          <textarea type="text" class="form-control" id="program_prefix" rows="2" name="program_prefix"
+            autocomplete="off">{{ program.prefix }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="program_command">{{ _("Command") }}:</label>
+          <textarea type="text" class="form-control" id="program_command" rows="1" name="program_command"
+            autocomplete="off" required>{{ program.command }}</textarea>
+        </div>
+        <center>
+          {% if alert == '1' %}
+          <div id="alert" style="position: fixed; z-index: 2; left: 30%; right: 30%" class="alert alert-danger"
+            role="alert">
+            {{ _("ID already exists.") }}
           </div>
-          <div class="form-group">
-            <label for="program_command">{{ _("Command") }}:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="program_command"
-              name="program_command"
-              value="{{ program.command }}"
-              autocomplete="off"
-              required
-            />
+          {% elif alert == '2' %}
+          <div id="alert" style="position: fixed; z-index: 2; left: 30%; right: 30%" class="alert alert-danger"
+            role="alert">
+            {{ _("Data folder for {id} already exists.").format(id=formerid) }}
           </div>
-          <center>
-            {% if alert == '1' %}
-            <div
-              id="alert"
-              style="position: fixed; z-index: 2; left: 30%; right: 30%"
-              class="alert alert-danger"
-              role="alert"
-            >
-              {{ _("ID already exists.") }}
-            </div>
-            {% elif alert == '2' %}
-            <div
-              id="alert"
-              style="position: fixed; z-index: 2; left: 30%; right: 30%"
-              class="alert alert-danger"
-              role="alert"
-            >
-              {{ _("Data folder for {id} already exists.").format(id=formerid) }}
-            </div>
-            {% endif %}
-            <button
-              type="submit"
-              style="position: relative; z-index: 1"
-              class="btn btn-default"
-            >
-              {{ _("Save") }}
-            </button>
-          </center>
-        </form>
-      </div>
+          {% endif %}
+          <button id="detail-save-button" type="submit" style="position: relative; z-index: 1" class="btn btn-default">
+            {{ _("Save") }}
+          </button>
+        </center>
+      </form>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
