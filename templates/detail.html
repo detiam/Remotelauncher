@@ -1,17 +1,26 @@
 <!DOCTYPE html>
+<html lang="{{ get_locale() }}" style="user-select: none;">
 
 <head>
   <title>{{ program.name }}</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#FFFFFF"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script>
     document.addEventListener('contextmenu', event => event.preventDefault());
+    
+    // 获取当前 URL 中的查询参数
+    const params = new URLSearchParams(window.location.search);
+    // 检查参数是否存在，以及其值是否符合条件
+    if (params.get('need_reload') === '1') {
+      detail_reload()
+    }
+
     $(document).ready(function () {
-      window.opener.location.reload();
       // 显示警告框
       $("#alert").fadeIn();
       // 定时隐藏警告框
@@ -35,20 +44,18 @@
   </style>
 </head>
 
-<html style="user-select: none;">
-
 <body>
   <div class="container"><br>
     <button class="btn btn-block" type="button"
-      onclick="setCursorAndTimeout('{{ url_for('detail_folder', program_id=program.id) }}', 1000)" aria-expanded="false"
+      onclick="setCursorAndTimeout('{{ url_for('detail_folder', program_id=program.id) }}', event, 1000)" aria-expanded="false"
       aria-controls="detail_folder">
       {{ _("Open Data Folder") }}
     </button><br>
-    <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program" aria-expanded="false"
-      aria-controls="add-program">
+    <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#edit-program"
+      aria-controls="edit-program">
       {{ _("Modify Settings") }}
     </button>
-    <div class="collapse in" id="add-program">
+    <div class="collapse" id="edit-program">
       <br />
       <form method="POST" action="{{ url_for('add_program', program_realid=program.id) }}">
         <div class="row">
@@ -67,7 +74,7 @@
         </div>
         <div class="form-group">
           <label for="program_workdir">{{ _("Working directory") }}:</label>
-          <textarea type="text" class="form-control" id="program_workdir" rows="1" name="program_workdir"
+          <textarea type="text" class="form-control" id="program_workdir" rows="2" name="program_workdir"
             autocomplete="off">{{ program.workdir }}</textarea>
         </div>
         <div class="form-group">

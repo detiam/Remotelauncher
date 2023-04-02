@@ -5,6 +5,7 @@
     <title>Applauncher</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#FFFFFF" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
@@ -55,6 +56,7 @@
             font-family: 'Glyphicons Halflings';
             content: "\e114";
             float: right;
+            transform: translateY(0.2em);
             /*transition: all 0.2s;*/
         }
 
@@ -66,8 +68,8 @@
     </style>
 </head>
 
-<body style="user-select: none;">
-    <div class="container">
+<body id="mainpage">
+    <div class="container" style="user-select: none;">
         <div class="page-header">
             <h2>{{ _("Applauncher") }}</h2>
             <p class="instructions">{{ _("Config and run programs from the web!") }}</p>
@@ -85,7 +87,7 @@
             <div class="col-md-4">
                 <h3>{{ _("Options") }}:</h3><br>
                 <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table"
-                    aria-controls="program-table">
+                    onclick="delMenu()" aria-controls="program-table">
                     {{ _("Show List") }}
                 </button><br>
                 <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program"
@@ -127,8 +129,8 @@
                         {% for config in configs %}
                         <div class="form-group">
                             <label for="{{ config.name }}">{{ configlocalizedname(config) }}:</label>
-                            <input type="text" class="form-control" name="{{ config.name }}" value="{{ config.value }}"
-                                autocomplete="off">
+                            <input type="text" class="form-control" id="{{ config.name }}" name="{{ config.name }}"
+                                value="{{ config.value }}" autocomplete="off">
                         </div>
                         {% endfor %}
                         <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
@@ -144,7 +146,8 @@
                                 <h4 class="panel-title">
                                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
                                         aria-expanded="false" aria-controls="collapseOne">
-                                        {{ _("Favorites") }}
+                                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
+                                         {{ _("Favorites") }}
                                     </a>
                                 </h4>
                             </div>
@@ -160,7 +163,11 @@
                                 <h4 class="panel-title">
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                        {{ _("Picture View") }}
+                                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                         {{ _("Picture View") }}
+                                        <button style="border: 0px; padding:0px;" onclick="fullPicview()" type="button"
+                                            class="glyphicon glyphicon-new-window"
+                                            title="{{ _('Click to expand picview') }}"></button>
                                     </a>
                                 </h4>
                             </div>
@@ -178,7 +185,8 @@
                                 <h4 class="panel-title">
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                        {{ _("Table View") }}
+                                        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                                         {{ _("Table View") }}
                                     </a>
                                 </h4>
                             </div>

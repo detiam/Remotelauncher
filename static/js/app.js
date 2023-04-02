@@ -19,26 +19,30 @@ if (location.pathname === '/') {
       // 刷新页面，使语言生效
       location.reload();
     });
+  });
+}
 
-    // 保存页面collapse状态
-    $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
-      var id = this.id;
-      var state = this.classList.contains('in') ? 'show' : 'hide';
-      var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
-      collapseStates[id] = state;
-      localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
-    });
+$(document).ready(function () {
+  // 保存页面collapse状态
+  $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
+    var id = this.id;
+    var state = this.classList.contains('in') ? 'show' : 'hide';
+    var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
+    collapseStates[id] = state;
+    localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
+  });
 
-    // 保存滚动位置到 localStorage 中
-    window.addEventListener('beforeunload', function () {
-      localStorage.setItem('scrollPosition', window.pageYOffset);
-    });
+  // 保存滚动位置到 localStorage 中
+  window.addEventListener('beforeunload', function () {
+    localStorage.setItem('scrollPosition', window.pageYOffset);
+  });
 
-    // 在加载时恢复页面collapse状态
-    const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
-    for (var id in collapseStates) {
-      var state = collapseStates[id];
-      var elem = document.getElementById(id);
+  // 在加载时恢复页面collapse状态
+  const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
+  for (var id in collapseStates) {
+    var state = collapseStates[id];
+    var elem = document.getElementById(id);
+    if (elem) {
       if (state === 'hide') {
         //$(elem).collapse('hide');
         elem.classList.remove('in');
@@ -48,29 +52,103 @@ if (location.pathname === '/') {
         elem.classList.add('in');
         $(elem).siblings('.panel-heading').addClass('active');
       }
-      // localStorage.removeItem('collapseStates');
     }
+    // localStorage.removeItem('collapseStates');
+  }
 
-    // 在页面加载完成后恢复滚动位置
-    const scrollPosition = window.localStorage.getItem('scrollPosition');
-    if (scrollPosition !== null) {
-      window.scrollTo(0, scrollPosition);
-      // localStorage.removeItem('scrollPosition');
-    }
+  // 在页面加载完成后恢复滚动位置
+  const scrollPosition = window.localStorage.getItem('scrollPosition');
+  if (scrollPosition !== null) {
+    window.scrollTo(0, scrollPosition);
+    // localStorage.removeItem('scrollPosition');
+  }
 
-    $('.panel-collapse').on('show.bs.collapse', function () {
-      $(this).siblings('.panel-heading').addClass('active');
+  $('.panel-collapse').on('show.bs.collapse', function () {
+    $(this).siblings('.panel-heading').addClass('active');
+  });
+
+  $('.panel-collapse').on('hide.bs.collapse', function () {
+    delMenu()
+    $(this).siblings('.panel-heading').removeClass('active');
+  });
+});
+
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+function detail_reload() {
+  if (window.opener.document.title == 'Picview') {
+    window.opener.fullPicview()
+    console.log('reload.fullPicview()')
+  } else {
+    window.opener.location.reload()
+  }
+}
+
+function fullPicview() {
+  $('#mainpage').load('picview', function () {
+    document.querySelector('.picview').addEventListener('click', function() {
+      location.reload();
     });
-
-    $('.panel-collapse').on('hide.bs.collapse', function () {
-      $(this).siblings('.panel-heading').removeClass('active');
+    // 在回调函数中对加载完成的元素进行操作
+    document.querySelectorAll('.cover').forEach(function (element) {
+      element.classList.add('fullpagecover');
+      document.title = 'Picview';
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
+      const picView = document.querySelector('.picview');
+      picView.style.borderRadius = '5px';
+      document.body.style.backgroundColor = '#686868';
+      document.body.style.margin = '1em';
     });
   });
 }
 
-document.addEventListener('contextmenu', event => event.preventDefault());
+function openDetailWindow(id, x, y) {
+  if (isNaN(id)) {
+    id.preventDefault();
+    var url = id.target.href;
+  } else {
+    var url = '/detail/' + id;
+  }
+  let screenWidth = window.screen.width;
+  let screenHeight = window.screen.height;
+  let windowWidth = x; // 新窗口的宽度
+  let windowHeight = y; // 新窗口的高度
+  let left = (screenWidth - windowWidth) / 2;
+  let top = (screenHeight - windowHeight) / 2;
+  window.open(url, "_blank",
+    'width=' + windowWidth + ',height=' + windowHeight +
+    ',left=' + left + ',top=' + top +
+    ',toolbar=no,addressbar=no,location=no,menubar=no');
+}
 
-function setCursorAndTimeout(url, timeout) {
+function addMenu(event) {
+  event.target.classList.add('custom-contextmenu')
+  //event.target.parentNode.setAttribute('onclick', 'return false;');
+  event.target.parentNode.setAttribute('onclick',
+    'event.preventDefault(); openDetailWindow(' +
+    event.target.id.match(/\d+/) + ',400,600)')
+}
+
+function delMenu() {
+  document.querySelectorAll('.custom-contextmenu').forEach(function (element) {
+    element.classList.remove('custom-contextmenu');
+    element.parentNode.removeAttribute('onclick');
+  });
+};
+
+function handleMenu(event) {
+  if (document.title == 'Picview') {
+    openDetailWindow(event.target.id.match(/\d+/), 400, 600)
+  } else {
+    hasContextMenu = event.target.classList.contains('custom-contextmenu');
+    delMenu()
+    if (!hasContextMenu) {
+      addMenu(event)
+    }
+  }
+}
+
+function setCursorAndTimeout(url, event, timeout) {
   var button = event.target;
   button.style.cursor = 'not-allowed';
   button.disabled = true;
@@ -79,18 +157,6 @@ function setCursorAndTimeout(url, timeout) {
     button.disabled = false;
     button.style.cursor = 'pointer';
   }, timeout);
-}
-
-function DetailNewWindow(event, x, y) {
-  event.preventDefault();
-  let url = event.target.href;
-  var screenWidth = window.screen.width;
-  var screenHeight = window.screen.height;
-  var windowWidth = x; // 新窗口的宽度
-  var windowHeight = y; // 新窗口的高度
-  var left = (screenWidth - windowWidth) / 2;
-  var top = (screenHeight - windowHeight) / 2;
-  window.open(url, "_blank", 'width=' + windowWidth + ',height=' + windowHeight + ',left=' + left + ',top=' + top + ',toolbar=no,addressbar=no,location=no,menubar=no');
 }
 
 function handleDrop(event) {

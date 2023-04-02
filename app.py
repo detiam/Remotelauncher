@@ -1,8 +1,16 @@
-from os import chdir, environ, makedirs, name, path, popen, rename, uname
-# from subprocess import Popen
+from os import environ, makedirs, name, path, rename, uname
+from selectors import EVENT_READ, DefaultSelector
+from subprocess import Popen, PIPE
 from shutil import rmtree
 from urllib.request import Request, urlopen
-from webbrowser import open as webbrowseropen
+from webbrowser import open as webopen
+from sys import stderr
+
+#from asyncio import run
+#from hypercorn.config import Config as cornConfig
+#from hypercorn.asyncio import serve
+#from asgiref.wsgi import WsgiToAsgi
+
 
 from flask import (Flask, g, redirect, render_template, request,
                    send_from_directory, url_for)
@@ -24,6 +32,7 @@ else:
 if not path.exists(data_dir):
     makedirs(data_dir)
 
+config_names = ['config_wideprefix', 'config_wideworkdir']
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -50,8 +59,19 @@ def get_timezone():
         return user.timezone
 
 
-babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
+def configlocalizedname(config):
+    if config.name == config_names[0]:
+        return gettext("Global prefix")
+    if config.name == config_names[1]:
+        return gettext("Default working directory")
+    return '!ErrorNoName!'
+
+    # 烂到要死的解决方法
+    # return eval(''.join(['config.', get_locale(), '_name']))
+
+
 db = SQLAlchemy(app)
+babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
 
 
 class Config(db.Model):
@@ -153,13 +173,13 @@ def tableview():
 
 @app.route('/detail/<int:program_id>', methods=['GET'])
 def detail(program_id):
-    return render_template('detail.html', program=Program.query.get_or_404(program_id))
+    return render_template('detail.html', get_locale=get_locale, program=Program.query.get_or_404(program_id))
 
 
 @app.route('/detail_folder/<int:program_id>', methods=['GET'])
 def detail_folder(program_id):
     program_dir = path.join(resources_dir, str(program_id))
-    webbrowseropen('file:///' + program_dir)
+    webopen('file:///' + program_dir)
     return ('', 204)
 
 
@@ -209,19 +229,24 @@ def add_program(program_realid):
         # 在更改id的时候移动资源文件夹
         if str(program_realid) == id:
             pass
-        elif Program.query.filter_by(id=id).first():
+        elif Program.query.get(id):
             return render_template('detail.html', alert='1', formerid=id, program=program)
         elif path.exists(program_destdir):
             return render_template('detail.html', alert='2', formerid=id, program=program)
         else:
-            rename(program_dir, program_destdir)
+            try:
+                rename(program_dir, program_destdir)
+            except FileNotFoundError:
+                makedirs(program_destdir)
+            except:
+                return 'failed move data', 400
         program.id = id
         program.name = name
         program.workdir = workdir
         program.prefix = prefix
         program.command = command
         db.session.commit()
-        return redirect(url_for('detail', program_id=id))
+        return redirect(url_for('detail', program_id=id, need_reload='1'))
     return redirect(request.referrer)
 
 
@@ -234,6 +259,10 @@ def delete_program(program_id):
     except FileExistsError:
         rmtree(resbakpath)
         rename(respath, resbakpath)
+    except FileNotFoundError:
+        pass
+    except:
+        return 'delete failed', 400
     program = Program.query.get_or_404(program_id)
     db.session.delete(program)
     db.session.commit()
@@ -243,41 +272,85 @@ def delete_program(program_id):
 
 @app.route('/launch/<int:program_id>', methods=['GET'])
 def launch(program_id):
+    # 环境变量
     program = Program.query.get_or_404(program_id)
+    pdatadir = path.join(resources_dir, str(program.id))
     wideprefix = Config.query.filter_by(name='config_wideprefix').first()
     wideworkdir = Config.query.filter_by(name='config_wideworkdir').first()
-    iconpath = path.join(resources_dir, str(program.id), 'icon.ico')
+
+    # 发送通知，顺便防止开多
+    iconpath = path.join(pdatadir, 'icon.ico')
     if not path.exists(iconpath):
-        iconpath = f'{app.root_path}/static/pic/logo.png'
+        iconpath = path.join(app.root_path, 'static/pic/logo.png')
+    try:
+        sendnote(iconpath, program.name,
+                 'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
+    except:
+        return 'too often', 204
+
+    # 命令环境变量
+    command = " ".join(
+        [wideprefix.value, program.prefix, program.command])
+    workdir = path.expandvars(
+        program.workdir
+    ) or path.expandvars(
+        wideworkdir.value
+    ) or path.expanduser('~')
+    #programenv = 
+
+    # 启动进程
+    with Popen(command, cwd=workdir, shell=True,
+               universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
+        the_stdout, the_stderr, the_retcode = printlog(process, program.name)
+        with open(path.join(pdatadir, 'stderr.log'), 'w') as err:
+            err.write(the_stderr)
+        with open(path.join(pdatadir, 'stdout.log'), 'w') as out:
+            out.write(the_stdout)
+
+        # todo: 这里改一下，如果失败则在模板里显示提示
+        if the_retcode == 0:
+            return 'success', 204
+        else:
+            sendnote(iconpath, program.name,
+                     'Crashed' + '\n' 'exitcode: ' + str(the_retcode), 10)
+            return 'failed', 204
+    return 'not right', 400
+
+
+def printlog(p, who):
+    # 获取程序LOG
+    # https://stackoverflow.com/a/61585093
+    # Read both stdout and stderr simultaneously
+    sel = DefaultSelector()
+    sel.register(p.stdout, EVENT_READ)
+    sel.register(p.stderr, EVENT_READ)
+    the_stderr = ''
+    the_stdout = ''
+    ok = True
+    while ok:
+        for key, val1 in sel.select():
+            line = key.fileobj.readline()
+            if not line:
+                ok = False
+                break
+            if key.fileobj is p.stdout:
+                the_stdout += line
+                print(f"[{who}] STDOUT: {line}", end="")
+            else:
+                the_stderr += line
+                the_stdout += line
+                print(f"[{who}] STDERR: {line}", end="", file=stderr)
+    return the_stdout, the_stderr, p.wait()
+
+
+def sendnote(iconpath, title, message, timeout):
     notification.notify(
-        app_name = 'Weblauncher',
-        app_icon = iconpath,
-        title = program.name,
-        message = gettext("Just been launched") + '\n' + 'ID: ' + str(program.id),
-        timeout = 10
+        app_name='Weblauncher',
+        app_icon=iconpath,
+        title=title,
+        message=message,
+        timeout=timeout
     )
-    command = " ".join([wideprefix.value, program.prefix,
-                        program.command])
-    chdir(path.expandvars(program.workdir)
-          or path.expandvars(wideworkdir.value)
-          or path.expanduser('~'))
-    popen(command)
-    return ('', 204)
-    # return redirect(url_for('index'))
-
-
-config_names = ['config_wideprefix', 'config_wideworkdir']
-
-
-def configlocalizedname(config):
-    if config.name == config_names[0]:
-        return gettext("Global prefix")
-    if config.name == config_names[1]:
-        return gettext("Default working directory")
-    return '!ErrorNoName!'
-
-    # 烂到要死的解决方法
-    # return eval(''.join(['config.', get_locale(), '_name']))
 
 
 if __name__ == '__main__':

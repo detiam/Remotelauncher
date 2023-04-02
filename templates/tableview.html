@@ -1,13 +1,21 @@
 <style>
     .picon {
-        display: inline-block;
-        height: 1.3em;
-        width: auto;
-        transform: translateY(-0.1em)
+        height: 1em;
+        width: 1em;
+        -webkit-user-drag: none;
+        -moz-user-drag: none;
+        -ms-user-drag: none;
+        -user-drag: none;
+        transform: scale(150%) translateY(-0.1em);
+        transition: transform 0.06s ease;
+    }
+    .picon:hover {
+        transform: scale(300%) translateY(-0.1em);
+        z-index: 9999;
     }
 </style>
-<div style="overflow-x:hidden; max-width: 100%;" class="panel panel-default table-container">
-    <table class="table table-bordered table-hover table-striped">
+<div style="overflow-x:hidden; max-width: 100%; user-select: none;" class="panel panel-default table-container">
+    <table class="table table-bordered table-hover table-striped panel-body">
         <thead>
             <tr>
                 <th>{{ _("ID") }}</th>
@@ -22,22 +30,22 @@
             {% for program in programs %}
             <tr>
                 <td>{{ program.id }}</td>
-                <td>
+                <td style="user-select: none;">
                     <a href="{{ url_for('launch', program_id=program.id) }}">
                         {{ _("Start") }}
                     </a>/<a href="{{ url_for('delete_program', program_id=program.id) }}">
                         {{ _("Delete") }}
                     </a>/<a href="{{ url_for('detail', program_id=program.id) }}"
-                        onclick="DetailNewWindow(event,400,600)">
+                        onclick="openDetailWindow(event,400,600)">
                         {{ _("Detail") }}
                     </a>
                 </td>
                 <td id="table-{{ program.id }}" data-toggle="tooltip" title="{{ program.name }}"
                     ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-                    <img id="t-{{ program.id }}" class="picon"
+                    <img id="t-{{ program.id }}" class="picon" ondragover="event.preventDefault()"
                         src="{{ url_for('data', filename='resources/' + str(program.id) + '/icon.ico') }}"
                         onerror="this.onerror=null;this.style.display='none';" alt="icon-{{ program.name }}">
-                    {{ program.name }}
+                          {{ program.name }}
                 </td>
             </tr>
             {% endfor %}
