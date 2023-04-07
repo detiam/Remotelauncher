@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-26 00:24+0800\n"
-"PO-Revision-Date: 2023-03-26 00:24+0800\n"
+"POT-Creation-Date: 2023-04-07 10:02+0800\n"
+"PO-Revision-Date: 2023-04-07 10:03+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -20,115 +20,136 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 "X-Generator: Lokalize 22.12.3\n"
 
-#: app.py:112
-msgid "File size exceeds the limit"
-msgstr "文件大小超出限制"
-
-#: app.py:256
-msgid "Just been launched"
-msgstr "刚刚被启动了"
-
-#: app.py:274
+#: app.py:65
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: app.py:276
+#: app.py:67
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: templates/detail.html:45
+#: app.py:133
+msgid "File size exceeds the limit"
+msgstr "文件大小超出限制"
+
+#: app.py:287
+msgid "Just been launched"
+msgstr "刚刚被启动了"
+
+#: templates/detail.html:62
+msgid "Change Icon Or Cover"
+msgstr "修改图标和封面"
+
+#: templates/detail.html:68
+msgid "Enter a URL of an Image"
+msgstr "输入指向图片的网址"
+
+#: templates/detail.html:88
+msgid "Submit"
+msgstr "提交"
+
+#: templates/detail.html:96
+msgid "Select a local file to upload"
+msgstr "选择本地图片上传"
+
+#: templates/detail.html:103
 msgid "Open Data Folder"
 msgstr "打开资料文件夹"
 
-#: templates/detail.html:49
+#: templates/detail.html:108
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:56 templates/tableview.html:13
+#: templates/detail.html:115 templates/tableview.html:22
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:63 templates/index.html:99 templates/tableview.html:15
+#: templates/detail.html:122 templates/index.html:101
+#: templates/tableview.html:24
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:69 templates/index.html:104
+#: templates/detail.html:128 templates/index.html:106
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:74 templates/index.html:109
+#: templates/detail.html:133 templates/index.html:111
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:79 templates/index.html:114
+#: templates/detail.html:138 templates/index.html:116
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:87
+#: templates/detail.html:146
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: templates/detail.html:92
+#: templates/detail.html:151
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: templates/detail.html:96 templates/index.html:118 templates/index.html:134
+#: templates/detail.html:155 templates/index.html:120 templates/index.html:136
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:72
+#: templates/index.html:74
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:73
+#: templates/index.html:75
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:86
+#: templates/index.html:88
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:89
+#: templates/index.html:91
 msgid "Show List"
 msgstr "程序列表"
 
-#: templates/index.html:93
+#: templates/index.html:95
 msgid "Add Program"
 msgstr "添加程序"
 
-#: templates/index.html:123
+#: templates/index.html:125
 msgid "Settings"
 msgstr "设置"
 
-#: templates/index.html:139
+#: templates/index.html:141
 msgid "Lists"
 msgstr "列表"
 
-#: templates/index.html:147
+#: templates/index.html:150
 msgid "Favorites"
 msgstr "收藏夹"
 
-#: templates/index.html:163
+#: templates/index.html:167
 msgid "Picture View"
 msgstr "图片视图"
 
-#: templates/index.html:181
+#: templates/index.html:170
+msgid "Click to expand picview"
+msgstr "点击展开图片视图"
+
+#: templates/index.html:190
 msgid "Table View"
 msgstr "表格视图"
 
-#: templates/tableview.html:14
+#: templates/tableview.html:23
 msgid "Actions"
 msgstr "操作"
 
-#: templates/tableview.html:27
+#: templates/tableview.html:36
 msgid "Start"
 msgstr "启动"
 
-#: templates/tableview.html:29
+#: templates/tableview.html:38
 msgid "Delete"
 msgstr "删除"
 
-#: templates/tableview.html:32
+#: templates/tableview.html:41
 msgid "Detail"
 msgstr "详情"
 

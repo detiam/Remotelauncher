@@ -65,6 +65,16 @@
             -moz-transform: rotate(180deg);
             transform: rotate(180deg);
         }
+
+        /* 禁用横向滚动条 */
+        body {
+            overflow-x: hidden;
+        }
+    
+        /* 删除横向滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 
@@ -75,11 +85,11 @@
             <p class="instructions">{{ _("Config and run programs from the web!") }}</p>
             <select id="lang-selector" style="display: inline-flex; justify-content: flex-end; float: right;">
                 {% for code, name in languages.items() %}
-                {% if code == get_locale() %}
-                <option value="{{ code }}" selected>{{ name }}</option>
-                {% else %}
-                <option value="{{ code }}">{{ name }}</option>
-                {% endif %}
+                    {% if code == get_locale() %}
+                        <option value="{{ code }}" selected>{{ name }}</option>
+                    {% else %}
+                        <option value="{{ code }}">{{ name }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
         </div>
@@ -147,7 +157,7 @@
                                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
                                         aria-expanded="false" aria-controls="collapseOne">
                                         <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
-                                         {{ _("Favorites") }}
+                                        <span style="margin-left: 2px;">{{ _("Favorites") }}</span>
                                     </a>
                                 </h4>
                             </div>
@@ -164,10 +174,11 @@
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                         {{ _("Picture View") }}
+                                        <span style="margin-left: 2px;">{{ _("Picture View") }}</span>
                                         <button style="border: 0px; padding:0px;" onclick="fullPicview()" type="button"
                                             class="glyphicon glyphicon-new-window"
-                                            title="{{ _('Click to expand picview') }}"></button>
+                                            title="{{ _('Click to expand picview') }}">
+                                        </button>
                                     </a>
                                 </h4>
                             </div>
@@ -186,7 +197,7 @@
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                                         {{ _("Table View") }}
+                                        <span style="margin-left: 2px;">{{ _("Table View") }}</span>
                                     </a>
                                 </h4>
                             </div>

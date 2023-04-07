@@ -2,6 +2,7 @@
     .picon {
         height: 1em;
         width: 1em;
+        margin-right: 4px;
         -webkit-user-drag: none;
         -moz-user-drag: none;
         -ms-user-drag: none;
@@ -36,16 +37,26 @@
                     </a>/<a href="{{ url_for('delete_program', program_id=program.id) }}">
                         {{ _("Delete") }}
                     </a>/<a href="{{ url_for('detail', program_id=program.id) }}"
-                        onclick="openDetailWindow(event,400,600)">
+                            onclick="openDetailWindow(event,400,600)">
                         {{ _("Detail") }}
                     </a>
                 </td>
-                <td id="table-{{ program.id }}" data-toggle="tooltip" title="{{ program.name }}"
-                    ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-                    <img id="t-{{ program.id }}" class="picon" ondragover="event.preventDefault()"
+                <td
+                    id="table-{{ program.id }}"
+                    data-toggle="tooltip"
+                    title="{{ program.name }}"
+                    ondragover="event.preventDefault()"
+                    ondrop="handleDrop(event)"
+                >
+                    <img
+                        id="t-{{ program.id }}"
+                        class="picon"
+                        ondragover="event.preventDefault()"
                         src="{{ url_for('data', filename='resources/' + str(program.id) + '/icon.ico') }}"
-                        onerror="this.onerror=null;this.style.display='none';" alt="icon-{{ program.name }}">
-                          {{ program.name }}
+                        onerror="this.onerror=null;this.style.display='none';"
+                        alt="icon-{{ program.name }}"
+                    >
+                    {{ program.name }}
                 </td>
             </tr>
             {% endfor %}

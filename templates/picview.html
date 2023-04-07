@@ -121,11 +121,18 @@
         {% for program in programs %}
         <div id="cover-{{ program.id }}" class="col-md-3 cover">
             <a href="{{ url_for('launch', program_id=program.id) }}">
-                <img id="p-{{ program.id }}" ondragover="event.preventDefault()" ondrop="handleDrop(event)"
-                    oncontextmenu="handleMenu(event)" data-toggle="tooltip" data-placement="bottom"
-                    title="{{ program.name }}" class="img-thumbnail"
+                <img
+                    id="p-{{ program.id }}"
+                    title="{{ program.name }}"
+                    class="img-thumbnail"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    ondragover="event.preventDefault()"
+                    ondrop="handleDrop(event)"
+                    oncontextmenu="handleMenu(event)"
                     src="{{ url_for('data', filename='resources/' + str(program.id) + '/library.jpg') }}"
-                    onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}">
+                    onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
+                >
             </a>
         </div>
         {% endfor %}

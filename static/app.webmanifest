@@ -26,11 +26,6 @@
           "src": "static/pic/logo.png",
           "type": "image/png",
           "sizes": "512x512"
-       },
-       {
-          "src": "static/pic/logo.png",
-          "type": "image/png",
-          "sizes": "512x512"
        }
      ]   
   }

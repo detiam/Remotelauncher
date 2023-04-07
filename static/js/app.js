@@ -1,11 +1,13 @@
 if (location.pathname === '/') {
-  navigator.serviceWorker.register('dummy-sw.js')
-    .then((registration) => {
-      console.log('Service Worker registered successfully:', registration);
-    })
-    .catch((error) => {
-      console.error('Service Worker registration failed:', error);
-    });
+  if ('serviceWorker' in navigator) {
+    try {
+      navigator.serviceWorker.register('sw.js');
+    } catch (error) {
+      console.error('Failed to register service worker:', error);
+    }
+  } else {
+    console.warn('Service worker is not supported in this browser.');
+  }
 
   $(document).ready(function () {
     // 获取语言切换器组件
@@ -86,7 +88,7 @@ function detail_reload() {
 
 function fullPicview() {
   $('#mainpage').load('picview', function () {
-    document.querySelector('.picview').addEventListener('click', function() {
+    document.querySelector('.picview').addEventListener('click', function () {
       location.reload();
     });
     // 在回调函数中对加载完成的元素进行操作
@@ -115,10 +117,10 @@ function openDetailWindow(id, x, y) {
   let windowHeight = y; // 新窗口的高度
   let left = (screenWidth - windowWidth) / 2;
   let top = (screenHeight - windowHeight) / 2;
-  window.open(url, "_blank",
-    'width=' + windowWidth + ',height=' + windowHeight +
-    ',left=' + left + ',top=' + top +
-    ',toolbar=no,addressbar=no,location=no,menubar=no');
+  var DetailWindow = window.open(url,
+    "_blank", 'width=' + windowWidth + ',height=' +
+    windowHeight + ',left=' + left + ',top=' + top +
+  ',toolbar=no,addressbar=no,location=no,menubar=no');
 }
 
 function addMenu(event) {
@@ -148,14 +150,13 @@ function handleMenu(event) {
   }
 }
 
-function setCursorAndTimeout(url, event, timeout) {
-  var button = event.target;
-  button.style.cursor = 'not-allowed';
-  button.disabled = true;
-  window.location.href = url;
+function setCursorAndTimeout(event, timeout) {
+  var element = event.target;
+  element.style.cursor = 'not-allowed';
+  element.disabled = true;
   setTimeout(function () {
-    button.disabled = false;
-    button.style.cursor = 'pointer';
+    element.disabled = false;
+    element.style.cursor = 'pointer';
   }, timeout);
 }
 
@@ -169,6 +170,37 @@ function handleDrop(event) {
   } else if (event.dataTransfer.types.includes('Files')) {
     let file = event.dataTransfer.files[0];
     uploadFile(file, id)
+  }
+}
+
+function handleUrlBox(event, id) {
+  event.preventDefault();
+  console.log('handleUrlBox(): Called')
+  const formData = new FormData(event.target);
+  window.opener.uploadUrl(formData.get('imgurl'), id)
+}
+
+async function handleFileSelect(event, id) {
+  event.preventDefault();
+  console.log('handleFileSelect(): Called')
+  if ('showOpenFilePicker' in window) {
+    // 浏览器支持showOpenFilePicker方法
+    const [handle] = await window.showOpenFilePicker();
+    const file = await handle.getFile();
+    //const content = await file.text();
+    window.opener.uploadFile(file, id)
+  } else {
+    console.warn('handleFileSelect(): window.showOpenFilePicker() unsupported');
+    try {
+      const fileInput = document.getElementById('detail-file-input')
+      fileInput.click();
+      fileInput.addEventListener('change', function (event) {
+        window.opener.uploadFile(event.target.files[0], id);
+      })
+    } catch (error) {
+      event.target.parentNode.classList.add('disabled');
+      event.target.parentNode.setAttribute('title', "Browser unsupported")
+    }
   }
 }
 

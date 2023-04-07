@@ -5,11 +5,12 @@ from shutil import rmtree
 from urllib.request import Request, urlopen
 from webbrowser import open as webopen
 from sys import stderr
+from threading import Thread
 
-#from asyncio import run
-#from hypercorn.config import Config as cornConfig
-#from hypercorn.asyncio import serve
-#from asgiref.wsgi import WsgiToAsgi
+# from asyncio import run
+# from hypercorn.config import Config as cornConfig
+# from hypercorn.asyncio import serve
+# from asgiref.wsgi import WsgiToAsgi
 
 
 from flask import (Flask, g, redirect, render_template, request,
@@ -94,7 +95,7 @@ def favicon_ico():
                                'pic/favicon.ico')
 
 
-@app.route('/dummy-sw.js')
+@app.route('/sw.js')
 def sw():
     return send_from_directory(path.join(app.root_path, 'static'),
                                'js/dummy-sw.js')
@@ -143,7 +144,7 @@ def save_file(imgfile, filedest):
                 img = img.resize([256, 256], resample=4)
                 img = img.convert('RGBA')
                 img.save(filedest, format='ICO', sizes=[(256, 256)])
-            case 'JPEG' | 'PNG':
+            case 'JPEG' | 'PNG' | 'WEBP':
                 filedest = path.join(filedest, 'library.jpg')
                 if img.format == 'JPEG':
                     img.save(filedest, format='JPEG', quality='keep')
@@ -274,20 +275,28 @@ def delete_program(program_id):
 def launch(program_id):
     # 环境变量
     program = Program.query.get_or_404(program_id)
-    pdatadir = path.join(resources_dir, str(program.id))
     wideprefix = Config.query.filter_by(name='config_wideprefix').first()
     wideworkdir = Config.query.filter_by(name='config_wideworkdir').first()
-
-    # 发送通知，顺便防止开多
+    pdatadir = path.join(resources_dir, str(program.id))
     iconpath = path.join(pdatadir, 'icon.ico')
     if not path.exists(iconpath):
         iconpath = path.join(app.root_path, 'static/pic/logo.png')
     try:
+        # 发送通知，顺便防止开多
         sendnote(iconpath, program.name,
                  'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
     except:
         return 'too often', 204
 
+    # todo: 这里改一下，如果失败则在模板里显示提示
+    # 似乎不太可能实现了
+    Thread(target=launchit, args=(program, wideprefix,
+                                  wideworkdir, pdatadir, iconpath)).start()
+    return '', 204
+
+
+def launchit(program, wideprefix,
+             wideworkdir, pdatadir, iconpath):
     # 命令环境变量
     command = " ".join(
         [wideprefix.value, program.prefix, program.command])
@@ -296,25 +305,22 @@ def launch(program_id):
     ) or path.expandvars(
         wideworkdir.value
     ) or path.expanduser('~')
-    #programenv = 
+    # programenv =
 
     # 启动进程
     with Popen(command, cwd=workdir, shell=True,
                universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
+        # 获取the_stdout, the_stderr, the_retcode
         the_stdout, the_stderr, the_retcode = printlog(process, program.name)
-        with open(path.join(pdatadir, 'stderr.log'), 'w') as err:
-            err.write(the_stderr)
-        with open(path.join(pdatadir, 'stdout.log'), 'w') as out:
-            out.write(the_stdout)
+        # 写入.log文件
+        open(path.join(pdatadir, 'stdout.log'), 'w').write(the_stdout)
+        open(path.join(pdatadir, 'stderr.log'), 'w').write(the_stderr)
 
-        # todo: 这里改一下，如果失败则在模板里显示提示
         if the_retcode == 0:
-            return 'success', 204
+            return the_retcode
         else:
             sendnote(iconpath, program.name,
                      'Crashed' + '\n' 'exitcode: ' + str(the_retcode), 10)
-            return 'failed', 204
-    return 'not right', 400
 
 
 def printlog(p, who):
@@ -333,13 +339,12 @@ def printlog(p, who):
             if not line:
                 ok = False
                 break
-            if key.fileobj is p.stdout:
+            if key.fileobj is p.stderr:
+                the_stderr += line
+                print(f"[{who}] STDERR: {line}", end="", file=stderr)
+            else:
                 the_stdout += line
                 print(f"[{who}] STDOUT: {line}", end="")
-            else:
-                the_stderr += line
-                the_stdout += line
-                print(f"[{who}] STDERR: {line}", end="", file=stderr)
     return the_stdout, the_stderr, p.wait()
 
 
