@@ -1,0 +1,28 @@
+{
+   "name": "{{ _(appname) }}",
+   "lang": "{{ get_locale() }}",
+   "short_name": "{{ _(appname) }}",
+   "theme_color": "white",
+   "background_color": "silver",
+   "start_url": "./",
+   "id": "./",
+   "display": "standalone",
+   "orientation": "portrait",
+   "scope": "./",
+   "icons": [
+      {
+         "src": "{{ url_for('static', filename='pic/logo.png') }}",
+         "type": "image/png",
+         "sizes": "512x512",
+         "purpose": "any"
+      }
+   ],
+   "description": "{{ _(appdes) }}",
+   "screenshots": [
+      {
+         "src": "{{ url_for('static', filename='pic/screenshot.png') }}",
+         "type": "image/png",
+         "sizes": "1001x597"
+      }
+   ]
+}

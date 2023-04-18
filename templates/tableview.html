@@ -14,9 +14,16 @@
         transform: scale(300%) translateY(-0.1em);
         z-index: 9999;
     }
+    .tableview {
+        padding: 0;
+    }
+    .table {
+        margin-bottom: 0;
+        font-size: inherit;
+    }
 </style>
-<div style="overflow-x:hidden; max-width: 100%; user-select: none;" class="panel panel-default table-container">
-    <table class="table table-bordered table-hover table-striped panel-body">
+<div style="overflow-x: auto; max-width: 100%;" class="panel-body tableview">
+    <table class="table table-hover table-striped">
         <thead>
             <tr>
                 <th>{{ _("ID") }}</th>
@@ -32,18 +39,17 @@
             <tr>
                 <td>{{ program.id }}</td>
                 <td style="user-select: none;">
-                    <a href="{{ url_for('launch', program_id=program.id) }}">
+                    <a href="{{ url_for('apps_launch', program_id=program.id) }}">
                         {{ _("Start") }}
-                    </a>/<a href="{{ url_for('delete_program', program_id=program.id) }}">
+                    </a>/<a href="{{ url_for('apps_del', program_id=program.id) }}">
                         {{ _("Delete") }}
-                    </a>/<a href="{{ url_for('detail', program_id=program.id) }}"
+                    </a>/<a href="{{ url_for('detail_page', program_id=program.id) }}"
                             onclick="openDetailWindow(event,400,600)">
                         {{ _("Detail") }}
                     </a>
                 </td>
                 <td
                     id="table-{{ program.id }}"
-                    data-toggle="tooltip"
                     title="{{ program.name }}"
                     ondragover="event.preventDefault()"
                     ondrop="handleDrop(event)"
@@ -52,7 +58,7 @@
                         id="t-{{ program.id }}"
                         class="picon"
                         ondragover="event.preventDefault()"
-                        src="{{ url_for('data', filename='resources/' + str(program.id) + '/icon.ico') }}"
+                        src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/icon.ico') }}"
                         onerror="this.onerror=null;this.style.display='none';"
                         alt="icon-{{ program.name }}"
                     >

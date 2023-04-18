@@ -1,57 +1,67 @@
-from os import environ, makedirs, name, path, rename, uname
-from selectors import EVENT_READ, DefaultSelector
-from subprocess import Popen, PIPE
-from shutil import rmtree
-from urllib.request import Request, urlopen
-from webbrowser import open as webopen
-from sys import stderr
-from threading import Thread
-
-# from asyncio import run
-# from hypercorn.config import Config as cornConfig
-# from hypercorn.asyncio import serve
-# from asgiref.wsgi import WsgiToAsgi
-
-
-from flask import (Flask, g, redirect, render_template, request,
-                   send_from_directory, url_for)
-from flask_babel import Babel, gettext
-from flask_sqlalchemy import SQLAlchemy
-from PIL.Image import open as imgopen
-from plyer import notification
 from werkzeug.exceptions import RequestEntityTooLarge
+from flask_sqlalchemy import SQLAlchemy
+from threading import Thread
+from selectors import DefaultSelector, EVENT_READ
+from subprocess import Popen, PIPE, DEVNULL
+from flask_babel import Babel, gettext
+from urllib.request import Request, urlopen
+from PIL.Image import open as imgopen
+from platform import uname
 
-if name == 'nt':
+from os import (rename, makedirs,
+                environ, name, path)
+
+from flask import (Flask, redirect, render_template, url_for,
+                   send_from_directory, g, request,)
+
+from shutil import rmtree
+from sys import stderr
+from plyer import notification
+
+if uname().system == 'Windows':
+    from os import startfile as openfile
     data_dir = path.join(environ['APPDATA'], 'Weblauncher')
-elif uname().sysname == 'Linux':
+elif uname().system == 'Linux':
+    def openfile(file):
+        Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
     if environ.get('XDG_DATA_HOME') is not None:
         data_dir = path.expandvars('$XDG_DATA_HOME/Weblauncher')
     else:
         data_dir = path.expandvars('$HOME/.local/share/Weblauncher')
 else:
+    from webbrowser import open as openfile
     data_dir = path.expanduser('~/.Weblauncher')
+
 if not path.exists(data_dir):
     makedirs(data_dir)
 
 config_names = ['config_wideprefix', 'config_wideworkdir']
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['APPNAME'] = gettext('RemoteLauncher')
+app.config['DESCRIPTION'] = gettext('A launcher to launch program.')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = path.join(
     'sqlite:///' + data_dir, 'configs.db')
 app.config['UPLOAD_FOLDER'] = resources_dir = path.join(data_dir, 'resources')
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+app.config['LANG'] = 'en'
 app.config['LANGUAGES'] = {
     'en': 'English',
     'zh': '中文'
 }
 
 
+def openfolder(folder):
+    if path.isdir(folder):
+        openfile(folder)
+
 def get_locale():
     if 'lang' in request.cookies:
-        return request.cookies.get("lang")
+        app.config['LANG'] = request.cookies.get("lang")
     else:
-        return request.accept_languages.best_match(app.config['LANGUAGES'])
+        app.config['LANG'] = request.accept_languages.best_match(app.config['LANGUAGES'])
+    return app.config['LANG']
 
 
 def get_timezone():
@@ -89,32 +99,64 @@ class Program(db.Model):
     command = db.Column(db.String(), unique=False, nullable=False)
 
 
-@app.route('/favicon.ico')
-def favicon_ico():
-    return send_from_directory(path.join(app.root_path, 'static'),
-                               'pic/favicon.ico')
-
-
-@app.route('/sw.js')
-def sw():
-    return send_from_directory(path.join(app.root_path, 'static'),
-                               'js/dummy-sw.js')
-
-
-@app.route('/app.webmanifest')
-def manifest():
-    return send_from_directory(path.join(app.root_path, 'static'),
-                               'app.webmanifest')
-
-
-@app.route('/')
+@app.get('/')
 def index():
-    # 渲染 index.html 模板文件，并将 programs, configs 变量传递给模板
-    return render_template('index.html', languages=app.config['LANGUAGES'], get_locale=get_locale, configlocalizedname=configlocalizedname, programs=Program.query.all(), configs=Config.query.all())
+    return render_template('index.html', appname=app.config['APPNAME'], languages=app.config['LANGUAGES'], get_locale=get_locale,
+                           configlocalizedname=configlocalizedname, programs=Program.query.all(),
+                           configs=Config.query.all())
 
+@app.get('/offline')
+def offline():
+    return render_template('offline.html', appname=app.config['APPNAME'], get_locale=get_locale)
 
-@app.route('/upload/<path:program_id>', methods=['GET', 'POST'])
-def upload(program_id):
+@app.get('/picview')
+def picview():
+    return render_template('picview.html', programs=Program.query.all(), str=str,
+                           fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
+
+@app.get('/tableview')
+def tableview():
+    return render_template('tableview.html', str=str, programs=Program.query.all())
+
+@app.get('/template/<path:filename>')
+def jinja2ed(filename):
+    return render_template(filename)
+
+@app.get('/detail/<int:program_id>')
+def detail_page(program_id):
+    return render_template('detail.html', get_locale=get_locale,
+                           program=Program.query.get_or_404(program_id))
+
+@app.get('/detail/folder/<int:program_id>')
+def detail_folder(program_id):
+    program_dir = path.join(resources_dir, str(program_id))
+    openfolder(program_dir)
+    return ('', 204)
+
+@app.get('/data/<path:filename>')
+def data_get(filename):
+    try:
+        return send_from_directory(data_dir, filename)
+    except:
+        return '', 204
+
+@app.post('/data/config')
+def data_config():
+    for key, value in request.form.items():
+        config = Config.query.filter_by(name=key).first()
+        if config:
+            # 如果已经存在该记录，更新 value 字段
+            config.value = value
+        else:
+            # 如果不存在该记录，插入一条新记录
+            config = Config(name=key, value=value)
+            db.session.add(config)
+    db.session.commit()
+    return ('', 204)
+    # return redirect(url_for('index'))
+
+@app.route('/data/upload/<path:program_id>', methods=['GET', 'POST'])
+def data_upload(program_id):
     try:
         filedest = path.join(resources_dir, program_id.split('-')[-1])
         if request.content_type == 'application/json':
@@ -133,7 +175,6 @@ def upload(program_id):
         return gettext("File size exceeds the limit"), 413
     except Exception as e:
         return str(e), 400
-
 
 def save_file(imgfile, filedest):
     with imgopen(imgfile) as img:
@@ -154,54 +195,8 @@ def save_file(imgfile, filedest):
     return path.basename(filedest)
 
 
-@app.route('/data/<path:filename>', methods=['GET'])
-def data(filename):
-    try:
-        return send_from_directory(data_dir, filename)
-    except:
-        return '', 204
-
-
-@app.route('/picview')
-def picview():
-    return render_template('picview.html', programs=Program.query.all(), str=str, fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
-
-
-@app.route('/tableview')
-def tableview():
-    return render_template('tableview.html', str=str, programs=Program.query.all())
-
-
-@app.route('/detail/<int:program_id>', methods=['GET'])
-def detail(program_id):
-    return render_template('detail.html', get_locale=get_locale, program=Program.query.get_or_404(program_id))
-
-
-@app.route('/detail_folder/<int:program_id>', methods=['GET'])
-def detail_folder(program_id):
-    program_dir = path.join(resources_dir, str(program_id))
-    webopen('file:///' + program_dir)
-    return ('', 204)
-
-
-@app.route('/config', methods=['POST'])
-def config():
-    for key, value in request.form.items():
-        config = Config.query.filter_by(name=key).first()
-        if config:
-            # 如果已经存在该记录，更新 value 字段
-            config.value = value
-        else:
-            # 如果不存在该记录，插入一条新记录
-            config = Config(name=key, value=value)
-            db.session.add(config)
-    db.session.commit()
-    return ('', 204)
-    # return redirect(url_for('index'))
-
-
-@app.route('/add/<int:program_realid>', methods=['GET', 'POST'])
-def add_program(program_realid):
+@app.route('/apps/add/<int:program_realid>', methods=['GET', 'POST'])
+def apps_add(program_realid):
     id = request.form['program_id']
     name = request.form['program_name']
     workdir = request.form['program_workdir']
@@ -231,9 +226,9 @@ def add_program(program_realid):
         if str(program_realid) == id:
             pass
         elif Program.query.get(id):
-            return render_template('detail.html', alert='1', formerid=id, program=program)
+            return render_template('detail.html', alert='1', formerid=id, program=program, get_locale=get_locale)
         elif path.exists(program_destdir):
-            return render_template('detail.html', alert='2', formerid=id, program=program)
+            return render_template('detail.html', alert='2', formerid=id, program=program, get_locale=get_locale)
         else:
             try:
                 rename(program_dir, program_destdir)
@@ -247,12 +242,12 @@ def add_program(program_realid):
         program.prefix = prefix
         program.command = command
         db.session.commit()
-        return redirect(url_for('detail', program_id=id, need_reload='1'))
+        return redirect(url_for('detail_page', program_id=id, need_reload='1'))
     return redirect(request.referrer)
 
 
-@app.route('/delete/<int:program_id>', methods=['GET'])
-def delete_program(program_id):
+@app.get('/apps/del/<int:program_id>')
+def apps_del(program_id):
     respath = path.join(resources_dir, str(program_id))
     resbakpath = path.join(respath + '.bak')
     try:
@@ -271,8 +266,8 @@ def delete_program(program_id):
     # return redirect(url_for('index'))
 
 
-@app.route('/launch/<int:program_id>', methods=['GET'])
-def launch(program_id):
+@app.get('/apps/launch/<int:program_id>')
+def apps_launch(program_id):
     # 环境变量
     program = Program.query.get_or_404(program_id)
     wideprefix = Config.query.filter_by(name='config_wideprefix').first()
@@ -293,7 +288,6 @@ def launch(program_id):
     Thread(target=launchit, args=(program, wideprefix,
                                   wideworkdir, pdatadir, iconpath)).start()
     return '', 204
-
 
 def launchit(program, wideprefix,
              wideworkdir, pdatadir, iconpath):
@@ -322,7 +316,6 @@ def launchit(program, wideprefix,
             sendnote(iconpath, program.name,
                      'Crashed' + '\n' 'exitcode: ' + str(the_retcode), 10)
 
-
 def printlog(p, who):
     # 获取程序LOG
     # https://stackoverflow.com/a/61585093
@@ -347,15 +340,28 @@ def printlog(p, who):
                 print(f"[{who}] STDOUT: {line}", end="")
     return the_stdout, the_stderr, p.wait()
 
-
 def sendnote(iconpath, title, message, timeout):
     notification.notify(
-        app_name='Weblauncher',
+        app_name=gettext(app.name),
         app_icon=iconpath,
         title=title,
         message=message,
         timeout=timeout
     )
+
+
+@app.get('/favicon.ico')
+def favicon_ico():
+    return send_from_directory(path.join(app.root_path, 'static'), 'pic/favicon.ico')
+
+@app.get('/app.webmanifest')
+def webmanifest():
+    return render_template('app.webmanifest', appname=app.config['APPNAME'],
+                           appdes=app.config['DESCRIPTION'], get_locale=get_locale)
+
+@app.get('/serviceworker.js')
+def serviceworkers():
+    return send_from_directory(path.join(app.root_path, 'static'), 'js/sw.js')
 
 
 if __name__ == '__main__':

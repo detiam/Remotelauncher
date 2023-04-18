@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-04-07 10:02+0800\n"
-"PO-Revision-Date: 2023-04-07 10:03+0800\n"
+"POT-Creation-Date: 2023-04-17 23:21+0800\n"
+"PO-Revision-Date: 2023-04-17 23:23+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -20,138 +20,158 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 "X-Generator: Lokalize 22.12.3\n"
 
-#: app.py:65
+#: RemoteLauncher.py:41
+msgid "RemoteLauncher"
+msgstr "远程启动器"
+
+#: RemoteLauncher.py:42
+msgid "A launcher to launch program."
+msgstr "一个启动应用的启动器。"
+
+#: RemoteLauncher.py:75
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: app.py:67
+#: RemoteLauncher.py:77
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: app.py:133
+#: RemoteLauncher.py:175
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: app.py:287
+#: RemoteLauncher.py:282
 msgid "Just been launched"
 msgstr "刚刚被启动了"
 
-#: templates/detail.html:62
+#: templates/detail.html:63
 msgid "Change Icon Or Cover"
 msgstr "修改图标和封面"
 
-#: templates/detail.html:68
+#: templates/detail.html:69
 msgid "Enter a URL of an Image"
 msgstr "输入指向图片的网址"
 
-#: templates/detail.html:88
+#: templates/detail.html:89
 msgid "Submit"
 msgstr "提交"
 
-#: templates/detail.html:96
+#: templates/detail.html:98
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: templates/detail.html:103
+#: templates/detail.html:105
 msgid "Open Data Folder"
 msgstr "打开资料文件夹"
 
-#: templates/detail.html:108
+#: templates/detail.html:110
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:115 templates/tableview.html:22
+#: templates/detail.html:117 templates/tableview.html:28
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:122 templates/index.html:101
-#: templates/tableview.html:24
+#: templates/detail.html:124 templates/index.html:95
+#: templates/tableview.html:30
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:128 templates/index.html:106
+#: templates/detail.html:130 templates/index.html:100
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:133 templates/index.html:111
+#: templates/detail.html:135 templates/index.html:105
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:138 templates/index.html:116
+#: templates/detail.html:140 templates/index.html:110
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:146
+#: templates/detail.html:148
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: templates/detail.html:151
+#: templates/detail.html:153
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: templates/detail.html:155 templates/index.html:120 templates/index.html:136
+#: templates/detail.html:157 templates/index.html:114 templates/index.html:130
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:74
+#: templates/index.html:68
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:75
+#: templates/index.html:69
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:88
+#: templates/index.html:82
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:91
+#: templates/index.html:85
 msgid "Show List"
 msgstr "程序列表"
 
-#: templates/index.html:95
+#: templates/index.html:89
 msgid "Add Program"
 msgstr "添加程序"
 
-#: templates/index.html:125
+#: templates/index.html:119
 msgid "Settings"
 msgstr "设置"
 
-#: templates/index.html:141
+#: templates/index.html:135
 msgid "Lists"
 msgstr "列表"
 
-#: templates/index.html:150
+#: templates/index.html:144
 msgid "Favorites"
 msgstr "收藏夹"
 
-#: templates/index.html:167
+#: templates/index.html:161
 msgid "Picture View"
 msgstr "图片视图"
 
-#: templates/index.html:170
+#: templates/index.html:164
 msgid "Click to expand picview"
 msgstr "点击展开图片视图"
 
-#: templates/index.html:190
+#: templates/index.html:184
 msgid "Table View"
 msgstr "表格视图"
 
-#: templates/tableview.html:23
+#: templates/offline.html:27
+msgid "Please start the background service on host PC."
+msgstr "请启动宿主机上的后台服务"
+
+#: templates/offline.html:28
+msgid "OFFLINE"
+msgstr "离线"
+
+#: templates/tableview.html:29
 msgid "Actions"
 msgstr "操作"
 
-#: templates/tableview.html:36
+#: templates/tableview.html:42
 msgid "Start"
 msgstr "启动"
 
-#: templates/tableview.html:38
+#: templates/tableview.html:44
 msgid "Delete"
 msgstr "删除"
 
-#: templates/tableview.html:41
+#: templates/tableview.html:47
 msgid "Detail"
 msgstr "详情"
+
+#: templates/js/app.js:8 templates/js/app.js:20 templates/js/app.js:36
+msgid "Picview"
+msgstr "图片视图"
 
 #~ msgid "Prefix ( gamescope, mangohud ,etc...)"
 #~ msgstr ""

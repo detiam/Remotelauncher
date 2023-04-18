@@ -1,4 +1,5 @@
-from app import db, config_names, Config, Program, path, makedirs, app, data_dir
+#!/bin/python3
+from RemoteLauncher import db, config_names, Config, Program, path, makedirs, app, data_dir
 from asyncio import run
 from hypercorn.config import Config as hypercornConfig
 from hypercorn.asyncio import serve
@@ -9,7 +10,6 @@ hypercornconfig.bind = ["[::]:2023"]
 
 if __name__ == '__main__':
     db.create_all()
-    # 向 Config 表中插入默认配置项
     for name in config_names:
         if Config.query.filter_by(name=name).first() is None:
             config = Config(name=name, value='')

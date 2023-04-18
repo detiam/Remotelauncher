@@ -2,40 +2,24 @@
 <html lang="{{ get_locale() }}">
 
 <head>
-    <title>Applauncher</title>
+    <title>{{ _(appname) }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FFFFFF" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='pic/logo.png') }}">
     <style>
-        /*td {
-            word-break: keep-all;
-            white-space: nowrap;
-            text-align: center;
-            border-right: 1px solid #dee2e6;
-            border-left: 1px solid #dee2e6;
-        }*/
         td,
         th {
             word-break: keep-all;
             white-space: nowrap;
             text-align: justify;
         }
-
-        /* 奇数行颜色
-        tr:nth-child(odd) {
-            background-color: #ffffff;
-        } */
-
-        /* 偶数行颜色
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        } */
 
         .panel-heading {
             padding: 0;
@@ -105,7 +89,7 @@
                     {{ _("Add Program") }}
                 </button>
                 <div class="collapse" id="add-program"><br \>
-                    <form method="POST" action="{{ url_for('add_program', program_realid='0') }}">
+                    <form method="POST" action="{{ url_for('apps_add', program_realid='0') }}">
                         <input type="hidden" id="program_id" name="program_id" value="0" autocomplete="off">
                         <div class="form-group">
                             <label for="program_name">{{ _("Name") }}:</label>
@@ -135,7 +119,7 @@
                     {{ _("Settings") }}
                 </button>
                 <div class="collapse" id="edit-config"><br \>
-                    <form method="POST" action="{{ url_for('config') }}">
+                    <form method="POST" action="{{ url_for('data_config') }}">
                         {% for config in configs %}
                         <div class="form-group">
                             <label for="{{ config.name }}">{{ configlocalizedname(config) }}:</label>
@@ -175,20 +159,15 @@
                                         href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                                         <span style="margin-left: 2px;">{{ _("Picture View") }}</span>
-                                        <button style="border: 0px; padding:0px;" onclick="fullPicview()" type="button"
+                                        <button style="border: 0px; padding:0px;" onclick="fullPicview('enterPicview')" type="button"
                                             class="glyphicon glyphicon-new-window"
                                             title="{{ _('Click to expand picview') }}">
                                         </button>
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel"
-                                aria-labelledby="headingTwo">
-                                <script>
-                                    $(document).ready(function () {
-                                        $('#collapseTwo').load('picview');
-                                    });
-                                </script>
+                            <div id="collapseTwo" class="panel-collapse collapse"
+                                role="tabpanel" aria-labelledby="headingTwo">
                             </div>
                         </div>
                         <div class="panel panel-default">
@@ -201,13 +180,8 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel"
-                                aria-labelledby="headingThree">
-                                <script>
-                                    $(document).ready(function () {
-                                        $('#collapseThree').load('tableview');
-                                    });
-                                </script>
+                            <div id="collapseThree" class="panel-collapse collapse"
+                                role="tabpanel" aria-labelledby="headingThree">
                             </div>
                         </div>
                     </div>

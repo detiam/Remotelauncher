@@ -10,9 +10,8 @@
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
   <script>
-    //document.addEventListener('contextmenu', event => event.preventDefault());
-
     // 获取当前 URL 中的查询参数
     const params = new URLSearchParams(window.location.search);
     // 检查参数是否存在，以及其值是否符合条件
@@ -20,7 +19,7 @@
       detail_reload()
     }
 
-    $(document).ready(function () {
+    document.addEventListener('DOMContentLoaded', () => {
       // 显示警告框
       $("#alert").fadeIn();
       // 定时隐藏警告框
@@ -45,7 +44,10 @@
     body {
       overflow-x: hidden;
     }
-
+    label {
+      font-size: smaller;
+      margin-left: 5px;
+    }
     /* 删除横向滚动条 */
     ::-webkit-scrollbar {
       display: none;
@@ -68,7 +70,7 @@
             <label for="imgurl">{{ _("Enter a URL of an Image") }}:</label>
           </li>
           <form id="ImageUrlUpload" onsubmit="handleUrlBox(event, {{ program.id }});">
-            <li class="input-group input-group-sm" style="margin: 0em 1.3em 0em;">
+            <li class="input-group input-group-sm" style="margin: 0em 1em 0em;">
               <input
                 spellcheck="false"
                 class="form-control"
@@ -110,7 +112,7 @@
     </button>
     <div class="collapse" id="edit-program">
       <br />
-      <form method="POST" action="{{ url_for('add_program', program_realid=program.id) }}">
+      <form method="POST" action="{{ url_for('apps_add', program_realid=program.id) }}">
         <div class="row">
           <div class="form-group col-xs-4">
             <label for="program_id">{{ _("ID") }}:</label>
@@ -119,7 +121,7 @@
               value="{{ program.id }}" {% endif %} autocomplete="off" onclick="this.classList.remove('error')"
               required spellcheck="false" />
           </div>
-          <div class="form-group col-xs-8">
+          <div class="form-group col-xs-8" style="padding-left: 0;">
             <label for="program_name">{{ _("Name") }}:</label>
             <input type="text" class="form-control" id="program_name" name="program_name" value="{{ program.name }}"
               autocomplete="off" spellcheck="false" required />

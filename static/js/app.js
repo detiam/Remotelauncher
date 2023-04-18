@@ -1,115 +1,9 @@
-if (location.pathname === '/') {
-  if ('serviceWorker' in navigator) {
-    try {
-      navigator.serviceWorker.register('sw.js');
-    } catch (error) {
-      console.error('Failed to register service worker:', error);
-    }
-  } else {
-    console.warn('Service worker is not supported in this browser.');
-  }
-
-  $(document).ready(function () {
-    // 获取语言切换器组件
-    const langSelector = document.getElementById("lang-selector");
-    // 添加监听器，当用户选择语言时触发
-    langSelector.addEventListener("change", (event) => {
-      // 获取用户选择的语言
-      const lang = event.target.value;
-      // 将语言设置为 cookie，过期时间为一年
-      document.cookie = `lang=${lang};max-age=${60 * 60 * 24 * 365}`;
-      // 刷新页面，使语言生效
-      location.reload();
-    });
-  });
-}
-
-$(document).ready(function () {
-  // 保存页面collapse状态
-  $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
-    var id = this.id;
-    var state = this.classList.contains('in') ? 'show' : 'hide';
-    var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
-    collapseStates[id] = state;
-    localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
-  });
-
-  // 保存滚动位置到 localStorage 中
-  window.addEventListener('beforeunload', function () {
-    localStorage.setItem('scrollPosition', window.pageYOffset);
-  });
-
-  // 在加载时恢复页面collapse状态
-  const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
-  for (var id in collapseStates) {
-    var state = collapseStates[id];
-    var elem = document.getElementById(id);
-    if (elem) {
-      if (state === 'hide') {
-        //$(elem).collapse('hide');
-        elem.classList.remove('in');
-        $(elem).siblings('.panel-heading').removeClass('active');
-      } else {
-        //$(elem).collapse('show');
-        elem.classList.add('in');
-        $(elem).siblings('.panel-heading').addClass('active');
-      }
-    }
-    // localStorage.removeItem('collapseStates');
-  }
-
-  // 在页面加载完成后恢复滚动位置
-  const scrollPosition = window.localStorage.getItem('scrollPosition');
-  if (scrollPosition !== null) {
-    window.scrollTo(0, scrollPosition);
-    // localStorage.removeItem('scrollPosition');
-  }
-
-  $('.panel-collapse').on('show.bs.collapse', function () {
-    $(this).siblings('.panel-heading').addClass('active');
-  });
-
-  $('.panel-collapse').on('hide.bs.collapse', function () {
-    delMenu()
-    $(this).siblings('.panel-heading').removeClass('active');
-  });
-});
-
-document.addEventListener('contextmenu', event => event.preventDefault());
-
-function detail_reload() {
-  if (window.opener.document.title == 'Picview') {
-    window.opener.fullPicview()
-    console.log('reload.fullPicview()')
-  } else {
-    window.opener.location.reload()
-  }
-}
-
-function fullPicview() {
-  $('#mainpage').load('picview', function () {
-    document.querySelector('.picview').addEventListener('click', function () {
-      location.reload();
-    });
-    // 在回调函数中对加载完成的元素进行操作
-    document.querySelectorAll('.cover').forEach(function (element) {
-      element.classList.add('fullpagecover');
-      document.title = 'Picview';
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
-      const picView = document.querySelector('.picview');
-      picView.style.borderRadius = '5px';
-      document.body.style.backgroundColor = '#686868';
-      document.body.style.margin = '1em';
-    });
-  });
-}
-
 function openDetailWindow(id, x, y) {
   if (isNaN(id)) {
     id.preventDefault();
     var url = id.target.href;
   } else {
-    var url = '/detail/' + id;
+    var url = myflaskGet('detail_page', id);
   }
   let screenWidth = window.screen.width;
   let screenHeight = window.screen.height;
@@ -126,7 +20,7 @@ function openDetailWindow(id, x, y) {
 function addMenu(event) {
   event.target.classList.add('custom-contextmenu')
   //event.target.parentNode.setAttribute('onclick', 'return false;');
-  event.target.parentNode.setAttribute('onclick',
+  event.target.setAttribute('onclick',
     'event.preventDefault(); openDetailWindow(' +
     event.target.id.match(/\d+/) + ',400,600)')
 }
@@ -134,29 +28,17 @@ function addMenu(event) {
 function delMenu() {
   document.querySelectorAll('.custom-contextmenu').forEach(function (element) {
     element.classList.remove('custom-contextmenu');
-    element.parentNode.removeAttribute('onclick');
+    element.removeAttribute('onclick');
   });
 };
 
-function handleMenu(event) {
-  if (document.title == 'Picview') {
-    openDetailWindow(event.target.id.match(/\d+/), 400, 600)
-  } else {
-    hasContextMenu = event.target.classList.contains('custom-contextmenu');
-    delMenu()
-    if (!hasContextMenu) {
-      addMenu(event)
-    }
-  }
-}
-
 function setCursorAndTimeout(event, timeout) {
   var element = event.target;
-  element.style.cursor = 'not-allowed';
-  element.disabled = true;
+  // element.style.cursor = 'not-allowed';
+  element.classList.add('disabled');
   setTimeout(function () {
-    element.disabled = false;
-    element.style.cursor = 'pointer';
+    element.classList.remove('disabled');
+    // element.style.cursor = 'pointer';
   }, timeout);
 }
 
@@ -223,18 +105,18 @@ function readFileFromFlask(route, file) {
 
 function uploadUrl(url, id) {
   let xhr = new XMLHttpRequest();
-  xhr.open('POST', '/upload/' + id, true);
+  xhr.open('POST', myflaskGet('data_upload', id), true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.onload = function () {
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const imgPreview = document.getElementById('p-' + id);
-      readFileFromFlask('/data/resources/' + id + '/' + xhr.response, function (content) {
+      readFileFromFlask(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response, function (content) {
         imgPreview.src = content;
         console.log('uploadUrl(): new image loaded');
       });
     } else if (xhr.response === 'icon.ico') {
       const imgPreview = document.getElementById('t-' + id);
-      readFileFromFlask('/data/resources/' + id + '/' + xhr.response, function (content) {
+      readFileFromFlask(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response, function (content) {
         imgPreview.src = content;
         imgPreview.style = null;
         console.log('uploadUrl(): new icon loaded');
@@ -252,7 +134,7 @@ function uploadFile(file, id) {
   let formData = new FormData();
   formData.append('file', file);
   let xhr = new XMLHttpRequest();
-  xhr.open('POST', '/upload/' + id, true);
+  xhr.open('POST', myflaskGet('data_upload', id), true);
   xhr.onload = function () {
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const imgPreview = document.getElementById('p-' + id);
@@ -279,47 +161,116 @@ function uploadFile(file, id) {
   xhr.send(formData);
 }
 
-/* window.addEventListener("DOMContentLoaded", async event => {
-  document.querySelector("#new").addEventListener("click", newWindow);
-  document.querySelector("#topleft").addEventListener("click", moveTop);
-  document.querySelector("#center").addEventListener("click", moveCenter);
-  document.querySelector("#resizeSmall").addEventListener("click", resizeSmall);
-  document.querySelector("#resizeLarge").addEventListener("click", resizeLarge);
-  document.querySelector("#browser").addEventListener("click", openBrowser);
-}); */
-
-/*
-function newWindow() {
-  window.open("./", "blank", "width=600,height=400")
-}
-
-function moveTop() {
-  window.moveTo(0, 0);
-}
-
-function moveCenter() {
-  const width = document.documentElement.clientWidth;
-  const height = document.documentElement.clientHeight;
-  window.moveTo((screen.availWidth - width) / 2, (screen.availHeight - height) / 2);
-}
-
-function resizeSmall() {
-  window.resizeTo(450, 300);  
-}
-
-function resizeLarge() {
-  window.resizeTo(1000, 800)
-}
-
-function openBrowser() {
-  location.href="https://web.dev/learn/pwa"
-}
-
-function showResult(text, append=false) {
-  if (append) {
-      document.querySelector("output").innerHTML += "<br>" + text;
-  } else {
-     document.querySelector("output").innerHTML = text;    
+function reloadLang() {
+  try {
+    navigator.serviceWorker.controller.postMessage('cacheinfo');
+    navigator.serviceWorker.addEventListener('message', event => {
+      const cacheName = event.data.cacheName
+      const filesToCache = event.data.filesToCache
+      caches.delete(cacheName)
+      caches.open(cacheName).then(function(cache) {
+        return cache.addAll(filesToCache);
+      })
+    });
+  } finally {
+    location.reload();
   }
 }
-*/
+
+function mainHTML_reload() {
+  $('#collapseTwo').load('picview', () => {
+    $('#collapseThree').load('tableview', () => {
+      myscrollTo('mainpageScrollPosition')
+    }); 
+  });
+}
+
+function myscrollTo(page) {
+  try { window.scrollTo(0, window.localStorage.getItem(page)); }
+  catch (error) { console.log('myscrollTo('+page+'): Failed! ' + error)}
+}
+
+function launchapp(id) {
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', myflaskGet('apps_launch', id), true);
+  xhr.onload = () => {
+    if (xhr.status === 204) {
+      console.log('launchapp('+id+'): Success!')
+    } else {
+      console.log('launchapp('+id+'): Failed..')
+    }
+  }
+  xhr.send()
+}
+
+
+document.addEventListener('DOMContentLoaded', () => { mainHTML_reload()
+  // 保存页面collapse状态
+  $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
+    var id = this.id;
+    var state = this.classList.contains('in') ? 'show' : 'hide';
+    var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
+    collapseStates[id] = state;
+    localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
+  });
+
+  // 在加载时恢复页面collapse状态
+  const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
+  for (var id in collapseStates) {
+    var state = collapseStates[id];
+    var elem = document.getElementById(id);
+    if (elem) {
+      if (state === 'hide') {
+        // $(elem).collapse('hide');
+        elem.classList.remove('in');
+        $(elem).siblings('.panel-heading').removeClass('active');
+      } else {
+        // $(elem).collapse('show');
+        elem.classList.add('in');
+        $(elem).siblings('.panel-heading').addClass('active');
+      }
+    }
+    // localStorage.removeItem('collapseStates');
+  }
+
+  $('.panel-collapse').on('show.bs.collapse', function () {
+    $(this).siblings('.panel-heading').addClass('active');
+  });
+
+  $('.panel-collapse').on('hide.bs.collapse', function () {
+    delMenu()
+    $(this).siblings('.panel-heading').removeClass('active');
+  });
+});
+
+if (location.pathname === '/') {
+  if ('serviceWorker' in navigator) {
+    try {
+      navigator.serviceWorker.register('serviceworker.js');
+    } catch (error) {
+      console.error('[Service Worker] Failed to register:', error);
+    }
+  } else {
+    console.warn('[Service Worker] not available in this browser');
+  }
+
+  window.addEventListener('scroll', () => {
+    localStorage.setItem("mainpageScrollPosition", window.pageYOffset);
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 获取语言切换器组件
+    const langSelector = document.getElementById("lang-selector");
+    // 添加监听器，当用户选择语言时触发
+    langSelector.addEventListener("change", (event) => {
+      // 获取用户选择的语言
+      const lang = event.target.value;
+      // 将语言设置为 cookie，过期时间为一年
+      document.cookie = `lang=${lang};max-age=${60 * 60 * 24 * 365}`;
+      // 刷新页面，使语言生效
+      reloadLang();
+    });
+  });
+}
+
+document.addEventListener('contextmenu', event => event.preventDefault());

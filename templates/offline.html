@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}" style="user-select: none;">
+
+<head>
+    <title>{{ _(appname) }}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <style>
+        .OFFLINE {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            display: flex;
+        }
+        hr {
+            margin-left: 1em;
+            margin-right: 1em;
+            border-width: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="OFFLINE">
+        <p>{{ _('Please start the background service on host PC.') }}</p><hr>
+        <h1>{{ _('OFFLINE') }}</h1>
+    </div>
+</body>
+
+</html>

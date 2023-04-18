@@ -6,8 +6,6 @@
         -user-drag: none;
         user-select: none;
     }
-
-
     .img-thumbnail {
         position: relative;
         padding: 0;
@@ -23,7 +21,6 @@
         -user-drag: none;
         box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
     }
-
     .img-thumbnail:hover {
         filter: brightness(105%);
         transform: translateY(-6px);
@@ -35,76 +32,64 @@
         border-color: rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .25);*/
         box-shadow: 0 9px 11.5px -3px rgba(0, 0, 0, .1), 0 18.5px 28.5px 0 rgba(0, 0, 0, .03375), 0 7px 37.5px 0 rgba(0, 0, 0, .02625)
     }
-
     .img-thumbnail:active {
         transform: translateY(3px);
         box-shadow: 0 .5px 1px 0 rgba(0, 0, 0, .03), 0 2px 2px 0 rgba(0, 0, 0, .00225), 0 .5px 2.5px 0 rgba(0, 0, 0, .01575)
     }
-
     .picview {
         background-color: #686868;
         transition: background-color 0.1s ease-in-out;
+        padding: 0;
+        border-radius: 0 0 4px 4px;
     }
-
     .picview:hover {
         background-color: #424242;
     }
-
     .picview:hover img:not(:hover, .custom-contextmenu) {
         filter: brightness(80%);
     }
-
     .custom-contextmenu {
         transform: scale(200%);
         z-index: 10000;
         box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
     }
-
     .custom-contextmenu:hover {
         transform: scale(200%);
         box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
     }
-
     .custom-contextmenu:active {
         transform: scale(200%) translateY(-6px);
         box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
     }
-
     .tooltip .tooltip-arrow {
         display: none;
     }
-
     .cover {
         padding-bottom: 15px;
         height: auto;
         float: left;
         object-fit: contain
     }
-
     @media (max-width: 991px) {
         .cover {
             width: 50%;
         }
     }
-
     @media (min-width: 661px) and (max-width: 991px) {
         .cover {
             width: 25%;
         }
     }
-
     @media (min-width: 991px) and (max-width: 1351px) {
         .fullpagecover {
             width: 20%;
         }
     }
-
     @media (min-width: 1351px) and (max-width: 1920px) {
         .fullpagecover {
             width: 10%;
         }
     }
-
     @media (min-width: 1920px) {
         .fullpagecover {
             width: 10%;
@@ -116,24 +101,23 @@
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
-<div class="panel-body picview" style="padding: 0; display: block;">
+<div class="panel-body picview">
     <div style="padding-top: 15px;">
         {% for program in programs %}
         <div id="cover-{{ program.id }}" class="col-md-3 cover">
-            <a href="{{ url_for('launch', program_id=program.id) }}">
-                <img
-                    id="p-{{ program.id }}"
-                    title="{{ program.name }}"
-                    class="img-thumbnail"
-                    data-toggle="tooltip"
-                    data-placement="bottom"
-                    ondragover="event.preventDefault()"
-                    ondrop="handleDrop(event)"
-                    oncontextmenu="handleMenu(event)"
-                    src="{{ url_for('data', filename='resources/' + str(program.id) + '/library.jpg') }}"
-                    onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
-                >
-            </a>
+            <img
+                id="p-{{ program.id }}"
+                title="{{ program.name }}"
+                class="img-thumbnail"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                onclick="launchapp('{{ program.id }}')"
+                ondragover="event.preventDefault()"
+                ondrop="handleDrop(event)"
+                oncontextmenu="handleMenu(event)"
+                src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/library.jpg') }}"
+                onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
+            >
         </div>
         {% endfor %}
     </div>
