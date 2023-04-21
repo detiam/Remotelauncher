@@ -20,7 +20,7 @@ const menuContext = [{
       $.get(myflaskGet('apps_launch', e.id));
   }
 },{
-  name: "{{ _('Delete this row') }}",
+  name: "{{ _('Delete this') }}",
   iconClass: 'fa fa-trash',
   classNames: 'action-danger',
   onClick: function(e) {
@@ -50,7 +50,7 @@ const menuContext = [{
     name: "{{ _('Open data folder') }}",
     iconClass: 'fa fa-folder-o',
     onClick: function(e) {
-      $.get(myflaskGet('detail_folder', e.id));
+      $.get(myflaskGet('api_opendir', e.id));
     }
   },{
     name: "{{ _('Modify property') }}",
@@ -61,27 +61,34 @@ const menuContext = [{
   }]
 }]
 
+const flaskStr = new Map([
+  ['i18n_picviewTitle', "{{ _('Picview') }}"],
+]);
+
+let flaskUrl;
+if (sessionStorage.flaskUrl) {
+  flaskUrl = new Map(JSON.parse(sessionStorage.flaskUrl));
+} else {
+  fetch('{{ url_for("api_urls") }}')
+  .then(response => response.json())
+  .then(data => {
+    flaskUrl = new Map()
+    for (const [key, value] of Object.entries(data)) {
+      flaskUrl.set(key, value);
+    }
+    sessionStorage.flaskUrl = JSON.stringify([...flaskUrl]);
+    console.log('flaskUrl fetched');
+  });
+}
+
 function myflaskGet(route, value) {
-  if (route === 'picview') {return '{{ url_for("picview") }}'}
+  if (route === 'html_picview') {return '{{ url_for("html_picview") }}'}
+  if (route === 'html_tableview') {return '{{ url_for("html_tableview") }}'}
   if (route === 'i18n_picviewTitle') {return "{{ _('Picview') }}"}
   if (route === 'data_get') {return '{{ url_for("data_get", filename="2543455938") }}'.replace("2543455938", value)}
   if (route === 'apps_del') {return '{{ url_for("apps_del", program_id="2543455938") }}'.replace("2543455938", value)}
   if (route === 'apps_launch') {return '{{ url_for("apps_launch", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'detail_page') {return '{{ url_for("detail_page", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'detail_folder') {return '{{ url_for("detail_folder", program_id="2543455938") }}'.replace("2543455938", value)}
+  if (route === 'page_detail') {return '{{ url_for("page_detail", program_id="2543455938") }}'.replace("2543455938", value)}
+  if (route === 'api_opendir') {return '{{ url_for("api_opendir", program_id="2543455938") }}'.replace("2543455938", value)}
   if (route === 'data_upload') {return '{{ url_for("data_upload", program_id="2543455938") }}'.replace("2543455938", value)}
 }
-
-const flaskUrl = new Map([
-  ['apps_del', (value) => '{{ url_for("apps_del", program_id="2543455938") }}'.replace("2543455938", value)],
-  ['apps_launch', (value) => '{{ url_for("apps_launch", program_id="2543455938") }}'.replace("2543455938", value)],
-  ['data_get', (value) => '{{ url_for("data_get", filename="2543455938") }}'.replace("2543455938", value)],
-  ['data_upload', (value) => '{{ url_for("data_upload", program_id="2543455938") }}'.replace("2543455938", value)],
-  ['detail_folder', (value) => '{{ url_for("detail_folder", program_id="2543455938") }}'.replace("2543455938", value)],
-  ['detail_page', (value) => '{{ url_for("detail_page", program_id="2543455938") }}'.replace("2543455938", value)],
-  ['picview', '{{ url_for("picview") }}'],
-]);
-
-const flaskStr = new Map([
-  ['i18n_picviewTitle', "{{ _('Picview') }}"],
-]);

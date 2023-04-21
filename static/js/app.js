@@ -3,7 +3,7 @@ function openDetailWindow(id, x, y) {
     id.preventDefault();
     var url = id.target.href;
   } else {
-    var url = myflaskGet('detail_page', id);
+    var url = myflaskGet('page_detail', id);
   }
   let screenWidth = window.screen.width;
   let screenHeight = window.screen.height;
@@ -248,7 +248,7 @@ function fullPicview(useCase) {
       document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     ]
   }
-  $('#mainpage').load(myflaskGet('picview'), function () {
+  $('#mainpage').load(myflaskGet('html_picview'), function () {
     myscrollTo('ScrollPositionPicview')
     document.querySelectorAll('.cover').forEach(function (element) {
       element.classList.add('fullpagecover');
@@ -263,14 +263,14 @@ function fullPicview(useCase) {
       $('#mainpage').html(mainpageclone)
       document.body.style = '';
       document.title = mainpageinfo[0];
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', mainpageinfo[2]);
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', mainpageinfo[1]);
     });
   });
 }
 
 function mainHTML_reload() {
-  $('#collapseTwo').load(myflaskGet('picview'), () => {
-    $('#collapseThree').load('tableview', () => {
+  $('#collapseTwo').load(myflaskGet('html_picview'), () => {
+    $('#collapseThree').load(myflaskGet('html_tableview'), () => {
       if (document.title == myflaskGet('i18n_picviewTitle')) {
         myscrollTo('ScrollPositionPicview')
       } else {
@@ -321,14 +321,12 @@ document.addEventListener('DOMContentLoaded', () => { mainHTML_reload()
 });
 
 if (location.pathname === '/') {
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
     try {
       navigator.serviceWorker.register('serviceworker.js');
     } catch (error) {
       console.error('[Service Worker] Failed to register:', error);
     }
-  } else {
-    console.warn('[Service Worker] not available in this browser');
   }
 
   window.addEventListener('scroll', () => {

@@ -13,7 +13,7 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/BootstrapMenu.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static_jinja2ed', filename='js/app.js') }}"></script>
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='pic/logo.png') }}">
     <style>
@@ -122,7 +122,7 @@
                     {{ _("Settings") }}
                 </button>
                 <div class="collapse" id="edit-config"><br \>
-                    <form method="POST" action="{{ url_for('data_config') }}">
+                    <form method="POST" action="{{ url_for('data_dbconf') }}">
                         {% for config in configs %}
                         <div class="form-group">
                             <label for="{{ config.name }}">{{ configlocalizedname(config) }}:</label>

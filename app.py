@@ -1,3 +1,4 @@
+from datetime import datetime as dt, timedelta
 from werkzeug.exceptions import RequestEntityTooLarge
 from flask_sqlalchemy import SQLAlchemy
 from threading import Thread
@@ -7,16 +8,18 @@ from flask_babel import Babel, gettext
 from urllib.request import Request, urlopen
 from PIL.Image import open as imgopen
 from platform import uname
+from functools import wraps
 
 from os import (rename, makedirs,
                 environ, name, path)
 
-from flask import (Flask, redirect, render_template, url_for,
-                   send_from_directory, g, request,)
+from flask import (Flask, make_response, redirect, render_template, url_for,
+                   send_from_directory, jsonify, g, request)
 
 from shutil import rmtree
 from sys import stderr
 from plyer import notification
+from flask_caching import Cache
 
 if uname().system == 'Windows':
     from os import startfile as openfile
@@ -36,21 +39,48 @@ if not path.exists(data_dir):
     makedirs(data_dir)
 
 config_names = ['config_wideprefix', 'config_wideworkdir']
+resources_dir = path.join(data_dir, 'resources')
 
 app = Flask(__name__)
-app.config['APPNAME'] = gettext('RemoteLauncher')
-app.config['DESCRIPTION'] = gettext('A launcher to launch program.')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = path.join(
-    'sqlite:///' + data_dir, 'configs.db')
-app.config['UPLOAD_FOLDER'] = resources_dir = path.join(data_dir, 'resources')
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-app.config['LANG'] = 'en'
-app.config['LANGUAGES'] = {
-    'en': 'English',
-    'zh': '中文'
-}
+app.config.update(
+    APPNAME=gettext('RemoteLauncher'),
+    DESCRIPTION=gettext('A launcher to launch program.'),
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(data_dir, "configs.db")}',
+    UPLOAD_FOLDER=resources_dir,
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024,
+    CACHE_TYPE='SimpleCache',
+    CACHE_DEFAULT_TIMEOUT=300,
+    LANGUAGE='en',
+    LANGUAGES={
+        'en': 'English',
+        'zh': '中文'
+    }
+)
 
+cache = Cache(app)
+
+def etag(kwargs):
+    response = make_response(kwargs)
+    response.last_modified = dt.utcnow()
+    response.add_etag()
+    return response
+
+def cache_header(max_age, **ckwargs):
+    def decorator(view):
+        f = cache.cached(max_age, **ckwargs)(view)
+
+        @wraps(f)
+        def wrapper(*args, **wkwargs):
+            response = f(*args, **wkwargs)
+            response.cache_control.max_age = max_age
+            response.cache_control.public = True
+            extra = timedelta(seconds=max_age)
+            response.expires = response.last_modified + extra
+            return response.make_conditional(request)
+        return wrapper
+
+    return decorator
 
 def openfolder(folder):
     if path.isdir(folder):
@@ -58,17 +88,15 @@ def openfolder(folder):
 
 def get_locale():
     if 'lang' in request.cookies:
-        app.config['LANG'] = request.cookies.get("lang")
+        app.config['LANGUAGE'] = request.cookies.get("lang")
     else:
-        app.config['LANG'] = request.accept_languages.best_match(app.config['LANGUAGES'])
-    return app.config['LANG']
-
+        app.config['LANGUAGE'] = request.accept_languages.best_match(app.config['LANGUAGES'])
+    return app.config['LANGUAGE']
 
 def get_timezone():
     user = getattr(g, 'user', None)
     if user is not None:
         return user.timezone
-
 
 def configlocalizedname(config):
     if config.name == config_names[0]:
@@ -79,7 +107,6 @@ def configlocalizedname(config):
 
     # 烂到要死的解决方法
     # return eval(''.join(['config.', get_locale(), '_name']))
-
 
 db = SQLAlchemy(app)
 babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
@@ -100,35 +127,43 @@ class Program(db.Model):
 
 
 @app.get('/')
-def index():
+def page_index():
     return render_template('index.html', appname=app.config['APPNAME'], languages=app.config['LANGUAGES'], get_locale=get_locale,
                            configlocalizedname=configlocalizedname, programs=Program.query.all(),
                            configs=Config.query.all())
 
+@app.get('/api/urls')
+@cache_header(app.config['CACHE_DEFAULT_TIMEOUT'])
+def api_urls():
+    url_dict = {}
+    for rule in app.url_map.iter_rules():
+        url_dict[rule.endpoint] = rule.rule
+    return etag(jsonify(url_dict))
+
 @app.get('/offline')
-def offline():
+def page_offline():
     return render_template('offline.html', appname=app.config['APPNAME'], get_locale=get_locale)
 
-@app.get('/picview')
-def picview():
+@app.get('/html/picview')
+def html_picview():
     return render_template('picview.html', programs=Program.query.all(), str=str,
                            fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
 
-@app.get('/tableview')
-def tableview():
+@app.get('/html/tableview')
+def html_tableview():
     return render_template('tableview.html', str=str, programs=Program.query.all())
 
 @app.get('/template/<path:filename>')
-def jinja2ed(filename):
+def static_jinja2ed(filename):
     return render_template(filename)
 
 @app.get('/detail/<int:program_id>')
-def detail_page(program_id):
+def page_detail(program_id):
     return render_template('detail.html', get_locale=get_locale,
                            program=Program.query.get_or_404(program_id))
 
-@app.get('/detail/folder/<int:program_id>')
-def detail_folder(program_id):
+@app.get('/api/opendir/<int:program_id>')
+def api_opendir(program_id):
     program_dir = path.join(resources_dir, str(program_id))
     openfolder(program_dir)
     return ('', 204)
@@ -140,8 +175,8 @@ def data_get(filename):
     except:
         return '', 204
 
-@app.post('/data/config')
-def data_config():
+@app.post('/data/dbconf')
+def data_dbconf():
     for key, value in request.form.items():
         config = Config.query.filter_by(name=key).first()
         if config:
@@ -242,7 +277,7 @@ def apps_add(program_realid):
         program.prefix = prefix
         program.command = command
         db.session.commit()
-        return redirect(url_for('detail_page', program_id=id, need_reload='1'))
+        return redirect(url_for('page_detail', program_id=id, need_reload='1'))
     return redirect(request.referrer)
 
 
@@ -351,17 +386,20 @@ def sendnote(iconpath, title, message, timeout):
 
 
 @app.get('/favicon.ico')
-def favicon_ico():
+def file_favicon():
     return send_from_directory(path.join(app.root_path, 'static'), 'pic/favicon.ico')
 
 @app.get('/app.webmanifest')
-def webmanifest():
+def file_webmanifest():
     return render_template('app.webmanifest', appname=app.config['APPNAME'],
                            appdes=app.config['DESCRIPTION'], get_locale=get_locale)
 
 @app.get('/serviceworker.js')
-def serviceworkers():
-    return send_from_directory(path.join(app.root_path, 'static'), 'js/sw.js')
+@cache_header(app.config['CACHE_DEFAULT_TIMEOUT'])
+def file_serviceworker():
+    response = make_response(render_template('js/sw.js'))
+    response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+    return etag(response)
 
 
 if __name__ == '__main__':
@@ -373,7 +411,7 @@ if __name__ == '__main__':
             db.session.add(config)
     db.session.commit()
     for program in Program.query.all():
-        program_dir = path.join(data_dir, 'resources', str(program.id))
+        program_dir = path.join(resources_dir, str(program.id))
         if not path.exists(program_dir):
             makedirs(program_dir)
     app.run(host='::', port=2023, debug=True)

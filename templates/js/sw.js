@@ -1,26 +1,37 @@
-const cacheName = 'RemoteLauncher-cachev2';
-const offlineUrl = '/offline'
+const cacheName = 'cachev1';
 const filesToCache = [
-  offlineUrl,
-  '/favicon.ico',
-  '/app.webmanifest',
-  '/template/js/app.js'
+  '{{ url_for("page_offline") }}',
+  '{{ url_for("file_favicon") }}',
+  '{{ url_for("file_webmanifest") }}',
+  '{{ url_for("static_jinja2ed", filename="js/app.js") }}'
 ];
 const pathsToCache = [
-  '/static/',
-  '/template/',
-  '/data/resources/'
+  '{{ url_for("static", filename="") }}',
+  '{{ url_for("static_jinja2ed", filename="") }}',
+  '{{ url_for("data_get", filename="") }}'
 ];
 
 self.addEventListener('message', event => {
-  if (event.data === 'cacheinfo') {
-    // 向应用程序脚本回复变量
-    event.source.postMessage({cacheName: cacheName, filesToCache: filesToCache});
+  switch(event.data) {
+    case 'cacheinfo':
+      return event.source.postMessage({
+        cacheName: cacheName,
+        filesToCache: filesToCache
+      });
+/*
+    case 'flaskinfo':
+      return event.source.postMessage({
+        flaskUrl: flaskUrl
+      });
+*/
+    default:
+      event.source.postMessage(null);
+    break;
   }
 });
 
 self.addEventListener('install', (event) => {
-  // console.log('[Service Worker] Install');
+  console.log('[Service Worker] registered & updated')
   event.waitUntil(
     caches.open(cacheName).then(function(cache) {
       console.log('[Service Worker] Caching file: ' + filesToCache);
@@ -35,7 +46,7 @@ self.addEventListener('fetch', function(e) {
   if (requestURL.origin === location.origin) {
     e.respondWith(caches.match(e.request)
       .then(function(r) { return r || fetch(e.request)
-        .catch(() => caches.match(offlineUrl))
+        .catch(() => caches.match('{{ url_for("page_offline") }}'))
         .then(async function(response) {
           if (pathsToCache.some(path => requestURL.pathname.startsWith(path))) {
             const cache = await caches.open(cacheName);

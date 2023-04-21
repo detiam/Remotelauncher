@@ -13,7 +13,7 @@
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/BootstrapMenu.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static_jinja2ed', filename='js/app.js') }}"></script>
   <script>
     // 获取当前 URL 中的查询参数
     const params = new URLSearchParams(window.location.search);
@@ -108,8 +108,8 @@
           </li>
         </ul>
       </div>
-      <a class="btn btn-default btn-sm btn-default" href="{{ url_for('detail_folder', program_id=program.id) }}"
-        onclick="setCursorAndTimeout(event, 1000)" aria-expanded="false" aria-controls="detail_folder">
+      <a class="btn btn-default btn-sm btn-default" href="{{ url_for('api_opendir', program_id=program.id) }}"
+        onclick="setCursorAndTimeout(event, 1000)" aria-expanded="false" aria-controls="api_opendir">
         {{ _("Open data folder") }}
       </a>
     </div><br>
