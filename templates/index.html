@@ -6,9 +6,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FFFFFF" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/BootstrapMenu.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
     <link rel="manifest" href="app.webmanifest">
@@ -81,7 +84,7 @@
             <div class="col-md-4">
                 <h3>{{ _("Options") }}:</h3><br>
                 <button type="button" class="btn btn-block" data-toggle="collapse" data-target="#program-table"
-                    onclick="delMenu()" aria-controls="program-table">
+                    onclick="delZoominclass()" aria-controls="program-table">
                     {{ _("Show List") }}
                 </button><br>
                 <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#add-program"

@@ -45,7 +45,7 @@ msgid "Just been launched"
 msgstr "刚刚被启动了"
 
 #: templates/detail.html:63
-msgid "Change Icon Or Cover"
+msgid "Change Icon or Picture"
 msgstr "修改图标和封面"
 
 #: templates/detail.html:69
@@ -61,7 +61,7 @@ msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
 #: templates/detail.html:105
-msgid "Open Data Folder"
+msgid "Open data folder"
 msgstr "打开资料文件夹"
 
 #: templates/detail.html:110

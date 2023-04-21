@@ -22,11 +22,22 @@
         font-size: inherit;
     }
 </style>
+<script>
+    var menu = new BootstrapMenu('.tableViewRow', {
+        fetchElementData: function($rowElem) {
+            return {
+                id: $rowElem.attr('id').match(/\d+/),
+                zoomin: false
+            };
+        },
+        menuItems: menuContext
+    });
+</script>
 <div style="overflow-x: auto; max-width: 100%;" class="panel-body tableview">
     <table class="table table-hover table-striped">
         <thead>
             <tr>
-                <th>{{ _("ID") }}</th>
+                <th>#</th>
                 <th>{{ _("Actions") }}</th>
                 <th>{{ _("Name") }}</th>
             </tr>
@@ -36,7 +47,12 @@
         <col width="100%" />
         <tbody>
             {% for program in programs %}
-            <tr>
+            <tr
+                id="table-{{ program.id }}"
+                ondrop="handleDrop(event)" 
+                ondragover="event.preventDefault()" 
+                class="tableViewRow"
+            >
                 <td>{{ program.id }}</td>
                 <td style="user-select: none;">
                     <a href="{{ url_for('apps_launch', program_id=program.id) }}">
@@ -48,20 +64,13 @@
                         {{ _("Detail") }}
                     </a>
                 </td>
-                <td
-                    id="table-{{ program.id }}"
-                    title="{{ program.name }}"
-                    ondragover="event.preventDefault()"
-                    ondrop="handleDrop(event)"
-                >
+                <td title="{{ program.name }}">
                     <img
                         id="t-{{ program.id }}"
                         class="picon"
-                        ondragover="event.preventDefault()"
                         src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/icon.ico') }}"
                         onerror="this.onerror=null;this.style.display='none';"
-                        alt="icon-{{ program.name }}"
-                    >
+                        alt="icon-{{ program.name }}">
                     {{ program.name }}
                 </td>
             </tr>

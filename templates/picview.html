@@ -1,12 +1,17 @@
 <style>
-    a {
-        -webkit-user-drag: none;
-        -moz-user-drag: none;
-        -ms-user-drag: none;
-        -user-drag: none;
-        user-select: none;
+    :root {
+        --cover-padding: 0.9em;
+        --cover-box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        --cover-hover-box-shadow: 5px 5px 20px 2px rgba(0, 0, 0, 0.5);
+        --zoomin-box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        --bg-color: #686868;
+        --bg-color-hover: #424242;
+        --bg-box-shadow: 0 0 0 0 var(--bg-color-hover);
     }
-    .img-thumbnail {
+    .custom-img {
+        image-rendering: auto;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
         position: relative;
         padding: 0;
         transition: filter 0.2s ease-in-out, transform .4s cubic-bezier(.075, .82, .165, 1) 0ms, box-shadow .4s cubic-bezier(.075, .82, .165, 1) 0ms, opacity .4s cubic-bezier(.075, .82, .165, 1) 0ms, border-color .4s cubic-bezier(.075, .82, .165, 1) 0ms;
@@ -19,9 +24,9 @@
         -moz-user-drag: none;
         -ms-user-drag: none;
         -user-drag: none;
-        box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: var(--cover-box-shadow);
     }
-    .img-thumbnail:hover {
+    .custom-img:hover {
         filter: brightness(105%);
         transform: translateY(-6px);
         z-index: 9999;
@@ -30,42 +35,39 @@
         margin-top: 1px;
         border-bottom-color: rgba(var(--theme-page-fg-rgb), .08);
         border-color: rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .25);*/
-        box-shadow: 0 9px 11.5px -3px rgba(0, 0, 0, .1), 0 18.5px 28.5px 0 rgba(0, 0, 0, .03375), 0 7px 37.5px 0 rgba(0, 0, 0, .02625)
+        box-shadow: var(--cover-hover-box-shadow);
     }
-    .img-thumbnail:active {
+    .custom-img:active {
         transform: translateY(3px);
-        box-shadow: 0 .5px 1px 0 rgba(0, 0, 0, .03), 0 2px 2px 0 rgba(0, 0, 0, .00225), 0 .5px 2.5px 0 rgba(0, 0, 0, .01575)
+        box-shadow: var(--bg-box-shadow)
     }
     .picview {
-        background-color: #686868;
+        background-color: var(--bg-color);
         transition: background-color 0.1s ease-in-out;
-        padding: 0;
+        padding: var(--cover-padding);
         border-radius: 0 0 4px 4px;
     }
     .picview:hover {
-        background-color: #424242;
+        background-color: var(--bg-color-hover);
     }
     .picview:hover img:not(:hover, .custom-contextmenu) {
         filter: brightness(80%);
     }
     .custom-contextmenu {
-        transform: scale(200%);
+        transform: scale(1.8);
         z-index: 10000;
-        box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        /*box-shadow: var(--zoomin-box-shadow);*/
     }
     .custom-contextmenu:hover {
-        transform: scale(200%);
-        box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
-    }
-    .custom-contextmenu:active {
-        transform: scale(200%) translateY(-6px);
-        box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
+        transform: scale(2);
+        z-index: 10000;
+        /*box-shadow: var(--zoomin-box-shadow);*/
     }
     .tooltip .tooltip-arrow {
         display: none;
     }
     .cover {
-        padding-bottom: 15px;
+        padding: var(--cover-padding);
         height: auto;
         float: left;
         object-fit: contain
@@ -99,26 +101,39 @@
 <script>
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="tooltip"]').hover(function() {
+            if ($(this).hasClass('custom-contextmenu')) {
+              $(this).tooltip('disable');
+            } else {
+              $(this).tooltip('enable');
+            }
+        });          
+    });
+    var menu = new BootstrapMenu('.img-thumbnail', {
+        fetchElementData: function($rowElem) {
+            return {
+                id: $rowElem.attr('id').match(/\d+/),
+                zoomin: true
+            };
+        },
+        menuItems: menuContext
     });
 </script>
 <div class="panel-body picview">
-    <div style="padding-top: 15px;">
-        {% for program in programs %}
-        <div id="cover-{{ program.id }}" class="col-md-3 cover">
-            <img
-                id="p-{{ program.id }}"
-                title="{{ program.name }}"
-                class="img-thumbnail"
-                data-toggle="tooltip"
-                data-placement="bottom"
-                onclick="launchapp('{{ program.id }}')"
-                ondragover="event.preventDefault()"
-                ondrop="handleDrop(event)"
-                oncontextmenu="handleMenu(event)"
-                src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/library.jpg') }}"
-                onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
-            >
-        </div>
-        {% endfor %}
+    {% for program in programs %}
+    <div class="col-md-3 cover">
+        <img
+            id="p-{{ program.id }}"
+            title="{{ program.name }}"
+            class="img-thumbnail custom-img"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            onclick="launchapp('{{ program.id }}')"
+            ondragover="event.preventDefault()"
+            ondrop="handleDrop(event)"
+            src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/library.jpg') }}"
+            onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
+        >
     </div>
+    {% endfor %}
 </div>

@@ -17,20 +17,27 @@ function openDetailWindow(id, x, y) {
   ',toolbar=no,addressbar=no,location=no,menubar=no');
 }
 
-function addMenu(event) {
-  event.target.classList.add('custom-contextmenu')
+function addZoominclass(elem) {
+  elem.classList.add('custom-contextmenu')
   //event.target.parentNode.setAttribute('onclick', 'return false;');
-  event.target.setAttribute('onclick',
-    'event.preventDefault(); openDetailWindow(' +
-    event.target.id.match(/\d+/) + ',400,600)')
+  elem.setAttribute('onclick',
+    'event.preventDefault(); handleZoomin(event.target)')
 }
 
-function delMenu() {
+function delZoominclass() {
   document.querySelectorAll('.custom-contextmenu').forEach(function (element) {
     element.classList.remove('custom-contextmenu');
     element.removeAttribute('onclick');
   });
 };
+
+function handleZoomin(elem) {
+  hasContextMenu = elem.classList.contains('custom-contextmenu');
+  delZoominclass()
+  if (!hasContextMenu) {
+    addZoominclass(elem)
+  }
+}
 
 function setCursorAndTimeout(event, timeout) {
   var element = event.target;
@@ -44,8 +51,11 @@ function setCursorAndTimeout(event, timeout) {
 
 function handleDrop(event) {
   event.preventDefault();
+  console.log(event.target)
   let id = event.target.id.match(/\d+/)
-  console.log('handleDrop(): Called')
+  if (id === null) {id = $(event.target).closest('tr').attr('id').match(/\d+/);}
+  console.log(id)
+  console.log('handleDrop(): Called');
   if (event.dataTransfer.types.includes('text/uri-list')) {
     let url = event.dataTransfer.getData('text/uri-list');
     uploadUrl(url, id)
@@ -103,24 +113,45 @@ function readFileFromFlask(route, file) {
   xhr.send();
 }
 
+function delCache(route, callback) {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('cacheinfo');
+    navigator.serviceWorker.addEventListener('message', event => {
+      caches.open(event.data.cacheName).then(function(cache) {
+        cache.delete(route).then(function(status) {
+          console.log('cacheDelete('+route+'): '+status)
+          if (typeof callback === 'function') {callback()}
+        });
+      })
+    })
+  } else {
+    if (typeof callback === 'function') {callback()}
+  }
+}
+
 function uploadUrl(url, id) {
-  let xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.open('POST', myflaskGet('data_upload', id), true);
   xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.onload = function () {
+  xhr.onload = () => {
+    const route = myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const imgPreview = document.getElementById('p-' + id);
-      readFileFromFlask(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response, function (content) {
-        imgPreview.src = content;
-        console.log('uploadUrl(): new image loaded');
-      });
+      delCache(route, () => { 
+        readFileFromFlask(route, (content) => {
+          imgPreview.src = content;
+          console.log('uploadUrl(): new image loaded');
+        });
+      })
     } else if (xhr.response === 'icon.ico') {
       const imgPreview = document.getElementById('t-' + id);
-      readFileFromFlask(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response, function (content) {
-        imgPreview.src = content;
-        imgPreview.style = null;
-        console.log('uploadUrl(): new icon loaded');
-      });
+      delCache(route, () => { 
+        readFileFromFlask(route, (content) => {
+          imgPreview.src = content;
+          imgPreview.style = null;
+          console.log('uploadUrl(): new icon loaded');
+        });
+      })
     } else {
       console.log('uploadUrl(): Failed, ' + xhr.response);
     }
@@ -133,9 +164,10 @@ function uploadUrl(url, id) {
 function uploadFile(file, id) {
   let formData = new FormData();
   formData.append('file', file);
-  let xhr = new XMLHttpRequest();
+  const xhr = new XMLHttpRequest();
   xhr.open('POST', myflaskGet('data_upload', id), true);
   xhr.onload = function () {
+    delCache(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response)
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const imgPreview = document.getElementById('p-' + id);
       const reader = new FileReader();
@@ -163,26 +195,22 @@ function uploadFile(file, id) {
 
 function reloadLang() {
   try {
-    navigator.serviceWorker.controller.postMessage('cacheinfo');
-    navigator.serviceWorker.addEventListener('message', event => {
-      const cacheName = event.data.cacheName
-      const filesToCache = event.data.filesToCache
-      caches.delete(cacheName)
-      caches.open(cacheName).then(function(cache) {
-        return cache.addAll(filesToCache);
-      })
-    });
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage('cacheinfo');
+      navigator.serviceWorker.addEventListener('message', event => {
+        const cacheName = event.data.cacheName
+        const filesToCache = event.data.filesToCache
+        caches.open(cacheName).then(function(cache) {
+          filesToCache.forEach(function(cacheItem) {
+            cache.delete(cacheItem)
+          })
+          return cache.addAll(filesToCache);
+        })
+      });
+    }
   } finally {
     location.reload();
   }
-}
-
-function mainHTML_reload() {
-  $('#collapseTwo').load('picview', () => {
-    $('#collapseThree').load('tableview', () => {
-      myscrollTo('mainpageScrollPosition')
-    }); 
-  });
 }
 
 function myscrollTo(page) {
@@ -201,6 +229,55 @@ function launchapp(id) {
     }
   }
   xhr.send()
+}
+
+function detail_reload() {
+  if (window.opener.document.title == myflaskGet('i18n_picviewTitle')) {
+    window.opener.fullPicview('reload')
+    console.log('reload.fullPicview()')
+  } else {
+    window.opener.mainHTML_reload()
+  }
+}
+
+function fullPicview(useCase) {
+  if (useCase === 'enterPicview') {
+    var mainpageclone = $('#mainpage').clone();
+    var mainpageinfo = [
+      document.title,
+      document.querySelector('meta[name="theme-color"]').getAttribute('content'),
+    ]
+  }
+  $('#mainpage').load(myflaskGet('picview'), function () {
+    myscrollTo('ScrollPositionPicview')
+    document.querySelectorAll('.cover').forEach(function (element) {
+      element.classList.add('fullpagecover');
+      document.title = myflaskGet('i18n_picviewTitle');
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
+      const picView = document.querySelector('.picview');
+      picView.style.borderRadius = '5px';
+      document.body.style.backgroundColor = '#686868';
+      document.body.style.margin = '1em';
+    });
+    document.querySelector('.picview').addEventListener('click', function (e) {
+      $('#mainpage').html(mainpageclone)
+      document.body.style = '';
+      document.title = mainpageinfo[0];
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', mainpageinfo[2]);
+    });
+  });
+}
+
+function mainHTML_reload() {
+  $('#collapseTwo').load(myflaskGet('picview'), () => {
+    $('#collapseThree').load('tableview', () => {
+      if (document.title == myflaskGet('i18n_picviewTitle')) {
+        myscrollTo('ScrollPositionPicview')
+      } else {
+        myscrollTo('ScrollPositionMainpage')
+      }
+    }); 
+  });
 }
 
 
@@ -238,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => { mainHTML_reload()
   });
 
   $('.panel-collapse').on('hide.bs.collapse', function () {
-    delMenu()
+    delZoominclass()
     $(this).siblings('.panel-heading').removeClass('active');
   });
 });
@@ -255,7 +332,11 @@ if (location.pathname === '/') {
   }
 
   window.addEventListener('scroll', () => {
-    localStorage.setItem("mainpageScrollPosition", window.pageYOffset);
+    if (document.title == myflaskGet('i18n_picviewTitle')) {
+      localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
+    } else {
+      localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
+    }
   });
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -273,4 +354,5 @@ if (location.pathname === '/') {
   });
 }
 
+history.scrollRestoration = 'manual'
 document.addEventListener('contextmenu', event => event.preventDefault());

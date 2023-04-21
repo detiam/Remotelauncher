@@ -6,9 +6,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#FFFFFF" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.css') }}">
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/BootstrapMenu.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script src="{{ url_for('jinja2ed', filename='js/app.js') }}"></script>
   <script>
@@ -28,9 +31,13 @@
       }, 3000); // 设置5秒后自动隐藏
       document.addEventListener('keydown', function (event) {
         // 如果按下的是Ctrl + S, 则触发按钮的单击事件
-        if (event.ctrlKey && event.keyCode === 83) {
+        if (event.ctrlKey && event.code === 'KeyS') {
           event.preventDefault(); // 防止默认的保存操作
           document.getElementById('detail-save-button').click(); // 触发按钮的单击事件
+        }
+        if (event.code === 'Escape') {
+          // event.preventDefault();
+          window.close()
         }
       });
     });
@@ -61,7 +68,7 @@
       <div class="btn-group" role="group">
         <a href="#" class="btn btn-default btn-sm btn-primary dropdown-toggle" role="button" id="dropdownMenuchengicon"
           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ _("Change Icon Or Cover") }}
+          {{ _("Change Icon or Picture") }}
           <span style="margin-left: 2px;" class="caret"></span>
         </a>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuchengicon">
@@ -103,7 +110,7 @@
       </div>
       <a class="btn btn-default btn-sm btn-default" href="{{ url_for('detail_folder', program_id=program.id) }}"
         onclick="setCursorAndTimeout(event, 1000)" aria-expanded="false" aria-controls="detail_folder">
-        {{ _("Open Data Folder") }}
+        {{ _("Open data folder") }}
       </a>
     </div><br>
     <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#edit-program"

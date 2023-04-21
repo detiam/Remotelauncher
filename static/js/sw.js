@@ -3,7 +3,8 @@ const offlineUrl = '/offline'
 const filesToCache = [
   offlineUrl,
   '/favicon.ico',
-  '/app.webmanifest'
+  '/app.webmanifest',
+  '/template/js/app.js'
 ];
 const pathsToCache = [
   '/static/',
