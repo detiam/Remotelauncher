@@ -1,6 +1,19 @@
 const menuContext = [{
   header: "{{ _('Actions') }}"
 },{
+  name: "{{ _('Back to index') }}",
+  iconClass: 'fa fa-camera-retro',
+  isShown: function() {
+    if (document.title == "{{ _('Picview') }}") {
+      return true;
+    } else {
+      return false;
+    }
+  },
+  onClick: function() {
+    back2Mainpage()
+  }
+},{
   name: "{{ _('Zoom in') }}",
   iconClass: 'fa fa-camera-retro',
   isShown: function(e) {

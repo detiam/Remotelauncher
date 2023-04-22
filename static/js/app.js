@@ -203,8 +203,8 @@ function reloadLang() {
         caches.open(cacheName).then(function(cache) {
           filesToCache.forEach(function(cacheItem) {
             cache.delete(cacheItem)
+            cache.add(cacheItem)
           })
-          return cache.addAll(filesToCache);
         })
       });
     }
@@ -240,44 +240,74 @@ function detail_reload() {
   }
 }
 
+function bsmenu_reload() {
+  $('.dropdown.bootstrapMenu').remove();
+  new BootstrapMenu('.img-thumbnail', {
+    fetchElementData: function($rowElem) {
+        return {
+            id: $rowElem.attr('id').match(/\d+/),
+            zoomin: true
+        };
+    },
+    menuItems: menuContext
+  });
+  new BootstrapMenu('.tableViewRow', {
+    fetchElementData: function($rowElem) {
+        return {
+            id: $rowElem.attr('id').match(/\d+/),
+            zoomin: false
+        };
+    },
+    menuItems: menuContext
+  });
+}
+
 function fullPicview(useCase) {
   if (useCase === 'enterPicview') {
-    var mainpageclone = $('#mainpage').clone();
-    var mainpageinfo = [
+    localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
+    sessionStorage.mainpageclone = $('#mainpage').html();
+    sessionStorage.mainpageinfo = [
       document.title,
       document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     ]
   }
   $('#mainpage').load(myflaskGet('html_picview'), function () {
     myscrollTo('ScrollPositionPicview')
+    bsmenu_reload()
+    document.title = myflaskGet('i18n_picviewTitle');
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
+    document.querySelector('.picview').style.borderRadius = '5px';
+    document.body.style.backgroundColor = '#686868';
+    document.body.style.margin = '1em';
     document.querySelectorAll('.cover').forEach(function (element) {
       element.classList.add('fullpagecover');
-      document.title = myflaskGet('i18n_picviewTitle');
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
-      const picView = document.querySelector('.picview');
-      picView.style.borderRadius = '5px';
-      document.body.style.backgroundColor = '#686868';
-      document.body.style.margin = '1em';
-    });
-    document.querySelector('.picview').addEventListener('click', function (e) {
-      $('#mainpage').html(mainpageclone)
-      document.body.style = '';
-      document.title = mainpageinfo[0];
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', mainpageinfo[1]);
     });
   });
 }
 
+function back2Mainpage() {
+  localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
+  $('#mainpage').html(sessionStorage.mainpageclone)
+  myscrollTo('ScrollPositionMainpage')
+  bsmenu_reload()
+  document.body.style = '';
+  document.title = sessionStorage.mainpageinfo[0];
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', sessionStorage.mainpageinfo[1]);
+}
+
 function mainHTML_reload() {
   $('#collapseTwo').load(myflaskGet('html_picview'), () => {
-    $('#collapseThree').load(myflaskGet('html_tableview'), () => {
-      if (document.title == myflaskGet('i18n_picviewTitle')) {
-        myscrollTo('ScrollPositionPicview')
+    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').hover(function() {
+      if ($(this).hasClass('custom-contextmenu')) {
+        $(this).tooltip('disable');
       } else {
-        myscrollTo('ScrollPositionMainpage')
+        $(this).tooltip('enable');
       }
-    }); 
+    });
   });
+  $('#collapseThree').load(myflaskGet('html_tableview'));
+  bsmenu_reload()
 }
 
 
@@ -309,15 +339,6 @@ document.addEventListener('DOMContentLoaded', () => { mainHTML_reload()
     }
     // localStorage.removeItem('collapseStates');
   }
-
-  $('.panel-collapse').on('show.bs.collapse', function () {
-    $(this).siblings('.panel-heading').addClass('active');
-  });
-
-  $('.panel-collapse').on('hide.bs.collapse', function () {
-    delZoominclass()
-    $(this).siblings('.panel-heading').removeClass('active');
-  });
 });
 
 if (location.pathname === '/') {
@@ -329,7 +350,7 @@ if (location.pathname === '/') {
     }
   }
 
-  window.addEventListener('scroll', () => {
+  window.addEventListener('beforeunload', () => {
     if (document.title == myflaskGet('i18n_picviewTitle')) {
       localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
     } else {
@@ -337,7 +358,20 @@ if (location.pathname === '/') {
     }
   });
 
+  window.addEventListener('load', () => {
+    myscrollTo('ScrollPositionMainpage')
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
+    $('.panel-collapse').on('show.bs.collapse', function () {
+      $(this).siblings('.panel-heading').addClass('active');
+    });
+  
+    $('.panel-collapse').on('hide.bs.collapse', function () {
+      delZoominclass()
+      $(this).siblings('.panel-heading').removeClass('active');
+    });
+
     // 获取语言切换器组件
     const langSelector = document.getElementById("lang-selector");
     // 添加监听器，当用户选择语言时触发

@@ -22,17 +22,6 @@
         font-size: inherit;
     }
 </style>
-<script>
-    var menu = new BootstrapMenu('.tableViewRow', {
-        fetchElementData: function($rowElem) {
-            return {
-                id: $rowElem.attr('id').match(/\d+/),
-                zoomin: false
-            };
-        },
-        menuItems: menuContext
-    });
-</script>
 <div style="overflow-x: auto; max-width: 100%;" class="panel-body tableview">
     <table class="table table-hover table-striped">
         <thead>

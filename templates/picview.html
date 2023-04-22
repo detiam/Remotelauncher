@@ -98,27 +98,6 @@
         }
     }
 </style>
-<script>
-    $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-        $('[data-toggle="tooltip"]').hover(function() {
-            if ($(this).hasClass('custom-contextmenu')) {
-              $(this).tooltip('disable');
-            } else {
-              $(this).tooltip('enable');
-            }
-        });          
-    });
-    var menu = new BootstrapMenu('.img-thumbnail', {
-        fetchElementData: function($rowElem) {
-            return {
-                id: $rowElem.attr('id').match(/\d+/),
-                zoomin: true
-            };
-        },
-        menuItems: menuContext
-    });
-</script>
 <div class="panel-body picview">
     {% for program in programs %}
     <div class="col-md-3 cover">
