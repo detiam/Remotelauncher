@@ -2,7 +2,7 @@
     .picon {
         height: 1em;
         width: 1em;
-        margin-right: 4px;
+        margin-right: 1em;
         -webkit-user-drag: none;
         -moz-user-drag: none;
         -ms-user-drag: none;
@@ -59,8 +59,8 @@
                         class="picon"
                         src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/icon.ico') }}"
                         onerror="this.onerror=null;this.style.display='none';"
-                        alt="icon-{{ program.name }}">
-                    {{ program.name }}
+                        alt="icon-{{ program.name }}"
+                    >{{ program.name }}
                 </td>
             </tr>
             {% endfor %}

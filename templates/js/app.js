@@ -2,7 +2,7 @@ const menuContext = [{
   header: "{{ _('Actions') }}"
 },{
   name: "{{ _('Back to index') }}",
-  iconClass: 'fa fa-camera-retro',
+  iconClass: 'fa fa-arrow-left',
   isShown: function() {
     if (document.title == "{{ _('Picview') }}") {
       return true;
@@ -14,13 +14,19 @@ const menuContext = [{
     back2Mainpage()
   }
 },{
-  name: "{{ _('Zoom in') }}",
+  name: function(e) {
+    if (e.zoomname) {
+      return "{{ _('Zoom out') }}"
+    } else {
+      return "{{ _('Zoom in') }}"
+    }
+  },
   iconClass: 'fa fa-camera-retro',
   isShown: function(e) {
     if (document.title == "{{ _('Picview') }}") {
       return false;
     } else {
-      return e.zoomin;
+      return e.haszoom;
     }
   },
   onClick: function(e) {

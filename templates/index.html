@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/BootstrapMenu.min.js') }}"></script>
@@ -16,57 +17,10 @@
     <script src="{{ url_for('static_jinja2ed', filename='js/app.js') }}"></script>
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='pic/logo.png') }}">
-    <style>
-        td,
-        th {
-            word-break: keep-all;
-            white-space: nowrap;
-            text-align: justify;
-        }
-
-        .panel-heading {
-            padding: 0;
-            border: 0;
-        }
-
-        .panel-title>a,
-        .panel-title>a:active {
-            display: block;
-            padding: 10px;
-            color: #555;
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .panel-heading a:before {
-            font-family: 'Glyphicons Halflings';
-            content: "\e114";
-            float: right;
-            transform: translateY(0.2em);
-            /*transition: all 0.2s;*/
-        }
-
-        .panel-heading.active a:before {
-            -webkit-transform: rotate(180deg);
-            -moz-transform: rotate(180deg);
-            transform: rotate(180deg);
-        }
-
-        /* 禁用横向滚动条 */
-        body {
-            overflow-x: hidden;
-        }
-    
-        /* 删除横向滚动条 */
-        ::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
 </head>
 
 <body id="mainpage">
-    <div class="container" style="user-select: none;">
+    <div class="container">
         <div class="page-header">
             <h2>{{ _("Applauncher") }}</h2>
             <p class="instructions">{{ _("Config and run programs from the web!") }}</p>

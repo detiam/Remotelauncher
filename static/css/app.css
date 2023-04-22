@@ -1,0 +1,46 @@
+/* for all page */
+html {
+    user-select: none;
+}
+tbody {
+    user-select: text;
+}
+tbody>tr>td>img {
+    user-select: none;
+}
+
+/* for main page */
+td,th {
+    word-break: keep-all;
+    white-space: nowrap;
+    text-align: justify;
+}
+.panel-heading {
+    padding: 0;
+    border: 0;
+}
+.panel-title>a,
+.panel-title>a:active {
+    display: block;
+    padding: 10px;
+    color: #555;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+}
+.panel-heading a:before {
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+    float: right;
+    transform: translateY(0.2em);
+    /*transition: all 0.2s;*/
+}
+.panel-heading.active a:before {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+/* 禁用横向滚动条 */
+body {
+    overflow-x: hidden;
+}

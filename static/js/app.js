@@ -246,7 +246,8 @@ function bsmenu_reload() {
     fetchElementData: function($rowElem) {
         return {
             id: $rowElem.attr('id').match(/\d+/),
-            zoomin: true
+            zoomname: $rowElem.hasClass('custom-contextmenu'),
+            haszoom: true
         };
     },
     menuItems: menuContext
@@ -255,7 +256,7 @@ function bsmenu_reload() {
     fetchElementData: function($rowElem) {
         return {
             id: $rowElem.attr('id').match(/\d+/),
-            zoomin: false
+            haszoom: false
         };
     },
     menuItems: menuContext
