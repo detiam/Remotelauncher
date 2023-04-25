@@ -172,7 +172,10 @@ def data_get(filename):
     try:
         return send_from_directory(data_dir, filename)
     except:
-        return '', 204
+        if filename.endswith(".jpg"):
+            return send_from_directory(path.join(app.root_path, 'static'), 'pic/fallback.png')
+        else:
+            return '', 204
 
 @app.post('/data/dbconf')
 def data_dbconf():

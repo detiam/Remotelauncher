@@ -1,11 +1,12 @@
 <div class="panel-body picview">
     {% for program in programs %}
-    <div class="col-md-3 cover">
+    <div id="pic-{{ program.id }}" class="col-md-3 cover">
         <img
             id="p-{{ program.id }}"
             title="{{ program.name }}"
             class="img-thumbnail custom-img"
             src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/library.jpg') }}"
+            alt="picture-{{ program.id }}"
         >
     </div>
     {% endfor %}

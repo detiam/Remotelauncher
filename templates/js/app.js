@@ -1,6 +1,56 @@
 const menuContext = [{
   header: "{{ _('Actions') }}"
 },{
+  name: "{{ _('Start application') }}",
+  iconClass: 'fa fa-cog',
+  onClick: function(e) {
+      $.get(myflaskGet('apps_launch', e.id));
+  }
+},{
+  name: function(e) {
+    if (isfavorite(e.id)) {
+      return "{{ _('Remove favorite') }}"
+    } else {
+      return "{{ _('Add to favorite') }}"
+    }
+  },
+  iconClass: function(e) {
+    if (isfavorite(e.id)) {
+      return "fa fa-bookmark"
+    } else {
+      return "fa fa-bookmark-o"
+    }
+  },
+  onClick: function(e) {
+    const favoritelist = JSON.parse(localStorage.favoritelist || '{}')
+    if (isfavorite(e.id)) {delete favoritelist[e.id]}
+      else {favoritelist[e.id] = 'true'}
+    localStorage.favoritelist = JSON.stringify(favoritelist)
+    fav_reload()
+  }
+},{
+  name: "{{ _('Delete this app') }}",
+  iconClass: 'fa fa-trash',
+  classNames: 'action-danger',
+  onClick: function(e) {
+    if (document.title === myflaskGet('i18n_picviewTitle')) {
+      sessionStorage.needReloadWhenGoBack = true
+    }
+    $.get(myflaskGet('apps_del', e.id), function(){
+      delCache(myflaskGet('data_get', 'resources/' + e.id), () => {
+        if (document.title == "{{ _('Picview') }}") {
+          fullPicview('reload')
+        } else {
+          mainHTML_reload()
+        }
+      })
+    }).fail(function() {
+      alert('Something went wrong.');
+    });
+  }
+},{
+  divider: true
+},{
   name: "{{ _('Back to index') }}",
   iconClass: 'fa fa-arrow-left',
   isShown: function() {
@@ -30,36 +80,8 @@ const menuContext = [{
     }
   },
   onClick: function(e) {
-    handleZoomin(document.getElementById('p-' + e.id));
+    handleZoomin(document.getElementById(e.id.input));
   }
-},{
-  name: "{{ _('Start application') }}",
-  iconClass: 'fa fa-cog',
-  onClick: function(e) {
-      $.get(myflaskGet('apps_launch', e.id));
-  }
-},{
-  name: "{{ _('Delete this app') }}",
-  iconClass: 'fa fa-trash',
-  classNames: 'action-danger',
-  onClick: function(e) {
-    if (document.title === myflaskGet('i18n_picviewTitle')) {
-      sessionStorage.needReloadWhenGoBack = true
-    }
-    $.get(myflaskGet('apps_del', e.id), function(){
-      delCache(myflaskGet('data_get', 'resources/' + e.id), () => {
-        if (document.title == "{{ _('Picview') }}") {
-          fullPicview('reload')
-        } else {
-          mainHTML_reload()
-        }
-      })
-    }).fail(function() {
-      alert('Something went wrong.');
-    });
-  }
-},{
-  divider: true
 },{
   name: "{{ _('More Options') }}",
   iconClass: 'fa fa-bars',
@@ -70,11 +92,6 @@ const menuContext = [{
     onClick: function(e) {
       $.get(myflaskGet('api_opendir', e.id));
     }
-  },{
-    name: function() {
-      return "{{ _('Add to favorite') }}"
-    },
-    iconClass: 'fa fa-bookmark-o',
   },{
     name: "{{ _('Modify property') }}",
     iconClass: 'fa fa-file-text-o',

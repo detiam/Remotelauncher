@@ -3,6 +3,10 @@ function scrollToPage(page) {
   catch (error) { console.log('scrollToPage('+page+'): Failed! ' + error)}
 }
 
+function isfavorite(id) {
+  return JSON.parse(localStorage.favoritelist || '{}')[id]
+}
+
 function openDetailWindow(id, x, y) {
   if (isNaN(id)) {
     id.preventDefault();
@@ -268,17 +272,6 @@ async function back2Mainpage() {
 }
 
 async function mainHTML_reload() {
-  $('#collapseOne').load(myflaskGet('html_tableview'), async () => {
-    $('.picon')
-    .on('load', e => {
-      e.originalEvent.target.style.display='initial'
-    })
-    $('.tableViewRow')
-      .on('dragover', false) 
-      .on('drop', e => {
-        handleDrop(e.originalEvent)
-      });
-  });
   $('#collapseTwo').load(myflaskGet('html_picview'), async () => {
     $('.custom-img')
       .attr({
@@ -293,6 +286,7 @@ async function mainHTML_reload() {
         'click': e => {
           $.get(flaskUrl.get("apps_launch")(e.target.id.match(/\d+/)))}
       });
+    fav_reload()
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="tooltip"]').hover(e => {
       if ($(e.target).hasClass('custom-contextmenu')) {
@@ -316,15 +310,38 @@ async function mainHTML_reload() {
   bsmenu_reload()
 }
 
+function fav_reload() {
+  $('#f-avorites').remove();
+  const favCollapse = $('.picview').clone().attr('id', 'avorites')
+  favCollapse.children().each(function() {
+    const favoriteList = JSON.parse(localStorage.favoritelist || '{}');
+    const id = $(this).attr('id').match(/\d+/);
+    if (!(id in favoriteList)) {
+      $(this).remove(); // 从 DOM 中删除 div
+    }
+  });
+  $('#collapseOne').html(favCollapse).find('[id]').attr('id', function(_, id) {
+    return 'f-' + id;
+  }).on({
+    'dragover': false,
+    'drop': e => {
+      handleDrop(e.originalEvent)},
+    'error': e => {
+      e.target.src=flaskUrl.get("static")('pic/fallback.png')},
+    'click': e => {
+      $.get(flaskUrl.get("apps_launch")(e.target.id.match(/\d+/)))}
+  });
+}
+
 function bsmenu_reload() {
   $('.dropdown.bootstrapMenu').remove();
   new BootstrapMenu('.img-thumbnail', {
     fetchElementData: function($rowElem) {
-        return {
-            id: $rowElem.attr('id').match(/\d+/),
-            zoomname: $rowElem.hasClass('custom-contextmenu'),
-            haszoom: true
-        };
+      return {
+          id: $rowElem.attr('id').match(/\d+/),
+          zoomname: $rowElem.hasClass('custom-contextmenu'),
+          haszoom: true
+      };
     },
     menuItems: menuContext
   });
@@ -344,18 +361,18 @@ function bsmenu_reload() {
 document.addEventListener('DOMContentLoaded', () => {
   // 保存页面collapse状态
   $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
-    var id = this.id;
-    var state = this.classList.contains('in') ? 'show' : 'hide';
-    var collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
+    const id = this.id;
+    const state = this.classList.contains('in') ? 'show' : 'hide';
+    const collapseStates = JSON.parse(localStorage.getItem('collapseStates')) || {};
     collapseStates[id] = state;
     localStorage.setItem('collapseStates', JSON.stringify(collapseStates));
   });
 
   // 在加载时恢复页面collapse状态
   const collapseStates = JSON.parse(window.localStorage.getItem('collapseStates')) || {};
-  for (var id in collapseStates) {
-    var state = collapseStates[id];
-    var elem = document.getElementById(id);
+  for (let id in collapseStates) {
+    const state = collapseStates[id];
+    const elem = document.getElementById(id);
     if (elem) {
       if (state === 'hide') {
         // $(elem).collapse('hide');

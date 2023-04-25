@@ -18,15 +18,7 @@ function lang_reload() {
   }
 }
 
-window.addEventListener('beforeunload', () => {
-  if (document.title == myflaskGet('i18n_picviewTitle')) {
-    localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
-  } else {
-    localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
-  }
-});
-
-document.addEventListener('DOMContentLoaded', Mainpage_js = async () => { mainHTML_reload()
+function Mainpage_js() {
   $('.panel-collapse')
     .on('show.bs.collapse', function () {
       $(this).siblings('.panel-heading').addClass('active');
@@ -47,6 +39,19 @@ document.addEventListener('DOMContentLoaded', Mainpage_js = async () => { mainHT
     // 刷新页面，使语言生效
     lang_reload();
   });
+}
+
+window.addEventListener('beforeunload', () => {
+  if (document.title == myflaskGet('i18n_picviewTitle')) {
+    localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
+  } else {
+    localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  mainHTML_reload()
+  Mainpage_js()
 });
 
 window.addEventListener('load', () => {

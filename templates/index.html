@@ -25,7 +25,7 @@
         <div class="page-header">
             <h2>{{ _("Applauncher") }}</h2>
             <p class="instructions">{{ _("Config and run programs from the web!") }}</p>
-            <select id="lang-selector" style="display: inline-flex; justify-content: flex-end; float: right;">
+            <select id="lang-selector" title="langSelector">
                 {% for code, name in languages.items() %}
                     {% if code == get_locale() %}
                         <option value="{{ code }}" selected>{{ name }}</option>
@@ -99,7 +99,7 @@
                                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
                                         aria-expanded="false" aria-controls="collapseOne">
                                         <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
-                                        <span style="margin-left: 2px;">{{ _("Favorites") }}</span>
+                                        <span class="collapseTitleText">{{ _("Favorites") }}</span>
                                     </a>
                                 </h4>
                             </div>
@@ -113,8 +113,8 @@
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                        <span style="margin-left: 2px;">{{ _("Picture View") }}</span>
-                                        <button style="border: 0px; padding:0px;" onclick="fullPicview('enterPicview')" type="button"
+                                        <span class="collapseTitleText">{{ _("Picture View") }}</span>
+                                        <button id="fullPicviewIcon" onclick="fullPicview('enterPicview')" type="button"
                                             class="glyphicon glyphicon-new-window"
                                             title="{{ _('Click to expand picview') }}">
                                         </button>
@@ -131,7 +131,7 @@
                                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
                                         href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                                         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                                        <span style="margin-left: 2px;">{{ _("Table View") }}</span>
+                                        <span class="collapseTitleText">{{ _("Table View") }}</span>
                                     </a>
                                 </h4>
                             </div>
