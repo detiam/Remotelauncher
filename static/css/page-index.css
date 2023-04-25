@@ -35,7 +35,7 @@ body {
 }
 
 /* for table view */
-tbody {
+tbody,th {
     word-break: keep-all;
     white-space: nowrap;
     user-select: text;
@@ -50,29 +50,34 @@ td,th {
 .table>tbody>tr>td {
     border-top: none;
 }
+.idRow {
+    transform: translateX(-8px);
+    text-align: start;
+    font-size: small;
+}
 .picon {
     height: 1em;
     width: 1em;
-    /*margin-left: 1em;*/
     -webkit-user-drag: none;
     -moz-user-drag: none;
     -ms-user-drag: none;
     -user-drag: none;
-    transform: scale(150%) translateY(-0.1em);
+    transform: scale(150%) translate(-0.01em,-0.1em);
     transition: transform 0.06s ease;
 }
 .picon:hover {
-    transform: scale(300%) translateY(-0.1em);
+    transform: scale(300%) translate(-0.01em,-0.1em);
     z-index: 9999;
 }
 .tableview {
     padding: 0;
+    overflow-x: auto;
+    max-width: 100%;
 }
 .table {
     margin-bottom: 0;
     font-size: inherit;
 }
-
 /* for picture view */
 :root {
     --cover-padding: 0.9em;
