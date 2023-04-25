@@ -1,5 +1,6 @@
 const cacheName = 'cachev1';
 const filesToCache = [
+  '{{ url_for("api_urls") }}',
   '{{ url_for("page_offline") }}',
   '{{ url_for("file_favicon") }}',
   '{{ url_for("file_webmanifest") }}',
@@ -8,7 +9,7 @@ const filesToCache = [
 const pathsToCache = [
   '{{ url_for("static", filename="") }}',
   '{{ url_for("static_jinja2ed", filename="") }}',
-  '{{ url_for("data_get", filename="") }}'
+  '{{ url_for("data_get", filename="resources/") }}'
 ];
 
 self.addEventListener('message', event => {

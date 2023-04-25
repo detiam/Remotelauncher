@@ -39,20 +39,24 @@ const menuContext = [{
       $.get(myflaskGet('apps_launch', e.id));
   }
 },{
-  name: "{{ _('Delete this') }}",
+  name: "{{ _('Delete this app') }}",
   iconClass: 'fa fa-trash',
   classNames: 'action-danger',
   onClick: function(e) {
-      $.get(myflaskGet('apps_del', e.id), function(){
+    if (document.title === myflaskGet('i18n_picviewTitle')) {
+      sessionStorage.needReloadWhenGoBack = true
+    }
+    $.get(myflaskGet('apps_del', e.id), function(){
+      delCache(myflaskGet('data_get', 'resources/' + e.id), () => {
         if (document.title == "{{ _('Picview') }}") {
           fullPicview('reload')
-          console.log('reload.fullPicview()')
         } else {
           mainHTML_reload()
         }
-      }).fail(function() {
-          alert('Something went wrong.');
-      });
+      })
+    }).fail(function() {
+      alert('Something went wrong.');
+    });
   }
 },{
   divider: true
@@ -61,16 +65,16 @@ const menuContext = [{
   iconClass: 'fa fa-bars',
   subMenuItems:
   [{
-    name: function() {
-        return "{{ _('Add to favorite') }}"
-    },
-    iconClass: 'fa fa-bookmark-o',
-  },{
     name: "{{ _('Open data folder') }}",
     iconClass: 'fa fa-folder-o',
     onClick: function(e) {
       $.get(myflaskGet('api_opendir', e.id));
     }
+  },{
+    name: function() {
+      return "{{ _('Add to favorite') }}"
+    },
+    iconClass: 'fa fa-bookmark-o',
   },{
     name: "{{ _('Modify property') }}",
     iconClass: 'fa fa-file-text-o',
@@ -80,25 +84,30 @@ const menuContext = [{
   }]
 }]
 
+let flaskUrl;
+fetch('{{ url_for("api_urls") }}')
+  .then(response => response.json())
+  .then(data => {
+    flaskUrl = new Map(Array.from(Object.entries(data))
+      .map(([key, value]) => [key, (param) => value.replace(/<.*:.*>/i, param)])
+    )
+  }).finally(()=>{
+    if ('serviceWorker' in navigator &&
+        !navigator.serviceWorker.controller &&
+        document.cookie.indexOf("dev"))
+    {
+      try {
+        navigator.serviceWorker.register(flaskUrl.get("file_serviceworker")());
+      } catch (error) {
+        console.error('[Service Worker] Failed to register:', error);
+      }
+    }
+  });
+
+
 const flaskStr = new Map([
   ['i18n_picviewTitle', "{{ _('Picview') }}"],
 ]);
-
-let flaskUrl;
-if (sessionStorage.flaskUrl) {
-  flaskUrl = new Map(JSON.parse(sessionStorage.flaskUrl));
-} else {
-  fetch('{{ url_for("api_urls") }}')
-  .then(response => response.json())
-  .then(data => {
-    flaskUrl = new Map()
-    for (const [key, value] of Object.entries(data)) {
-      flaskUrl.set(key, value);
-    }
-    sessionStorage.flaskUrl = JSON.stringify([...flaskUrl]);
-    console.log('flaskUrl fetched');
-  });
-}
 
 function myflaskGet(route, value) {
   if (route === 'html_picview') {return '{{ url_for("html_picview") }}'}

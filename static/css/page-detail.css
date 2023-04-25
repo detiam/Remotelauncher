@@ -1,0 +1,16 @@
+/* 添加红色边框样式 */
+.error {
+  border: 2px solid red;
+}
+/* 禁用横向滚动条 */
+body {
+  overflow-x: hidden;
+}
+label {
+  font-size: smaller;
+  margin-left: 5px;
+}
+/* 删除横向滚动条 */
+::-webkit-scrollbar {
+  display: none;
+}

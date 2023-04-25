@@ -9,58 +9,13 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/page-detail.css') }}">
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/BootstrapMenu.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   <script src="{{ url_for('static_jinja2ed', filename='js/app.js') }}"></script>
-  <script>
-    // 获取当前 URL 中的查询参数
-    const params = new URLSearchParams(window.location.search);
-    // 检查参数是否存在，以及其值是否符合条件
-    if (params.get('need_reload') === '1') {
-      detail_reload()
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // 显示警告框
-      $("#alert").fadeIn();
-      // 定时隐藏警告框
-      setTimeout(function () {
-        $("#alert").fadeOut();
-      }, 3000); // 设置5秒后自动隐藏
-      document.addEventListener('keydown', function (event) {
-        // 如果按下的是Ctrl + S, 则触发按钮的单击事件
-        if (event.ctrlKey && event.code === 'KeyS') {
-          event.preventDefault(); // 防止默认的保存操作
-          document.getElementById('detail-save-button').click(); // 触发按钮的单击事件
-        }
-        if (event.code === 'Escape') {
-          // event.preventDefault();
-          window.close()
-        }
-      });
-    });
-  </script>
-  <style>
-    /* 添加红色边框样式 */
-    .error {
-      border: 2px solid red;
-    }
-    /* 禁用横向滚动条 */
-    body {
-      overflow-x: hidden;
-    }
-    label {
-      font-size: smaller;
-      margin-left: 5px;
-    }
-    /* 删除横向滚动条 */
-    ::-webkit-scrollbar {
-      display: none;
-    }
-  </style>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/page-detail.js') }}"></script>
 </head>
 
 <body>

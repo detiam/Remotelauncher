@@ -9,12 +9,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/page-index.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/BootstrapMenu.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script src="{{ url_for('static_jinja2ed', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/page-index.js') }}"></script>
     <link rel="manifest" href="app.webmanifest">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='pic/logo.png') }}">
 </head>
@@ -102,11 +103,8 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
-                                aria-labelledby="headingOne">
-                                <div class="panel-body">
-                                    ...
-                                </div>
+                            <div id="collapseOne" class="panel-collapse collapse"
+                                role="tabpanel" aria-labelledby="headingOne">
                             </div>
                         </div>
                         <div class="panel panel-default element-to-hide">

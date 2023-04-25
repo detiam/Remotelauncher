@@ -1,103 +1,3 @@
-<style>
-    :root {
-        --cover-padding: 0.9em;
-        --cover-box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.3);
-        --cover-hover-box-shadow: 5px 5px 20px 2px rgba(0, 0, 0, 0.5);
-        --zoomin-box-shadow: 0px 5px 10px 2px rgba(0, 0, 0, 0.3);
-        --bg-color: #686868;
-        --bg-color-hover: #424242;
-        --bg-box-shadow: 0 0 0 0 var(--bg-color-hover);
-    }
-    .custom-img {
-        image-rendering: auto;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        position: relative;
-        padding: 0;
-        transition: filter 0.2s ease-in-out, transform .4s cubic-bezier(.075, .82, .165, 1) 0ms, box-shadow .4s cubic-bezier(.075, .82, .165, 1) 0ms, opacity .4s cubic-bezier(.075, .82, .165, 1) 0ms, border-color .4s cubic-bezier(.075, .82, .165, 1) 0ms;
-        background-color: var(--theme-section-bg-gray);
-        color: var(--theme-page-fg);
-        border: 0px solid transparent;
-        border-color: #585858;
-        border-radius: 5px;
-        -webkit-user-drag: none;
-        -moz-user-drag: none;
-        -ms-user-drag: none;
-        -user-drag: none;
-        box-shadow: var(--cover-box-shadow);
-    }
-    .custom-img:hover {
-        filter: brightness(105%);
-        transform: translateY(-6px);
-        z-index: 9999;
-        /*opacity: 0.7;
-        border: 1px solid transparent;
-        margin-top: 1px;
-        border-bottom-color: rgba(var(--theme-page-fg-rgb), .08);
-        border-color: rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .08) rgba(var(--theme-page-fg-rgb), .25);*/
-        box-shadow: var(--cover-hover-box-shadow);
-    }
-    .custom-img:active {
-        transform: translateY(3px);
-        box-shadow: var(--bg-box-shadow)
-    }
-    .picview {
-        background-color: var(--bg-color);
-        transition: background-color 0.1s ease-in-out;
-        padding: var(--cover-padding);
-        border-radius: 0 0 4px 4px;
-    }
-    .picview:hover {
-        background-color: var(--bg-color-hover);
-    }
-    .picview:hover img:not(:hover, .custom-contextmenu) {
-        filter: brightness(80%);
-    }
-    .custom-contextmenu {
-        transform: scale(1.8);
-        z-index: 10000;
-        /*box-shadow: var(--zoomin-box-shadow);*/
-    }
-    .custom-contextmenu:hover {
-        transform: scale(2);
-        z-index: 10000;
-        /*box-shadow: var(--zoomin-box-shadow);*/
-    }
-    .tooltip .tooltip-arrow {
-        display: none;
-    }
-    .cover {
-        padding: var(--cover-padding);
-        height: auto;
-        float: left;
-        object-fit: contain
-    }
-    @media (max-width: 991px) {
-        .cover {
-            width: 50%;
-        }
-    }
-    @media (min-width: 661px) and (max-width: 991px) {
-        .cover {
-            width: 25%;
-        }
-    }
-    @media (min-width: 991px) and (max-width: 1351px) {
-        .fullpagecover {
-            width: 20%;
-        }
-    }
-    @media (min-width: 1351px) and (max-width: 1920px) {
-        .fullpagecover {
-            width: 10%;
-        }
-    }
-    @media (min-width: 1920px) {
-        .fullpagecover {
-            width: 10%;
-        }
-    }
-</style>
 <div class="panel-body picview">
     {% for program in programs %}
     <div class="col-md-3 cover">
@@ -105,13 +5,7 @@
             id="p-{{ program.id }}"
             title="{{ program.name }}"
             class="img-thumbnail custom-img"
-            data-toggle="tooltip"
-            data-placement="bottom"
-            onclick="launchapp('{{ program.id }}')"
-            ondragover="event.preventDefault()"
-            ondrop="handleDrop(event)"
             src="{{ url_for('data_get', filename='resources/' + str(program.id) + '/library.jpg') }}"
-            onerror="this.onerror=null;this.src='{{ fallback_thumbnail }}';" alt="image-{{ program.name }}"
         >
     </div>
     {% endfor %}

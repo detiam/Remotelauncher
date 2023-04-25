@@ -146,8 +146,7 @@ def page_offline():
 
 @app.get('/html/picview')
 def html_picview():
-    return render_template('picview.html', programs=Program.query.all(), str=str,
-                           fallback_thumbnail=url_for('static', filename='pic/fallback.png'))
+    return render_template('picview.html', str=str, programs=Program.query.all())
 
 @app.get('/html/tableview')
 def html_tableview():
@@ -287,13 +286,11 @@ def apps_del(program_id):
     resbakpath = path.join(respath + '.bak')
     try:
         rename(respath, resbakpath)
-    except FileExistsError:
-        rmtree(resbakpath)
-        rename(respath, resbakpath)
     except FileNotFoundError:
         pass
-    except:
-        return 'delete failed', 400
+    except Exception:
+        rmtree(resbakpath)
+        rename(respath, resbakpath)
     program = Program.query.get_or_404(program_id)
     db.session.delete(program)
     db.session.commit()

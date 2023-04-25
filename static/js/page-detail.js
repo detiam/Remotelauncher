@@ -1,0 +1,35 @@
+function detail_reload() {
+  if (window.opener.document.title == myflaskGet('i18n_picviewTitle')) {
+    window.opener.fullPicview('reload')
+    console.log('reload.fullPicview()')
+  } else {
+    window.opener.mainHTML_reload()
+  }
+}
+
+// 获取当前 URL 中的查询参数
+const params = new URLSearchParams(window.location.search);
+// 检查参数是否存在，以及其值是否符合条件
+if (params.get('need_reload') === '1') {
+  detail_reload()
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 显示警告框
+  $("#alert").fadeIn();
+  // 定时隐藏警告框
+  setTimeout(function () {
+    $("#alert").fadeOut();
+  }, 3000); // 设置5秒后自动隐藏
+  document.addEventListener('keydown', function (event) {
+    // 如果按下的是Ctrl + S, 则触发按钮的单击事件
+    if (event.ctrlKey && event.code === 'KeyS') {
+      event.preventDefault(); // 防止默认的保存操作
+      document.getElementById('detail-save-button').click(); // 触发按钮的单击事件
+    }
+    if (event.code === 'Escape') {
+      // event.preventDefault();
+      window.close()
+    }
+  });
+});
