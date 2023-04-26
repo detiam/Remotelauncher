@@ -1,9 +1,9 @@
 #!/bin/python3
-from app import db, config_names, Config, Program, path, makedirs, app, resources_dir
+from app import Config, Program, makedirs, db, config_names, path, app, resources_dir
 from asyncio import run
 from hypercorn.config import Config as hypercornConfig
 from hypercorn.asyncio import serve
-from asgiref.wsgi import WsgiToAsgi
+from hypercorn.middleware import AsyncioWSGIMiddleware
 
 hypercornconfig = hypercornConfig()
 hypercornconfig.bind = ["[::]:2023", "0.0.0.0:5000"]
@@ -19,4 +19,4 @@ if __name__ == '__main__':
         program_dir = path.join(resources_dir, str(program.id))
         if not path.exists(program_dir):
             makedirs(program_dir)
-    run(serve(WsgiToAsgi(app), hypercornconfig))
+    run(serve(AsyncioWSGIMiddleware(app), hypercornconfig))

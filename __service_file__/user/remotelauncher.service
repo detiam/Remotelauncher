@@ -1,12 +1,11 @@
 [Unit]
-Description=A service for running the launcher background
+Description=the service for running launcher background
 After=network.target iptables.service ip6tables.service
 Wants=network.target
 
 [Service]
-Type=simple
-ExecStart=/opt/remotelauncher/entry.py
+ExecStart=%h/.local/opt/remotelauncher/entry.py
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
