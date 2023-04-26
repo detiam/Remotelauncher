@@ -28,15 +28,18 @@ function openDetailWindow(id, x, y) {
 
 function addZoominclass(elem) {
   elem.classList.add('custom-contextmenu')
-  //event.target.parentNode.setAttribute('onclick', 'return false;');
   elem.setAttribute('onclick',
     'event.preventDefault(); handleZoomin(event.target)')
+  $(elem).off("click")
 }
 
 function delZoominclass() {
   document.querySelectorAll('.custom-contextmenu').forEach(function (element) {
     element.classList.remove('custom-contextmenu');
     element.removeAttribute('onclick');
+    $(element).on('click', e => {
+      launchapp(e.target.id.match(/\d+/))}
+    );
   });
 };
 
@@ -150,6 +153,7 @@ function uploadUrl(url, id) {
       delCache(route, () => { 
         readFileFromFlask(route, (content) => {
           imgPreview.src = content;
+          fav_reload()
           console.log('uploadUrl(): new image loaded');
         });
       })
@@ -183,6 +187,7 @@ function uploadFile(file, id) {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
         imgPreview.src = reader.result;
+        fav_reload()
         console.log('uploadFile(): new image loaded');
       });
       reader.readAsDataURL(file);
@@ -204,16 +209,7 @@ function uploadFile(file, id) {
 }
 
 function launchapp(id) {
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', myflaskGet('apps_launch', id), true);
-  xhr.onload = () => {
-    if (xhr.status === 204) {
-      console.log('launchapp('+id+'): Success!')
-    } else {
-      console.log('launchapp('+id+'): Failed..')
-    }
-  }
-  xhr.send()
+  $.get(flaskUrl.get("apps_launch")(id))
 }
 
 function fullPicview(useCase) {
@@ -225,33 +221,19 @@ function fullPicview(useCase) {
       origColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     })
   }
-  $('#mainpage').load(myflaskGet('html_picview'), function () {
-    $('.custom-img')
-      .attr({
-        'data-toggle': 'tooltip',
-        'data-placement': 'bottom'
-      })
-      .on({
-        'dragover': false,
-        'drop': e => {
-          handleDrop(e.originalEvent)},
-        'error': e => {
-          e.target.src=flaskUrl.get("static")('pic/fallback.png');
-          scrollToPage('ScrollPositionPicview')},
-        'click': e => {
-          $.get(flaskUrl.get("apps_launch")(e.target.id.match(/\d+/)))}
-      });
-    bsmenu_reload()
-    scrollToPage('ScrollPositionPicview')
-    document.title = myflaskGet('i18n_picviewTitle');
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
-    document.querySelector('.picview').style.borderRadius = '5px';
-    document.body.style.backgroundColor = '#686868';
-    document.body.style.margin = '1em';
-    document.querySelectorAll('.cover').forEach(function 
-      (element) {
-      element.classList.add('fullpagecover');
-    });
+  const favCollapse = $('#p-icview').clone(true)
+  $('#mainpage').html(favCollapse);
+  //$('#mainpage').load(myflaskGet('html_picview'), function () {
+  //});
+  bsmenu_reload()
+  scrollToPage('ScrollPositionPicview')
+  document.title = myflaskGet('i18n_picviewTitle');
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
+  document.querySelector('.picview').style.borderRadius = '5px';
+  document.body.style.backgroundColor = '#686868';
+  document.body.style.margin = '1em';
+  document.querySelectorAll('.cover').forEach(function (element) {
+    element.classList.add('fullpagecover');
   });
 }
 
@@ -262,6 +244,7 @@ async function back2Mainpage() {
   scrollToPage('ScrollPositionMainpage');
   if (sessionStorage.needReloadWhenGoBack)
     {mainHTML_reload()} else {bsmenu_reload()};
+  coverhandle_reload('.custom-img')
   Mainpage_js()
   document.body.style = '';
   document.title = mainpageinfo.origTitle;
@@ -271,21 +254,24 @@ async function back2Mainpage() {
   sessionStorage.removeItem('needReloadWhenGoBack');
 }
 
+function coverhandle_reload(handleEvent) {
+  $(handleEvent).attr({
+    'data-toggle': 'tooltip',
+    'data-placement': 'bottom'
+  }).on({
+    'dragover': false,
+    'drop': e => {
+      handleDrop(e.originalEvent)},
+    'error': e => {
+      e.target.src=flaskUrl.get("static")('pic/fallback.png')},
+    'click': e => {
+      launchapp(e.target.id.match(/\d+/))}
+  });
+}
+
 async function mainHTML_reload() {
   $('#collapseTwo').load(myflaskGet('html_picview'), async () => {
-    $('.custom-img')
-      .attr({
-        'data-toggle': 'tooltip',
-        'data-placement': 'bottom'
-      }).on({
-        'dragover': false,
-        'drop': e => {
-          handleDrop(e.originalEvent)},
-        'error': e => {
-          e.target.src=flaskUrl.get("static")('pic/fallback.png')},
-        'click': e => {
-          $.get(flaskUrl.get("apps_launch")(e.target.id.match(/\d+/)))}
-      });
+    coverhandle_reload('.custom-img')
     fav_reload()
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="tooltip"]').hover(e => {
@@ -313,6 +299,7 @@ async function mainHTML_reload() {
 function fav_reload() {
   $('#f-avorites').remove();
   const favCollapse = $('.picview').clone().attr('id', 'avorites')
+  $('.picview').attr('id', 'p-icview')
   favCollapse.children().each(function() {
     const favoriteList = JSON.parse(localStorage.favoritelist || '{}');
     const id = $(this).attr('id').match(/\d+/);
@@ -322,15 +309,8 @@ function fav_reload() {
   });
   $('#collapseOne').html(favCollapse).find('[id]').attr('id', function(_, id) {
     return 'f-' + id;
-  }).on({
-    'dragover': false,
-    'drop': e => {
-      handleDrop(e.originalEvent)},
-    'error': e => {
-      e.target.src=flaskUrl.get("static")('pic/fallback.png')},
-    'click': e => {
-      $.get(flaskUrl.get("apps_launch")(e.target.id.match(/\d+/)))}
   });
+  coverhandle_reload('.custom-img')
 }
 
 function bsmenu_reload() {
