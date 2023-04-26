@@ -83,6 +83,10 @@ td>img {
     display: none;
 }
 td,th {
+    -webkit-user-select:text;
+    -moz-user-select:text;
+    -ms-user-select:text;
+    user-select: text;
     text-align: center;
 }
 .table>tbody>tr>td {
