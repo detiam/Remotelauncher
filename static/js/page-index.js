@@ -42,16 +42,11 @@ function Mainpage_js() {
 }
 
 window.addEventListener('beforeunload', () => {
-  if (document.title == myflaskGet('i18n_picviewTitle')) {
+  if (document.title == flaskStr.get("i18n_picviewTitle")) {
     localStorage.setItem("ScrollPositionPicview", window.pageYOffset);
   } else {
     localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
   }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  mainHTML_reload()
-  Mainpage_js()
 });
 
 window.addEventListener('load', () => {

@@ -4,7 +4,7 @@ const menuContext = [{
   name: "{{ _('Start application') }}",
   iconClass: 'fa fa-cog',
   onClick: function(e) {
-      $.get(myflaskGet('apps_launch', e.id));
+    launchapp(e.id)
   }
 },{
   name: function(e) {
@@ -26,20 +26,24 @@ const menuContext = [{
     if (isfavorite(e.id)) {delete favoritelist[e.id]}
       else {favoritelist[e.id] = 'true'}
     localStorage.favoritelist = JSON.stringify(favoritelist)
-    fav_reload()
+    if (document.title === "{{ _('Picview') }}") {
+      sessionStorage.needReloadWhenGoBack = true
+    } else {
+      fav_reload()
+    }
   }
 },{
   name: "{{ _('Delete this app') }}",
   iconClass: 'fa fa-trash',
   classNames: 'action-danger',
   onClick: function(e) {
-    if (document.title === myflaskGet('i18n_picviewTitle')) {
+    if (document.title === "{{ _('Picview') }}") {
       sessionStorage.needReloadWhenGoBack = true
     }
-    $.get(myflaskGet('apps_del', e.id), function(){
-      delCache(myflaskGet('data_get', 'resources/' + e.id), () => {
-        if (document.title == "{{ _('Picview') }}") {
-          fullPicview('reload')
+    $.get(flaskUrl.get("apps_del")(e.id), function(){
+      delCache(flaskUrl.get("data_get")('resources/'+e.id), () => {
+        if (document.title === "{{ _('Picview') }}") {
+          fullPicview('reLoad')
         } else {
           mainHTML_reload()
         }
@@ -90,7 +94,7 @@ const menuContext = [{
     name: "{{ _('Open data folder') }}",
     iconClass: 'fa fa-folder-o',
     onClick: function(e) {
-      $.get(myflaskGet('api_opendir', e.id));
+      $.get(flaskUrl.get("api_opendir")(e.id));
     }
   },{
     name: "{{ _('Modify property') }}",
@@ -119,21 +123,12 @@ fetch('{{ url_for("api_urls") }}')
         console.error('[Service Worker] Failed to register:', error);
       }
     }
+    if (location.pathname === '/') {
+      mainHTML_reload()
+      Mainpage_js()
+    }
   });
-
 
 const flaskStr = new Map([
   ['i18n_picviewTitle', "{{ _('Picview') }}"],
 ]);
-
-function myflaskGet(route, value) {
-  if (route === 'html_picview') {return '{{ url_for("html_picview") }}'}
-  if (route === 'html_tableview') {return '{{ url_for("html_tableview") }}'}
-  if (route === 'i18n_picviewTitle') {return "{{ _('Picview') }}"}
-  if (route === 'data_get') {return '{{ url_for("data_get", filename="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'apps_del') {return '{{ url_for("apps_del", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'apps_launch') {return '{{ url_for("apps_launch", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'page_detail') {return '{{ url_for("page_detail", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'api_opendir') {return '{{ url_for("api_opendir", program_id="2543455938") }}'.replace("2543455938", value)}
-  if (route === 'data_upload') {return '{{ url_for("data_upload", program_id="2543455938") }}'.replace("2543455938", value)}
-}

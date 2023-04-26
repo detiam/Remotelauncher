@@ -1,7 +1,6 @@
 function detail_reload() {
-  if (window.opener.document.title == myflaskGet('i18n_picviewTitle')) {
-    window.opener.fullPicview('reload')
-    console.log('reload.fullPicview()')
+  if (window.opener.document.title == flaskStr.get("i18n_picviewTitle")) {
+    window.opener.fullPicview('reLoad')
   } else {
     window.opener.mainHTML_reload()
   }

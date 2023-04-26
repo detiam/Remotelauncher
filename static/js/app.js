@@ -12,7 +12,7 @@ function openDetailWindow(id, x, y) {
     id.preventDefault();
     var url = id.target.href;
   } else {
-    var url = myflaskGet('page_detail', id);
+    var url = flaskUrl.get("page_detail")(id);
   }
   let screenWidth = window.screen.width;
   let screenHeight = window.screen.height;
@@ -38,8 +38,8 @@ function delZoominclass() {
     element.classList.remove('custom-contextmenu');
     element.removeAttribute('onclick');
     $(element).on('click', e => {
-      launchapp(e.target.id.match(/\d+/))}
-    );
+      launchapp(e.target.id.match(/\d+/))
+    });
   });
 };
 
@@ -144,16 +144,14 @@ function delCache(route, callback) {
 
 function uploadUrl(url, id) {
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', myflaskGet('data_upload', id), true);
+  xhr.open('POST', flaskUrl.get("data_upload")(id), true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.onload = () => {
-    const route = myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response
+    const route = flaskUrl.get("data_get")('resources/'+id) + '/' + xhr.response
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
-      const imgPreview = document.getElementById('p-' + id);
       delCache(route, () => { 
         readFileFromFlask(route, (content) => {
-          imgPreview.src = content;
-          fav_reload()
+          $('img[id$="p-'+id+'"]').attr('src', content);
           console.log('uploadUrl(): new image loaded');
         });
       })
@@ -179,15 +177,13 @@ function uploadFile(file, id) {
   let formData = new FormData();
   formData.append('file', file);
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', myflaskGet('data_upload', id), true);
+  xhr.open('POST', flaskUrl.get("data_upload")(id), true);
   xhr.onload = function () {
-    delCache(myflaskGet('data_get', 'resources/' + id) + '/' + xhr.response)
+    delCache(flaskUrl.get("data_get")('resources/'+id) + '/' + xhr.response)
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
-      const imgPreview = document.getElementById('p-' + id);
       const reader = new FileReader();
       reader.addEventListener('load', () => {
-        imgPreview.src = reader.result;
-        fav_reload()
+        $('img[id$="p-'+id+'"]').attr('src', reader.result);
         console.log('uploadFile(): new image loaded');
       });
       reader.readAsDataURL(file);
@@ -213,28 +209,33 @@ function launchapp(id) {
 }
 
 function fullPicview(useCase) {
+  function postTuning() {
+    bsmenu_reload()
+    scrollToPage('ScrollPositionPicview')
+    document.title = flaskStr.get("i18n_picviewTitle");
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
+    document.querySelector('.picview').style.borderRadius = '5px';
+    document.body.style.backgroundColor = '#686868';
+    document.body.style.margin = '1em';
+    document.querySelectorAll('.cover').forEach(function (element) {
+      element.classList.add('fullpagecover');
+    });
+  }
   if (useCase === 'enterPicview') {
-    localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
+    localStorage.ScrollPositionMainpage = window.pageYOffset;
     sessionStorage.mainpageclone = $('#mainpage').html();
     sessionStorage.mainpageinfo = JSON.stringify({
       origTitle: document.title,
       origColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     })
+    $('#mainpage').html($('#p-icview').clone(true))
+    postTuning()
+  } else if (useCase === 'reLoad') {
+    localStorage.ScrollPositionPicview = window.pageYOffset
+    $('#mainpage').load(flaskUrl.get("html_picview")(), function () {
+      postTuning()
+    });
   }
-  const favCollapse = $('#p-icview').clone(true)
-  $('#mainpage').html(favCollapse);
-  //$('#mainpage').load(myflaskGet('html_picview'), function () {
-  //});
-  bsmenu_reload()
-  scrollToPage('ScrollPositionPicview')
-  document.title = myflaskGet('i18n_picviewTitle');
-  document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
-  document.querySelector('.picview').style.borderRadius = '5px';
-  document.body.style.backgroundColor = '#686868';
-  document.body.style.margin = '1em';
-  document.querySelectorAll('.cover').forEach(function (element) {
-    element.classList.add('fullpagecover');
-  });
 }
 
 async function back2Mainpage() {
@@ -263,6 +264,7 @@ function coverhandle_reload(handleEvent) {
     'drop': e => {
       handleDrop(e.originalEvent)},
     'error': e => {
+      // 现在已经不需要了
       e.target.src=flaskUrl.get("static")('pic/fallback.png')},
     'click': e => {
       launchapp(e.target.id.match(/\d+/))}
@@ -270,7 +272,7 @@ function coverhandle_reload(handleEvent) {
 }
 
 async function mainHTML_reload() {
-  $('#collapseTwo').load(myflaskGet('html_picview'), async () => {
+  $('#collapseTwo').load(flaskUrl.get("html_picview")(), async () => {
     coverhandle_reload('.custom-img')
     fav_reload()
     $('[data-toggle="tooltip"]').tooltip();
@@ -282,7 +284,7 @@ async function mainHTML_reload() {
       }
     });
   });
-  $('#collapseThree').load(myflaskGet('html_tableview'), async () =>{
+  $('#collapseThree').load(flaskUrl.get('html_tableview')(), async () =>{
     $('.picon')
     .on('load', e => {
       e.originalEvent.target.style.display='initial'

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-04-24 13:51+0800\n"
-"PO-Revision-Date: 2023-04-24 13:57+0800\n"
+"POT-Creation-Date: 2023-04-26 10:38+0800\n"
+"PO-Revision-Date: 2023-04-26 10:40+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -36,11 +36,11 @@ msgstr "全局前缀"
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: app.py:209
+#: app.py:212
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: app.py:314
+#: app.py:317
 msgid "Just been launched"
 msgstr "刚刚被启动了"
 
@@ -60,9 +60,9 @@ msgstr "提交"
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: templates/detail.html:69 templates/js/app.js:68
+#: templates/detail.html:69 templates/js/app.js:94
 msgid "Open data folder"
-msgstr "打开资料文件夹"
+msgstr "打开文件夹"
 
 #: templates/detail.html:74
 msgid "Modify Settings"
@@ -161,39 +161,43 @@ msgid "Actions"
 msgstr "操作"
 
 #: templates/js/app.js:4
-msgid "Back to index"
-msgstr "返回到主界面"
-
-#: templates/js/app.js:7 templates/js/app.js:26 templates/js/app.js:51
-#: templates/js/app.js:109 templates/js/app.js:115
-msgid "Picview"
-msgstr "图片视图"
-
-#: templates/js/app.js:19
-msgid "Zoom out"
-msgstr "将此图片缩小"
-
-#: templates/js/app.js:21
-msgid "Zoom in"
-msgstr "将此图片放大"
-
-#: templates/js/app.js:36
 msgid "Start application"
 msgstr "启动这个程序"
 
-#: templates/js/app.js:42
-msgid "Delete this app"
-msgstr "删除这个程序"
+#: templates/js/app.js:12
+msgid "Remove favorite"
+msgstr "从收藏夹删除"
 
-#: templates/js/app.js:64
-msgid "More Options"
-msgstr "显示更多选项"
-
-#: templates/js/app.js:75
+#: templates/js/app.js:14
 msgid "Add to favorite"
 msgstr "添加到收藏夹"
 
-#: templates/js/app.js:79
+#: templates/js/app.js:29 templates/js/app.js:40 templates/js/app.js:45
+#: templates/js/app.js:61 templates/js/app.js:80 templates/js/app.js:133
+msgid "Picview"
+msgstr "图片视图"
+
+#: templates/js/app.js:36
+msgid "Delete this app"
+msgstr "删除这个程序"
+
+#: templates/js/app.js:58
+msgid "Back to index"
+msgstr "返回到主界面"
+
+#: templates/js/app.js:73
+msgid "Zoom out"
+msgstr "将此图片缩小"
+
+#: templates/js/app.js:75
+msgid "Zoom in"
+msgstr "将此图片放大"
+
+#: templates/js/app.js:90
+msgid "More Options"
+msgstr "显示更多选项"
+
+#: templates/js/app.js:100
 msgid "Modify property"
 msgstr "修改项目属性"
 
