@@ -128,18 +128,27 @@ function delCache(route, callback) {
   if (navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage('cacheinfo');
     navigator.serviceWorker.addEventListener('message', event => {
-      caches.open(event.data.cacheName).then(cache => {
-        cache.matchAll(route).then(res => {
-          res.forEach(elem=>{cache.delete(elem).then(status => {
-              console.log('cacheDelete('+route+'): '+status)
-              if (typeof callback === 'function') {callback()}
-          })})
-        })
-      })
+      realDelAllMatch(event.data.cacheName, route, callback);
     })
   } else {
     if (typeof callback === 'function') {callback()}
-  }
+  };
+
+  function realDelAllMatch(cacheName, route, callback) {
+    caches.open(cacheName).then(cache => {
+      cache.keys().then(keys => {
+        keys.forEach(key => {
+          const url = new URL(key.url);
+          if (location.origin === url.origin && url.pathname.startsWith(route)) {
+            cache.delete(key).then(status => {
+              console.log('delCache(): ' + key.url + ' deleted, ' + status);
+            });
+          };
+        })
+        if (typeof callback === 'function') {callback(cache)}
+      });
+    });
+  };
 }
 
 function uploadUrl(url, id) {
@@ -179,7 +188,12 @@ function uploadFile(file, id) {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', flaskUrl.get("data_upload")(id), true);
   xhr.onload = function () {
-    delCache(flaskUrl.get("data_get")('resources/'+id) + '/' + xhr.response)
+    const url = flaskUrl.get("data_get")('resources/'+id) + '/' + xhr.response
+    delCache(url, cache => {
+      if (typeof cache === 'object') {
+        cache.add(url)
+      }
+    })
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
@@ -256,7 +270,7 @@ async function back2Mainpage() {
 }
 
 function coverhandle_reload(handleEvent) {
-  $(handleEvent).attr({
+  $(handleEvent).off().attr({
     'data-toggle': 'tooltip',
     'data-placement': 'bottom'
   }).on({
@@ -273,16 +287,7 @@ function coverhandle_reload(handleEvent) {
 
 async function mainHTML_reload() {
   $('#collapseTwo').load(flaskUrl.get("html_picview")(), async () => {
-    coverhandle_reload('.custom-img')
     fav_reload()
-    $('[data-toggle="tooltip"]').tooltip();
-    $('[data-toggle="tooltip"]').hover(e => {
-      if ($(e.target).hasClass('custom-contextmenu')) {
-        $(e.target).tooltip('disable');
-      } else {
-        $(e.target).tooltip('enable');
-      }
-    });
   });
   $('#collapseThree').load(flaskUrl.get('html_tableview')(), async () =>{
     $('.picon')
@@ -313,6 +318,14 @@ function fav_reload() {
     return 'f-' + id;
   });
   coverhandle_reload('.custom-img')
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').hover(e => {
+    if ($(e.target).hasClass('custom-contextmenu')) {
+      $(e.target).tooltip('disable');
+    } else {
+      $(e.target).tooltip('enable');
+    }
+  });
 }
 
 function bsmenu_reload() {
