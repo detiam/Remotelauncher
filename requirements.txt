@@ -6,3 +6,4 @@ SQLAlchemy==1.4.44
 Pillow==9.4.0
 plyer==2.1.0
 Werkzeug==2.2.3
+filetype==1.2.0

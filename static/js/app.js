@@ -182,6 +182,7 @@ function uploadUrl(url, id) {
       })
     } else {
       console.log('uploadUrl(): Failed, ' + xhr.response);
+      alert('Something went wrong, check console log.')
     }
   }
   var data = JSON.stringify({ "url": url });
@@ -196,11 +197,6 @@ function uploadFile(file, id) {
   xhr.open('POST', flaskUrl.get("data_upload")(id), true);
   xhr.onload = function () {
     const url = flaskUrl.get("data_get")('resources/'+id) + '/' + xhr.response
-    delCache(url, cache => {
-      if (typeof cache === 'object') {
-        cache.add(url)
-      }
-    })
     if (xhr.status === 201 && xhr.response === 'library.jpg') {
       const reader = new FileReader();
       reader.addEventListener('load', () => {
@@ -219,7 +215,14 @@ function uploadFile(file, id) {
       reader.readAsDataURL(file);
     } else {
       console.log('uploadFile(): Failed, ' + xhr.response);
+      alert('Something went wrong, check console log.');
+      return;
     }
+    delCache(url, cache => {
+      if (typeof cache === 'object') {
+        cache.add(url)
+      }
+    })
   };
   console.log('uploadFile(): ready to send file, sending')
   xhr.send(formData);

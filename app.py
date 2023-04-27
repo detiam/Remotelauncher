@@ -1,7 +1,9 @@
 from datetime import datetime as dt, timedelta
 from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.datastructures import FileStorage
 from flask_sqlalchemy import SQLAlchemy
 from threading import Thread
+from io import BytesIO
 from selectors import DefaultSelector, EVENT_READ
 from subprocess import Popen, PIPE, DEVNULL
 from flask_babel import Babel, gettext
@@ -9,6 +11,7 @@ from urllib.request import Request, urlopen
 from PIL.Image import open as imgopen
 from platform import uname
 from functools import wraps
+from filetype import guess
 
 from os import (rename, makedirs,
                 environ, name, path)
@@ -132,14 +135,6 @@ def page_index():
                            configlocalizedname=configlocalizedname, programs=Program.query.all(),
                            configs=Config.query.all())
 
-@app.get('/api/urls')
-@cache_header(app.config['CACHE_DEFAULT_TIMEOUT'])
-def api_urls():
-    url_dict = {}
-    for rule in app.url_map.iter_rules():
-        url_dict[rule.endpoint] = rule.rule
-    return etag(jsonify(url_dict))
-
 @app.get('/offline')
 def page_offline():
     return render_template('offline.html', appname=app.config['APPNAME'], get_locale=get_locale)
@@ -160,12 +155,6 @@ def static_jinja2ed(filename):
 def page_detail(program_id):
     return render_template('detail.html', get_locale=get_locale,
                            program=Program.query.get_or_404(program_id))
-
-@app.get('/api/opendir/<int:program_id>')
-def api_opendir(program_id):
-    program_dir = path.join(resources_dir, str(program_id))
-    openfolder(program_dir)
-    return ('', 204)
 
 @app.get('/data/<path:filename>')
 def data_get(filename):
@@ -189,7 +178,7 @@ def data_dbconf():
             config = Config(name=key, value=value)
             db.session.add(config)
     db.session.commit()
-    return ('', 204)
+    return '', 204
     # return redirect(url_for('index'))
 
 @app.route('/data/upload/<path:program_id>', methods=['GET', 'POST'])
@@ -201,11 +190,10 @@ def data_upload(program_id):
             urlfile = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
             if int(urlfile.headers['Content-Length']) > app.config['MAX_CONTENT_LENGTH']:
                 raise RequestEntityTooLarge()
-            basename = save_file(urlfile, filedest)
+            file = FileStorage(stream=BytesIO(urlfile.read()), filename=path.basename(url))
         else:
             file = request.files['file']
-            basename = save_file(file, filedest)
-        return basename, 201
+        return save_file(file, filedest)
     except ValueError as e:
         return str(e), 202
     except RequestEntityTooLarge:
@@ -213,23 +201,31 @@ def data_upload(program_id):
     except Exception as e:
         return str(e), 400
 
-def save_file(imgfile, filedest):
-    with imgopen(imgfile) as img:
-        img.verify
-        match img.format:
-            case 'ICO':
-                filedest = path.join(filedest, 'icon.ico')
-                img = img.resize([256, 256], resample=4)
-                img = img.convert('RGBA')
-                img.save(filedest, format='ICO', sizes=[(256, 256)])
-            case 'JPEG' | 'PNG' | 'WEBP':
-                filedest = path.join(filedest, 'library.jpg')
-                if img.format == 'JPEG':
-                    img.save(filedest, format='JPEG', quality='keep')
-                else:
-                    img = img.convert('RGB')
-                    img.save(filedest, format='JPEG')
-    return path.basename(filedest)
+def save_file(file, filedest):
+    kind = guess(file)
+    if kind.mime.startswith('image'):
+        savepath = path.join(filedest, 'library.jpg')
+        match kind.extension:
+            case 'ico':
+                savepath = path.join(filedest, 'icon.ico')
+                # img = imgopen(file)
+                # img.verify
+                # img = img.resize([256, 256], resample=4)
+                # img = img.convert('RGBA')
+                # img.save(savepath, format='ICO', sizes=[(256, 256)])
+                file.save(savepath)
+            case 'jpg':
+                file.save(savepath)
+            case _:
+                img = imgopen(file)
+                img = img.convert('RGB')
+                img.save(savepath, format='JPEG')
+    elif kind.extension == 'exe':
+        # 增加了太多的复杂度。。。
+        return gettext("File type not supported"), 415
+    else:
+        return gettext("File type not supported"), 415
+    return path.basename(savepath), 201
 
 
 @app.route('/apps/add/<int:program_realid>', methods=['GET', 'POST'])
@@ -328,7 +324,7 @@ def launchit(program, wideprefix,
              wideworkdir, pdatadir, iconpath):
     # 命令环境变量
     command = " ".join(
-        [wideprefix.value, program.prefix, program.command])
+        [program.prefix, wideprefix.value, program.command])
     workdir = path.expandvars(
         program.workdir
     ) or path.expandvars(
@@ -342,8 +338,8 @@ def launchit(program, wideprefix,
         # 获取the_stdout, the_stderr, the_retcode
         the_stdout, the_stderr, the_retcode = printlog(process, program.name)
         # 写入.log文件
-        open(path.join(pdatadir, 'stdout.log'), 'w').write(the_stdout)
-        open(path.join(pdatadir, 'stderr.log'), 'w').write(the_stderr)
+        open(path.join(pdatadir, '.stdout.log'), 'w').write(the_stdout)
+        open(path.join(pdatadir, '.stderr.log'), 'w').write(the_stderr)
 
         if the_retcode == 0:
             return the_retcode
@@ -384,6 +380,20 @@ def sendnote(iconpath, title, message, timeout):
         timeout=timeout
     )
 
+
+@app.get('/api/urls')
+@cache_header(app.config['CACHE_DEFAULT_TIMEOUT'])
+def api_urls():
+    url_dict = {}
+    for rule in app.url_map.iter_rules():
+        url_dict[rule.endpoint] = rule.rule
+    return etag(jsonify(url_dict))
+
+@app.get('/api/opendir/<int:program_id>')
+def api_opendir(program_id):
+    program_dir = path.join(resources_dir, str(program_id))
+    openfolder(program_dir)
+    return '', 204
 
 @app.get('/favicon.ico')
 def file_favicon():
