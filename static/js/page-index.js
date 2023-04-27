@@ -1,19 +1,9 @@
 function lang_reload() {
-  try {
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage('cacheinfo');
-      navigator.serviceWorker.addEventListener('message', event => {
-        const cacheName = event.data.cacheName
-        const filesToCache = event.data.filesToCache
-        caches.open(cacheName).then(function(cache) {
-          filesToCache.forEach(function(cacheItem) {
-            cache.delete(cacheItem)
-            cache.add(cacheItem)
-          })
-        })
-      });
-    }
-  } finally {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'reloadLang'
+    });
+  } else {
     location.reload();
   }
 }

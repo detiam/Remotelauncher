@@ -13,18 +13,19 @@ const pathsToCache = [
 ];
 
 self.addEventListener('message', event => {
-  switch(event.data) {
-    case 'cacheinfo':
+  switch(event.data.type) {
+    case 'reloadLang':
       return event.source.postMessage({
+        type: event.data.type,
         cacheName: cacheName,
         filesToCache: filesToCache
       });
-/*
-    case 'flaskinfo':
+    case 'delCache':
       return event.source.postMessage({
-        flaskUrl: flaskUrl
+        type: event.data.type,
+        cacheName: cacheName,
+        pathName: event.data.pathName
       });
-*/
     default:
       event.source.postMessage(null);
     break;

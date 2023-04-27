@@ -86,24 +86,28 @@ function handleUrlBox(event, id) {
 async function handleFileSelect(event, id) {
   event.preventDefault();
   console.log('handleFileSelect(): Called')
-  if ('showOpenFilePicker' in window) {
-    // 浏览器支持showOpenFilePicker方法
-    const [handle] = await window.showOpenFilePicker();
-    const file = await handle.getFile();
-    //const content = await file.text();
-    window.opener.uploadFile(file, id)
-  } else {
-    console.warn('handleFileSelect(): window.showOpenFilePicker() unsupported');
-    try {
-      const fileInput = document.getElementById('detail-file-input')
-      fileInput.click();
-      fileInput.addEventListener('change', function (event) {
-        window.opener.uploadFile(event.target.files[0], id);
-      })
-    } catch (error) {
-      event.target.parentNode.classList.add('disabled');
-      event.target.parentNode.setAttribute('title', "Browser unsupported")
+  try {
+    if ('showOpenFilePicker' in window) {
+      // 浏览器支持showOpenFilePicker方法
+      const [handle] = await window.showOpenFilePicker();
+      const file = await handle.getFile();
+      //const content = await file.text();
+      window.opener.uploadFile(file, id)
+    } else {
+      console.warn('handleFileSelect(): window.showOpenFilePicker() unsupported');
+      try {
+        const fileInput = document.getElementById('detail-file-input')
+        fileInput.click();
+        fileInput.addEventListener('change', function (event) {
+          window.opener.uploadFile(event.target.files[0], id);
+        })
+      } catch (error) {
+        event.target.parentNode.classList.add('disabled');
+        event.target.parentNode.setAttribute('title', "Browser unsupported")
+      }
     }
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -124,31 +128,34 @@ function readFileFromFlask(route, file) {
   xhr.send();
 }
 
-function delCache(route, callback) {
+function realDelAllMatchedCache(cacheName, pathName, callback) {
+  caches.open(cacheName).then(cache => {
+    cache.keys().then(keys => {
+      keys.forEach(key => {
+        const url = new URL(key.url);
+        if (location.origin === url.origin && url.pathname.startsWith(pathName)) {
+          cache.delete(key).then(status => {
+            console.log('delCache(): ' + key.url + ' deleted, ' + status);
+          });
+        };
+      })
+      if (typeof callback === 'function') {
+        callback(cache)
+      }
+    });
+  });
+}
+
+function delCache(pathName, callback) {
+  window.delCacheCallbackFunc = callback
   if (navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage('cacheinfo');
-    navigator.serviceWorker.addEventListener('message', event => {
-      realDelAllMatch(event.data.cacheName, route, callback);
-    })
+    navigator.serviceWorker.controller.postMessage({
+      type: 'delCache',
+      pathName: pathName,
+    });
   } else {
     if (typeof callback === 'function') {callback()}
-  };
-
-  function realDelAllMatch(cacheName, route, callback) {
-    caches.open(cacheName).then(cache => {
-      cache.keys().then(keys => {
-        keys.forEach(key => {
-          const url = new URL(key.url);
-          if (location.origin === url.origin && url.pathname.startsWith(route)) {
-            cache.delete(key).then(status => {
-              console.log('delCache(): ' + key.url + ' deleted, ' + status);
-            });
-          };
-        })
-        if (typeof callback === 'function') {callback(cache)}
-      });
-    });
-  };
+  }
 }
 
 function uploadUrl(url, id) {

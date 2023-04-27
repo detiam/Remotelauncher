@@ -113,12 +113,30 @@ fetch('{{ url_for("api_urls") }}')
       .map(([key, value]) => [key, (param) => value.replace(/<.*:.*>/i, param)])
     )
   }).finally(()=>{
-    if ('serviceWorker' in navigator &&
-        !navigator.serviceWorker.controller &&
-        document.cookie.indexOf("dev"))
+    if ('serviceWorker' in navigator && document.cookie.indexOf("dev"))
     {
       try {
         navigator.serviceWorker.register(flaskUrl.get("file_serviceworker")());
+        navigator.serviceWorker.onmessage = event => {
+          switch(event.data.type) {
+            case 'reloadLang':
+              caches.open(event.data.cacheName).then(function(cache) {
+                event.data.filesToCache.forEach(function(cacheItem) {
+                  cache.delete(cacheItem)
+                  cache.add(cacheItem)
+                })
+              })
+              location.reload();
+              break
+            case 'delCache':
+              const { cacheName, pathName } = event.data;
+              realDelAllMatchedCache(cacheName, pathName, window.delCacheCallbackFunc);
+              break
+            default:
+              console.log('[Service Worker] Unknown message type:', event.data.type);
+            break
+          }
+        }
       } catch (error) {
         console.error('[Service Worker] Failed to register:', error);
       }
