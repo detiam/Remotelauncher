@@ -3,6 +3,9 @@ function lang_reload() {
     navigator.serviceWorker.controller.postMessage({
       type: 'reloadLang'
     });
+  } else if ('serviceWorker' in navigator) {
+    localStorage.reloadLangNeeded = true;
+    location.reload();
   } else {
     location.reload();
   }

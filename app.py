@@ -48,6 +48,7 @@ app = Flask(__name__)
 app.config.update(
     APPNAME=gettext('RemoteLauncher'),
     DESCRIPTION=gettext('A launcher to launch program.'),
+    JSON_AS_ASCII=False,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(data_dir, "configs.db")}',
     UPLOAD_FOLDER=resources_dir,
@@ -146,10 +147,6 @@ def html_picview():
 @app.get('/html/tableview')
 def html_tableview():
     return render_template('tableview.html', str=str, programs=Program.query.all())
-
-@app.get('/template/<path:filename>')
-def static_jinja2ed(filename):
-    return render_template(filename)
 
 @app.get('/detail/<int:program_id>')
 def page_detail(program_id):
@@ -333,19 +330,23 @@ def launchit(program, wideprefix,
     # programenv =
 
     # 启动进程
-    with Popen(command, cwd=workdir, shell=True,
-               universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
-        # 获取the_stdout, the_stderr, the_retcode
-        the_stdout, the_stderr, the_retcode = printlog(process, program.name)
-        # 写入.log文件
-        open(path.join(pdatadir, '.stdout.log'), 'w').write(the_stdout)
-        open(path.join(pdatadir, '.stderr.log'), 'w').write(the_stderr)
+    try:
+        with Popen(command, cwd=workdir, shell=True,
+                universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
+            # 获取the_stdout, the_stderr, the_retcode
+            the_stdout, the_stderr, the_retcode = printlog(process, program.name)
+            # 写入.log文件
+            open(path.join(pdatadir, '.stdout.log'), 'w').write(the_stdout)
+            open(path.join(pdatadir, '.stderr.log'), 'w').write(the_stderr)
 
-        if the_retcode == 0:
-            return the_retcode
-        else:
-            sendnote(iconpath, program.name,
-                     'Crashed' + '\n' 'exitcode: ' + str(the_retcode), 10)
+            if the_retcode == 0:
+                return the_retcode
+            else:
+                sendnote(iconpath, program.name,
+                        'Crashed\nexitcode: ' + str(the_retcode), 10)
+    except Exception as e:
+        sendnote(iconpath, program.name,
+            'Crashed\n' + str(e), 10)
 
 def printlog(p, who):
     # 获取程序LOG
@@ -389,11 +390,31 @@ def api_urls():
         url_dict[rule.endpoint] = rule.rule
     return etag(jsonify(url_dict))
 
-@app.get('/api/opendir/<int:program_id>')
-def api_opendir(program_id):
-    program_dir = path.join(resources_dir, str(program_id))
-    openfolder(program_dir)
+@app.get('/api/openresdir/<int:program_id>')
+def api_openresdir(program_id):
+    openfolder(path.join(resources_dir, str(program_id)))
     return '', 204
+
+@app.post('/api/opendir')
+def api_opendir():
+    appath = request.form['path']
+    if path.exists(appath):
+        openfolder(appath)
+    else:
+        return gettext('Path not found'), 400
+    return '', 204
+
+@app.get('/api/appinfo/<int:program_id>')
+def api_appinfo(program_id):
+    appinfo = vars(Program.query.get_or_404(program_id))
+    for key in list(appinfo.keys()):
+        if key.startswith('_'):
+            del appinfo[key]
+    return etag(jsonify(appinfo))
+
+@app.get('/template/<path:filename>')
+def static_jinja2ed(filename):
+    return render_template(filename)
 
 @app.get('/favicon.ico')
 def file_favicon():

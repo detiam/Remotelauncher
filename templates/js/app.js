@@ -91,10 +91,25 @@ const menuContext = [{
   iconClass: 'fa fa-bars',
   subMenuItems:
   [{
+    name: "{{ _('Open app folder') }}",
+    iconClass: 'fa fa-folder-o',
+    onClick: function(e) {
+      $.get(flaskUrl.get("api_appinfo")(e.id), function(appinfo){
+        if (appinfo.workdir) {
+          $.post(flaskUrl.get("api_opendir")(), {path: appinfo.workdir})
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
+            })
+        } else {
+          alert('No working directory for this app. Please set one.')
+        }
+      });
+    }
+  },{
     name: "{{ _('Open data folder') }}",
     iconClass: 'fa fa-folder-o',
     onClick: function(e) {
-      $.get(flaskUrl.get("api_opendir")(e.id));
+      $.get(flaskUrl.get("api_openresdir")(e.id));
     }
   },{
     name: "{{ _('Modify property') }}",
@@ -123,10 +138,10 @@ fetch('{{ url_for("api_urls") }}')
               caches.open(event.data.cacheName).then(function(cache) {
                 event.data.filesToCache.forEach(function(cacheItem) {
                   cache.delete(cacheItem)
-                  cache.add(cacheItem)
                 })
+                cache.addAll(event.data.filesToCache)
+                location.reload();
               })
-              location.reload();
               break
             case 'delCache':
               const { cacheName, pathName } = event.data;
@@ -144,6 +159,10 @@ fetch('{{ url_for("api_urls") }}')
     if (location.pathname === '/') {
       mainHTML_reload()
       Mainpage_js()
+      if (localStorage.reloadLangNeeded) {
+        lang_reload()
+        localStorage.removeItem('reloadLangNeeded')
+      }
     }
   });
 

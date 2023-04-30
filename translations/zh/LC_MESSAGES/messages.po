@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-04-26 10:38+0800\n"
-"PO-Revision-Date: 2023-04-26 10:40+0800\n"
+"POT-Creation-Date: 2023-04-27 19:04+0800\n"
+"PO-Revision-Date: 2023-04-27 19:09+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -20,27 +20,31 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 "X-Generator: Lokalize 23.04.0\n"
 
-#: app.py:46
+#: app.py:49
 msgid "RemoteLauncher"
 msgstr "远程启动器"
 
-#: app.py:47
+#: app.py:50
 msgid "A launcher to launch program."
 msgstr "一个启动应用的启动器。"
 
-#: app.py:103
+#: app.py:107
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: app.py:105
+#: app.py:109
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: app.py:212
+#: app.py:197
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: app.py:317
+#: app.py:222 app.py:224
+msgid "File type not supported"
+msgstr "不支持此文件类型"
+
+#: app.py:310
 msgid "Just been launched"
 msgstr "刚刚被启动了"
 
@@ -60,9 +64,9 @@ msgstr "提交"
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: templates/detail.html:69 templates/js/app.js:94
+#: templates/detail.html:69 templates/js/app.js:109
 msgid "Open data folder"
-msgstr "打开文件夹"
+msgstr "打开配置文件夹"
 
 #: templates/detail.html:74
 msgid "Modify Settings"
@@ -173,7 +177,7 @@ msgid "Add to favorite"
 msgstr "添加到收藏夹"
 
 #: templates/js/app.js:29 templates/js/app.js:40 templates/js/app.js:45
-#: templates/js/app.js:61 templates/js/app.js:80 templates/js/app.js:133
+#: templates/js/app.js:61 templates/js/app.js:80 templates/js/app.js:170
 msgid "Picview"
 msgstr "图片视图"
 
@@ -197,9 +201,13 @@ msgstr "将此图片放大"
 msgid "More Options"
 msgstr "显示更多选项"
 
-#: templates/js/app.js:100
+#: templates/js/app.js:94
+msgid "Open app folder"
+msgstr "打开应用文件夹"
+
+#: templates/js/app.js:115
 msgid "Modify property"
-msgstr "修改项目属性"
+msgstr "更改此应用属性"
 
 #~ msgid "Prefix ( gamescope, mangohud ,etc...)"
 #~ msgstr ""

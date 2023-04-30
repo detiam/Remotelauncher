@@ -230,6 +230,9 @@ function uploadFile(file, id) {
 
 function launchapp(id) {
   $.get(flaskUrl.get("apps_launch")(id))
+    .fail(function(jqXHR, textStatus, errorThrown) {
+      alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
+    })
 }
 
 function fullPicview(useCase) {

@@ -64,8 +64,8 @@
           </li>
         </ul>
       </div>
-      <a class="btn btn-default btn-sm btn-default" href="{{ url_for('api_opendir', program_id=program.id) }}"
-        onclick="setCursorAndTimeout(event, 1000)" aria-expanded="false" aria-controls="api_opendir">
+      <a class="btn btn-default btn-sm btn-default" href="{{ url_for('api_openresdir', program_id=program.id) }}"
+        onclick="setCursorAndTimeout(event, 1000)" aria-expanded="false" aria-controls="api_openresdir">
         {{ _("Open data folder") }}
       </a>
     </div><br>
