@@ -238,6 +238,7 @@ function launchapp(id) {
 function fullPicview(useCase) {
   function postTuning() {
     bsmenu_reload()
+    coverhandle_reload('.custom-img')
     scrollToPage('ScrollPositionPicview')
     document.title = flaskStr.get("i18n_picviewTitle");
     document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
@@ -255,7 +256,7 @@ function fullPicview(useCase) {
       origTitle: document.title,
       origColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     })
-    $('#mainpage').html($('#p-icview').clone(true))
+    $('#mainpage').html($('#p-icview').clone())
     postTuning()
   } else if (useCase === 'reLoad') {
     localStorage.ScrollPositionPicview = window.pageYOffset
