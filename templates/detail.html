@@ -75,7 +75,7 @@
     </button>
     <div class="collapse" id="edit-program">
       <br />
-      <form method="POST" action="{{ url_for('apps_add', program_realid=program.id) }}">
+      <form id="detailForm" method="POST" onsubmit="return checkToResetFav()" action="{{ url_for('apps_add', program_realid=program.id) }}">
         <div class="row">
           <div class="form-group col-xs-4">
             <label for="program_id">{{ _("ID") }}:</label>

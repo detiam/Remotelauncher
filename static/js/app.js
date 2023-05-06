@@ -1,3 +1,12 @@
+function favSave(favoritelist) {
+  localStorage.favoritelist = JSON.stringify(favoritelist)
+  if (document.title === flaskStr.get("i18n_picviewTitle")) {
+    sessionStorage.needReloadWhenGoBack = true
+  } else {
+    fav_reload()
+  }
+}
+
 function scrollToPage(page) {
   try { window.scrollTo(0, window.localStorage.getItem(page)); }
   catch (error) { console.log('scrollToPage('+page+'): Failed! ' + error)}

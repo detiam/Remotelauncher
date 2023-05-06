@@ -23,14 +23,12 @@ const menuContext = [{
   },
   onClick: function(e) {
     const favoritelist = JSON.parse(localStorage.favoritelist || '{}')
-    if (isfavorite(e.id)) {delete favoritelist[e.id]}
-      else {favoritelist[e.id] = 'true'}
-    localStorage.favoritelist = JSON.stringify(favoritelist)
-    if (document.title === "{{ _('Picview') }}") {
-      sessionStorage.needReloadWhenGoBack = true
+    if (isfavorite(e.id)) {
+      delete favoritelist[e.id]
     } else {
-      fav_reload()
+      favoritelist[e.id] = 'true'
     }
+    favSave(favoritelist)
   }
 },{
   name: "{{ _('Delete this app') }}",
