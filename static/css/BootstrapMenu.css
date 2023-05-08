@@ -28,7 +28,7 @@
     margin-right:-10px;
 }
 .dropdown-submenu:hover>a:after {
-    border-left-color:#b6b6b6;
+    border-left-color:#ffffff;
 }
 .dropdown-submenu.pull-left {
     float:none;
