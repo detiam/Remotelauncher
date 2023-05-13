@@ -1,30 +1,31 @@
- # Weblauncher
- ![screenshot](static/pic/screenshot.png) <hr>
-非常简单的用flask写的程序启动器。<br>
-可以安装成pwa应用然后用图形化界面添加-编辑-启动服务器上的程序。还可以在手机上用。<br>
-我用来在自己的linux机器上整理启动游戏或者什么别的。<hr>
+# Remotelauncher
+> [English](https://github.com/detiam/Weblauncher/blob/master/README.md) [中文](https://github.com/detiam/Weblauncher/blob/master/README_CN.md)
+
+![screenshot](static/pic/screenshot.png) <hr>
+Simple launcher write with flask<br>
+Can be install as PWA app, add & edit & launch apps that on server in graphical interface. Also available on mobile. <br>
+I use this to launch games on my linux PC<hr>
 
 ## Use
-1. 安装 Python，安装 `requirements.txt` 里的依赖，运行 `entry.py` 启动
-2. 下载 [Achievements](https://github.com/Lanzador/Achievements/releases) 然后放到项目目录下的 `__achievements__` 文件夹，按照 [Achievements](https://github.com/Lanzador/Achievements/releases) 的README进行配置。
+1. Install Python, and install depends in `requirements.txt` with `pip install -r requirements.txt`, run `entry.py` to start.
+2. download [Achievements](https://github.com/Lanzador/Achievements/releases) and put it in folder `__achievements__`, according [Achievements](https://github.com/Lanzador/Achievements/releases)'s README to configuration。
 ## Note
-- 保存游戏配置
-- 启动游戏
-- 在手机或其他设备上启动本机游戏
-- 多语言界面
-- 封面显示游戏
-- 拖拽文件或链接上传封面和图标
-- 表格显示游戏
-- 打开数据文件夹
-- 通知游戏启动
-- 显示icon和cover
-- 全屏封面视图
-- 点击按钮上传图标封面功能
-- 收藏夹功能（basic）
-- 看游戏成就
-- 弹游戏成就
+- save app launch configuration
+- launch app
+- launch app from phone
+- multi-language
+- display apps by picture
+- darg file or link to change icon or picture
+- display apps by list
+- open data folder
+- notice app launched
+- display icon and cover picture
+- fullscreen cover picture mode
+- upload icon or picture by button
+- add a app to favorite（basic）
+- launch app with achievements (by [Achievements](https://github.com/Lanzador/Achievements/releases))
 #### TODO
-- 增加跨平台环境变量
+- ability to set env var cross-platform
 
 #### Credit
 > `Lanzador` for [Achievements](https://github.com/Lanzador/Achievements/releases) \
