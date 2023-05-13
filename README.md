@@ -1,5 +1,5 @@
 # Remotelauncher
-> [English](/blob/master/README.md) [中文](/blob/master/README_CN.md)
+> [English](README.md) [中文](README_CN.md)
 
 ![screenshot](static/pic/screenshot.png) <hr>
 Simple launcher write with flask<br>

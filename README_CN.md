@@ -1,5 +1,5 @@
 # Remotelauncher
-> [English](/blob/master/README.md) [中文](/blob/master/README_CN.md)
+> [English](README.md) [中文](README_CN.md)
 
 ![screenshot](static/pic/screenshot.png) <hr>
 非常简单的用flask写的程序启动器。<br>
