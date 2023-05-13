@@ -22,7 +22,7 @@
       {
          "src": "{{ url_for('static', filename='pic/screenshot.png') }}",
          "type": "image/png",
-         "sizes": "1001x597"
+         "sizes": "1286x733"
       }
    ]
 }

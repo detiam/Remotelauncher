@@ -29,11 +29,11 @@ if uname().system == 'Windows':
     data_dir = path.join(environ['APPDATA'], 'Weblauncher')
 elif uname().system == 'Linux':
     import unotify as notification
+    def openfile(file):
+        Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
     sysnotespec = {
         "urgency": notification.urgencies.HIGH
     }
-    def openfile(file):
-        Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
     if environ.get('XDG_DATA_HOME') is not None:
         data_dir = path.expandvars('$XDG_DATA_HOME/Weblauncher')
     else:
@@ -69,7 +69,7 @@ app.config.update(
 
 cache = Cache(app)
 
-def sendnote(iconpath, title, message, timeout=None):
+def sendnote(iconpath, title, message, timeout):
     kwargs = {
         "app_name": app.config['APPNAME'],
         "app_icon": iconpath,
@@ -81,7 +81,7 @@ def sendnote(iconpath, title, message, timeout=None):
         kwargs.update(sysnotespec)
     except:
         pass
-    notification.notify(**kwargs)
+    return notification.notify(**kwargs)
 
 def etag(kwargs):
     response = make_response(kwargs)
@@ -341,7 +341,7 @@ def apps_launch(program_id):
         # 发送通知，顺便防止开多
         if with_achi != 'onlyAchi':
             sendnote(iconpath, program.name,
-                    'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
+                'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
     except:
         return 'too often', 204
 
