@@ -41,7 +41,3 @@ window.addEventListener('beforeunload', () => {
     localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
   }
 });
-
-window.addEventListener('load', () => {
-  scrollToPage('ScrollPositionMainpage')
-});

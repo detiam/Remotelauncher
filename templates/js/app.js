@@ -1,3 +1,4 @@
+const windows = [];
 const menuContext = [{
   header: "{{ _('Actions') }}"
 },{
@@ -5,7 +6,19 @@ const menuContext = [{
   iconClass: 'fa fa-cog',
   onClick: function(e) {
     launchapp(e.id)
-  }
+  },
+  subMenuItems:
+  [{
+    name: "{{ _('With achievements') }}",
+    onClick: function(e) {
+      launchapp(e.id, true)
+    }
+  },{
+    name: "{{ _('Only achievements') }}",
+    onClick: function(e) {
+      launchapp(e.id, 'onlyAchi')
+    }
+  }]
 },{
   name: function(e) {
     if (isfavorite(e.id)) {
@@ -32,24 +45,24 @@ const menuContext = [{
   }
 },{
   name: "{{ _('Delete this app') }}",
-  iconClass: 'fa fa-trash',
-  classNames: 'action-danger',
-  onClick: function(e) {
-    if (document.title === "{{ _('Picview') }}") {
-      sessionStorage.needReloadWhenGoBack = true
-    }
-    $.get(flaskUrl.get("apps_del")(e.id), function(){
-      delCache(flaskUrl.get("data_get")('resources/'+e.id), () => {
-        if (document.title === "{{ _('Picview') }}") {
-          fullPicview('reLoad')
-        } else {
-          mainHTML_reload()
-        }
-      })
-    }).fail(function() {
-      alert('Something went wrong.');
-    });
-  }
+  iconClass: 'fa fa-trash icon-danger',
+  subMenuItems: [{
+    name: "{{ _('I really want to delete this app') }}",
+    classNames: 'action-danger',
+    onClick: function(e) {
+      if (document.title === "{{ _('Picview') }}") {
+        sessionStorage.needReloadWhenGoBack = true
+      }
+      windows[e.id]?.close();
+      $.get(flaskUrl.get("apps_del")(e.id), function(){
+        delCache(flaskUrl.get("data_get")('resources/'+e.id), () => {
+          $('[id$='+e.id+']').remove();
+        })
+      }).fail(function() {
+        alert('Something went wrong.');
+      });
+    },
+  }]
 },{
   divider: true
 },{
@@ -87,6 +100,9 @@ const menuContext = [{
 },{
   name: "{{ _('More Options') }}",
   iconClass: 'fa fa-bars',
+  onClick: function(e) {
+    windows[e.id] = openDetailWindow(e.id,400,600);
+  },
   subMenuItems:
   [{
     name: "{{ _('Open app folder') }}",
@@ -110,10 +126,12 @@ const menuContext = [{
       $.get(flaskUrl.get("api_openresdir")(e.id));
     }
   },{
+    divider: true
+  },{
     name: "{{ _('Modify property') }}",
     iconClass: 'fa fa-file-text-o',
     onClick: function(e) {
-      openDetailWindow(e.id,400,600);
+      windows[e.id] = openDetailWindow(e.id,400,600);
     }
   }]
 }]

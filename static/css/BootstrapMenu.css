@@ -45,4 +45,5 @@
     text-align: center;
 }
 .action-danger > a { color: #a94442 !important; }
+.icon-danger { color: #a94442 !important; }
 .action-success > a { color: #3c763d !important; }

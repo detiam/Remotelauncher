@@ -17,7 +17,10 @@
 - 全屏封面视图
 - 点击按钮上传图标封面功能
 - 收藏夹功能（basic）
-### TODO
+#### TODO
 - 看游戏成就
 - 弹游戏成就
 - 增加跨平台环境变量
+
+#### Credit
+> `Gowixx` for [unotify](https://github.com/Gowixx/unotify)

@@ -2,6 +2,7 @@ function detailOpener_reload() {
   if (window.opener.document.title == flaskStr.get("i18n_picviewTitle")) {
     window.opener.fullPicview('reLoad')
   } else {
+    localStorage.ScrollPositionMainpage = window.opener.pageYOffset;
     window.opener.mainHTML_reload()
   }
 }

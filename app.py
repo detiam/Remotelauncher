@@ -2,6 +2,7 @@ from datetime import datetime as dt, timedelta
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.datastructures import FileStorage
 from flask_sqlalchemy import SQLAlchemy
+from flask_caching import Cache
 from threading import Thread
 from io import BytesIO
 from selectors import DefaultSelector, EVENT_READ
@@ -21,13 +22,16 @@ from flask import (Flask, make_response, redirect, render_template, url_for,
 
 from shutil import rmtree
 from sys import stderr
-from plyer import notification
-from flask_caching import Cache
 
 if uname().system == 'Windows':
+    from plyer import notification
     from os import startfile as openfile
     data_dir = path.join(environ['APPDATA'], 'Weblauncher')
 elif uname().system == 'Linux':
+    import unotify as notification
+    sysnotespec = {
+        "urgency": notification.urgencies.HIGH
+    }
     def openfile(file):
         Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
     if environ.get('XDG_DATA_HOME') is not None:
@@ -35,6 +39,7 @@ elif uname().system == 'Linux':
     else:
         data_dir = path.expandvars('$HOME/.local/share/Weblauncher')
 else:
+    from plyer import notification
     from webbrowser import open as openfile
     data_dir = path.expanduser('~/.Weblauncher')
 
@@ -63,6 +68,20 @@ app.config.update(
 )
 
 cache = Cache(app)
+
+def sendnote(iconpath, title, message, timeout=None):
+    kwargs = {
+        "app_name": app.config['APPNAME'],
+        "app_icon": iconpath,
+        "title": title,
+        "message": message,
+        "timeout": timeout
+    }
+    try:
+        kwargs.update(sysnotespec)
+    except:
+        pass
+    notification.notify(**kwargs)
 
 def etag(kwargs):
     response = make_response(kwargs)
@@ -115,6 +134,21 @@ def configlocalizedname(config):
 db = SQLAlchemy(app)
 babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
 
+
+class ThreadWithReturnValue(Thread):
+    
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None):
+        Thread.__init__(self, group, target, name, args, kwargs)
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                                **self._kwargs)
+    def join(self, *args):
+        Thread.join(self, *args)
+        return self._return
 
 class Config(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -294,32 +328,57 @@ def apps_del(program_id):
     # return redirect(url_for('index'))
 
 
-@app.get('/apps/launch/<int:program_id>')
+@app.post('/apps/launch/<int:program_id>')
 def apps_launch(program_id):
+    with_achi = request.form.get('withAchi')
     # 环境变量
     program = Program.query.get_or_404(program_id)
-    wideprefix = Config.query.filter_by(name='config_wideprefix').first()
-    wideworkdir = Config.query.filter_by(name='config_wideworkdir').first()
     pdatadir = path.join(resources_dir, str(program.id))
     iconpath = path.join(pdatadir, 'icon.ico')
     if not path.exists(iconpath):
         iconpath = path.join(app.root_path, 'static/pic/logo.png')
     try:
         # 发送通知，顺便防止开多
-        sendnote(iconpath, program.name,
-                 'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
+        if with_achi != 'onlyAchi':
+            sendnote(iconpath, program.name,
+                    'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
     except:
         return 'too often', 204
 
-    # todo: 这里改一下，如果失败则在模板里显示提示
-    # 似乎不太可能实现了
-    Thread(target=launchit, args=(program, wideprefix,
-                                  wideworkdir, pdatadir, iconpath)).start()
-    return '', 204
+    appproc = ThreadWithReturnValue(target=launchapp, args=(program, pdatadir))
 
-def launchit(program, wideprefix,
-             wideworkdir, pdatadir, iconpath):
+    if with_achi == 'true':
+        appproc.start()
+        achi = achiwatcher(program_id)
+        appreturn = appproc.join()
+        achi.kill()
+    elif with_achi == 'onlyAchi':
+        achi = achiwatcher(program_id)
+        appreturn = achi.wait()
+    else:
+        appproc.start()
+        appreturn = appproc.join()
+
+    if appreturn == 0:
+        return '', 201
+    else:
+        sendnote(iconpath, program.name,
+                gettext('Something abnormal')+':\n'+str(appreturn), 10)
+        # todo: 这里改一下，如果失败则在模板里显示提示 
+        return str(appreturn), 200
+
+def achiwatcher(program_id):
+    process = Popen(['python',
+        path.join(app.root_path, '__achievements__/window.py'), str(program_id)],
+        cwd=path.join(app.root_path, '__achievements__'),
+        stdout=DEVNULL, stderr=DEVNULL)
+    return process
+
+def launchapp(program, pdatadir):
     # 命令环境变量
+    wideprefix = Config.query.filter_by(name='config_wideprefix').first()
+    wideworkdir = Config.query.filter_by(name='config_wideworkdir').first()
+
     command = " ".join(
         [program.prefix, wideprefix.value, program.command])
     workdir = path.expandvars(
@@ -329,7 +388,6 @@ def launchit(program, wideprefix,
     ) or path.expanduser('~')
     # programenv =
 
-    # 启动进程
     try:
         with Popen(command, cwd=workdir, shell=True,
                 universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
@@ -338,15 +396,9 @@ def launchit(program, wideprefix,
             # 写入.log文件
             open(path.join(pdatadir, '.stdout.log'), 'w').write(the_stdout)
             open(path.join(pdatadir, '.stderr.log'), 'w').write(the_stderr)
-
-            if the_retcode == 0:
-                return the_retcode
-            else:
-                sendnote(iconpath, program.name,
-                        'Crashed\nexitcode: ' + str(the_retcode), 10)
+            return the_retcode
     except Exception as e:
-        sendnote(iconpath, program.name,
-            'Crashed\n' + str(e), 10)
+        return e
 
 def printlog(p, who):
     # 获取程序LOG
@@ -366,20 +418,12 @@ def printlog(p, who):
                 break
             if key.fileobj is p.stderr:
                 the_stderr += line
+                the_stdout += line
                 print(f"[{who}] STDERR: {line}", end="", file=stderr)
             else:
                 the_stdout += line
                 print(f"[{who}] STDOUT: {line}", end="")
     return the_stdout, the_stderr, p.wait()
-
-def sendnote(iconpath, title, message, timeout):
-    notification.notify(
-        app_name=gettext(app.name),
-        app_icon=iconpath,
-        title=title,
-        message=message,
-        timeout=timeout
-    )
 
 
 @app.get('/api/urls')

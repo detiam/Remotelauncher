@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-04-27 19:04+0800\n"
-"PO-Revision-Date: 2023-04-27 19:09+0800\n"
+"POT-Creation-Date: 2023-05-13 08:52+0800\n"
+"PO-Revision-Date: 2023-05-13 08:55+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
@@ -17,36 +17,44 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.11.0\n"
-"X-Generator: Lokalize 23.04.0\n"
+"Generated-By: Babel 2.12.1\n"
+"X-Generator: Lokalize 23.04.1\n"
 
-#: app.py:49
+#: app.py:54
 msgid "RemoteLauncher"
 msgstr "远程启动器"
 
-#: app.py:50
+#: app.py:55
 msgid "A launcher to launch program."
 msgstr "一个启动应用的启动器。"
 
-#: app.py:107
+#: app.py:126
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: app.py:109
+#: app.py:128
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: app.py:197
+#: app.py:231
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: app.py:222 app.py:224
+#: app.py:256 app.py:258
 msgid "File type not supported"
 msgstr "不支持此文件类型"
 
-#: app.py:310
+#: app.py:342
 msgid "Just been launched"
 msgstr "刚刚被启动了"
+
+#: app.py:365
+msgid "Something abnormal"
+msgstr "有什么不正常"
+
+#: app.py:447
+msgid "Path not found"
+msgstr "未找到路径"
 
 #: templates/detail.html:27
 msgid "Change Icon or Picture"
@@ -64,7 +72,7 @@ msgstr "提交"
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: templates/detail.html:69 templates/js/app.js:109
+#: templates/detail.html:69 templates/js/app.js:123
 msgid "Open data folder"
 msgstr "打开配置文件夹"
 
@@ -76,19 +84,19 @@ msgstr "修改设置"
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:88 templates/index.html:53 templates/tableview.html:7
+#: templates/detail.html:88 templates/index.html:59 templates/tableview.html:7
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:94 templates/index.html:58
+#: templates/detail.html:94 templates/index.html:64
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:99 templates/index.html:63
+#: templates/detail.html:99 templates/index.html:69
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:104 templates/index.html:68
+#: templates/detail.html:104 templates/index.html:74
 msgid "Command"
 msgstr "执行命令"
 
@@ -100,51 +108,51 @@ msgstr "此 ID 被占用"
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: templates/detail.html:121 templates/index.html:72 templates/index.html:88
+#: templates/detail.html:121 templates/index.html:78 templates/index.html:94
 msgid "Save"
 msgstr "保存"
 
-#: templates/index.html:26
+#: templates/index.html:32
 msgid "Applauncher"
 msgstr "Applauncher"
 
-#: templates/index.html:27
+#: templates/index.html:33
 msgid "Config and run programs from the web!"
 msgstr "在网页上配置以及远程运行应用程序！"
 
-#: templates/index.html:40
+#: templates/index.html:46
 msgid "Options"
 msgstr "选项"
 
-#: templates/index.html:43
+#: templates/index.html:49
 msgid "Show List"
 msgstr "程序列表"
 
-#: templates/index.html:47
+#: templates/index.html:53
 msgid "Add Program"
 msgstr "添加程序"
 
-#: templates/index.html:77
+#: templates/index.html:83
 msgid "Settings"
 msgstr "设置"
 
-#: templates/index.html:93
+#: templates/index.html:99
 msgid "Lists"
 msgstr "列表"
 
-#: templates/index.html:102
+#: templates/index.html:108
 msgid "Favorites"
 msgstr "收藏夹"
 
-#: templates/index.html:116
+#: templates/index.html:122
 msgid "Picture View"
 msgstr "图片视图"
 
-#: templates/index.html:119
+#: templates/index.html:125
 msgid "Click to expand picview"
 msgstr "点击展开图片视图"
 
-#: templates/index.html:134
+#: templates/index.html:140
 msgid "Table View"
 msgstr "表格视图"
 
@@ -160,52 +168,64 @@ msgstr "离线"
 msgid "Icon"
 msgstr "图标"
 
-#: templates/js/app.js:2
+#: templates/js/app.js:3
 msgid "Actions"
 msgstr "操作"
 
-#: templates/js/app.js:4
+#: templates/js/app.js:5
 msgid "Start application"
 msgstr "启动这个程序"
 
 #: templates/js/app.js:12
+msgid "With achievements"
+msgstr "带有成就查看器"
+
+#: templates/js/app.js:17
+msgid "Only achievements"
+msgstr "只开启成就查看器"
+
+#: templates/js/app.js:25
 msgid "Remove favorite"
 msgstr "从收藏夹删除"
 
-#: templates/js/app.js:14
+#: templates/js/app.js:27
 msgid "Add to favorite"
 msgstr "添加到收藏夹"
 
-#: templates/js/app.js:29 templates/js/app.js:40 templates/js/app.js:45
-#: templates/js/app.js:61 templates/js/app.js:80 templates/js/app.js:170
-msgid "Picview"
-msgstr "图片视图"
-
-#: templates/js/app.js:36
+#: templates/js/app.js:47
 msgid "Delete this app"
 msgstr "删除这个程序"
 
-#: templates/js/app.js:58
+#: templates/js/app.js:50
+msgid "I really want to delete this app"
+msgstr "我确定要删除这个程序"
+
+#: templates/js/app.js:53 templates/js/app.js:72 templates/js/app.js:91
+#: templates/js/app.js:186
+msgid "Picview"
+msgstr "图片视图"
+
+#: templates/js/app.js:69
 msgid "Back to index"
 msgstr "返回到主界面"
 
-#: templates/js/app.js:73
+#: templates/js/app.js:84
 msgid "Zoom out"
 msgstr "将此图片缩小"
 
-#: templates/js/app.js:75
+#: templates/js/app.js:86
 msgid "Zoom in"
 msgstr "将此图片放大"
 
-#: templates/js/app.js:90
+#: templates/js/app.js:101
 msgid "More Options"
 msgstr "显示更多选项"
 
-#: templates/js/app.js:94
+#: templates/js/app.js:108
 msgid "Open app folder"
 msgstr "打开应用文件夹"
 
-#: templates/js/app.js:115
+#: templates/js/app.js:131
 msgid "Modify property"
 msgstr "更改此应用属性"
 

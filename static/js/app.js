@@ -8,8 +8,17 @@ function favSave(favoritelist) {
 }
 
 function scrollToPage(page) {
-  try { window.scrollTo(0, window.localStorage.getItem(page)); }
-  catch (error) { console.log('scrollToPage('+page+'): Failed! ' + error)}
+  window.scrollTo(0, window.localStorage.getItem(page));
+}
+
+function showLoading() {
+  $('#overlay').fadeIn('100')
+  $('html').css('overflow-y', 'hidden');
+}
+
+function hideLoading() {
+  $('#overlay').fadeOut('100')
+  $('html').css('overflow-y', 'overlay');
 }
 
 function isfavorite(id) {
@@ -29,7 +38,7 @@ function openDetailWindow(id, x, y) {
   let windowHeight = y; // 新窗口的高度
   let left = (screenWidth - windowWidth) / 2;
   let top = (screenHeight - windowHeight) / 2;
-  window.open(url,
+  return window.open(url,
     "_blank", 'width=' + windowWidth + ',height=' +
     windowHeight + ',left=' + left + ',top=' + top +
   ',toolbar=no,addressbar=no,location=no,menubar=no');
@@ -237,8 +246,8 @@ function uploadFile(file, id) {
   xhr.send(formData);
 }
 
-function launchapp(id) {
-  $.get(flaskUrl.get("apps_launch")(id))
+function launchapp(id, withAchi) {
+    $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi})
     .fail(function(jqXHR, textStatus, errorThrown) {
       alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
     })
@@ -309,10 +318,24 @@ function coverhandle_reload(handleEvent) {
 }
 
 async function mainHTML_reload() {
-  $('#collapseTwo').load(flaskUrl.get("html_picview")(), async () => {
+  $('#collapseTwo').load(flaskUrl.get("html_picview")(), () => {
+    const promises = [];
+    $('.picview').find('img').each(function() {
+      let img = new Image();
+      let promise = $.Deferred();
+      img.src = $(this).attr('src');
+      img.onload = function() {
+        promise.resolve();
+      };
+      promises.push(promise);
+    });
+    $.when.apply(null, promises).done(() => {
+      scrollToPage('ScrollPositionMainpage')
+      hideLoading()
+    });
     fav_reload()
   });
-  $('#collapseThree').load(flaskUrl.get('html_tableview')(), async () =>{
+  $('#collapseThree').load(flaskUrl.get('html_tableview')(), () =>{
     $('.picon')
     .on('load', e => {
       e.originalEvent.target.style.display='initial'
