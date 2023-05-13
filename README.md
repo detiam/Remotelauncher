@@ -1,5 +1,5 @@
 # Remotelauncher
-> [English](https://github.com/detiam/Weblauncher/blob/master/README.md) [中文](https://github.com/detiam/Weblauncher/blob/master/README_CN.md)
+> [English](/blob/master/README.md) [中文](/blob/master/README_CN.md)
 
 ![screenshot](static/pic/screenshot.png) <hr>
 Simple launcher write with flask<br>
