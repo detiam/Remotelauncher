@@ -26,7 +26,10 @@
 - 带着成就功能启动游戏 (by [Achievements](https://github.com/Lanzador/Achievements/releases))
 #### TODO
 - 增加跨平台环境变量
-
+- 从exe里加载icon
+- 没有条目的时候显示没有条目
+- 登陆功能
+- 整理页面
 #### Credit
 > `Lanzador` for [Achievements](https://github.com/Lanzador/Achievements/releases) \
 > `Gowixx` for [unotify](https://github.com/Gowixx/unotify) \
