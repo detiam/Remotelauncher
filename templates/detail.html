@@ -76,24 +76,47 @@
     <div class="collapse" id="edit-program">
       <br />
       <form id="detailForm" method="POST" onsubmit="return checkToResetFav()" action="{{ url_for('apps_add', program_realid=program.id) }}">
-        <div class="row">
-          <div class="form-group col-xs-4">
+        <div class="form-group row">
+          <div class="col-xs-4">
             <label for="program_id">{{ _("ID") }}:</label>
             <input type="number" max="2147483647" min="1" class="{% if alert %} error {% endif %} form-control"
               id="program_id" name="program_id" {% if alert %} value="{{ formerid }}" {% else %}
               value="{{ program.id }}" {% endif %} autocomplete="off" onclick="this.classList.remove('error')"
               required spellcheck="false" />
           </div>
-          <div class="form-group col-xs-8" style="padding-left: 0;">
+          <div id="from-program_name" class="col-xs-8">
             <label for="program_name">{{ _("Name") }}:</label>
-            <input type="text" class="form-control" id="program_name" name="program_name" value="{{ program.name }}"
+            <div class="input-group">
+              <input type="text" class="form-control" id="program_name" name="program_name" value="{{ program.name }}"
               autocomplete="off" spellcheck="false" required />
+              <div class="input-group-btn">
+                <button
+                  type="button"
+                  class="btn btn-default dropdown-toggle"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li><a href="#">{{ _("Generate schemas") }}</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-group">
           <label for="program_workdir">{{ _("Working directory") }}:</label>
-          <textarea type="text" class="form-control" id="program_workdir" rows="2" name="program_workdir"
-            autocomplete="off" spellcheck="false">{{ program.workdir }}</textarea>
+          <a
+            id="btn-genschema"
+            class="btn btn-default btn-xs pull-right block"
+            role="button"
+          >
+            {{ _("Select") }}
+          </a>
+          <input type="text" class="form-control" id="program_workdir" name="program_workdir"
+            autocomplete="off" spellcheck="false" value={{ program.workdir }}>
         </div>
         <div class="form-group">
           <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud, etc...)") }}:</label>

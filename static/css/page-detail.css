@@ -1,3 +1,10 @@
+#btn-genschema {
+  transform: translateY(-0.2em);
+  margin-right: 0.2em;
+}
+#from-program_name {
+  padding-left: 0;
+}
 /* 添加红色边框样式 */
 .error {
   border: 2px solid red;

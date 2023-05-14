@@ -15,7 +15,7 @@ from functools import wraps
 from filetype import guess
 
 from os import (rename, makedirs,
-                environ, name, path)
+                environ, path)
 
 from flask import (Flask, make_response, redirect, render_template, url_for,
                    send_from_directory, jsonify, g, request)
@@ -23,65 +23,39 @@ from flask import (Flask, make_response, redirect, render_template, url_for,
 from shutil import rmtree
 from sys import stderr
 
-if uname().system == 'Windows':
+
+config_names = [
+    'config_wideprefix',
+    'config_wideworkdir',
+    'config_achipath',
+    'config_downconfpath'
+]
+
+def prepareapp():
+    db.create_all()
+    # 向 Config 表中插入默认配置项
+    for name in config_names:
+        if Config.query.filter_by(name=name).first() is None:
+            config = Config(name=name, value='')
+            db.session.add(config)
+    db.session.commit()
+    for program in Program.query.all():
+        program_dir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
+        if not path.exists(program_dir):
+            makedirs(program_dir)
+
+def commons():
     from plyer import notification
-    from os import startfile as openfile
-    data_dir = path.join(environ['APPDATA'], 'Weblauncher')
-elif uname().system == 'Linux':
-    import unotify as notification
-    def openfile(file):
-        Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
-    sysnotespec = {
-        "urgency": notification.urgencies.HIGH
-    }
-    if environ.get('XDG_DATA_HOME') is not None:
-        data_dir = path.expandvars('$XDG_DATA_HOME/Weblauncher')
-    else:
-        data_dir = path.expandvars('$HOME/.local/share/Weblauncher')
-else:
-    from plyer import notification
-    from webbrowser import open as openfile
-    data_dir = path.expanduser('~/.Weblauncher')
-
-if not path.exists(data_dir):
-    makedirs(data_dir)
-
-config_names = ['config_wideprefix', 'config_wideworkdir']
-resources_dir = path.join(data_dir, 'resources')
-
-app = Flask(__name__)
-app.config.update(
-    APPNAME=gettext('RemoteLauncher'),
-    DESCRIPTION=gettext('A launcher to launch program.'),
-    JSON_AS_ASCII=False,
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(data_dir, "configs.db")}',
-    UPLOAD_FOLDER=resources_dir,
-    MAX_CONTENT_LENGTH=2 * 1024 * 1024,
-    CACHE_TYPE='SimpleCache',
-    CACHE_DEFAULT_TIMEOUT=300,
-    LANGUAGE='en',
-    LANGUAGES={
-        'en': 'English',
-        'zh': '中文'
-    }
-)
-
-cache = Cache(app)
-
-def sendnote(iconpath, title, message, timeout):
-    kwargs = {
-        "app_name": app.config['APPNAME'],
-        "app_icon": iconpath,
-        "title": title,
-        "message": message,
-        "timeout": timeout
-    }
-    try:
-        kwargs.update(sysnotespec)
-    except:
-        pass
-    return notification.notify(**kwargs)
+    global sendnote
+    def sendnote(iconpath, title, message, timeout):
+        kwargs = {
+            "app_name": app.config['APPNAME'],
+            "app_icon": iconpath,
+            "title": title,
+            "message": message,
+            "timeout": timeout
+        }
+        return notification.notify(**kwargs)
 
 def etag(kwargs):
     response = make_response(kwargs)
@@ -126,13 +100,77 @@ def configlocalizedname(config):
         return gettext("Global prefix")
     if config.name == config_names[1]:
         return gettext("Default working directory")
+    if config.name == config_names[2]:
+        return gettext('"Achievements" path')
+    if config.name == config_names[3]:
+        return gettext("Schema generate tool path")
     return '!ErrorNoName!'
 
     # 烂到要死的解决方法
     # return eval(''.join(['config.', get_locale(), '_name']))
 
+
+app = Flask(__name__)
+app.config.update(
+    APPNAME=gettext('RemoteLauncher'),
+    DESCRIPTION=gettext('A launcher to launch program.'),
+    JSON_AS_ASCII=False,
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024,
+    CACHE_TYPE='SimpleCache',
+    CACHE_DEFAULT_TIMEOUT=300,
+    LANGUAGE='en',
+    LANGUAGES={
+        'en': 'English',
+        'zh': '中文'
+    }
+)
+
+match uname().system:
+    case 'Windows':
+        from os import startfile as openfile
+        data_dir = path.join(environ['APPDATA'], app.config['APPNAME'])
+        commons()
+    case 'Linux':
+        from gi import require_version
+        require_version('Notify', '0.7')
+        from gi.repository import Notify
+        from atexit import register as register_exit
+        from threading import Timer
+        @register_exit
+        def goodbye():
+            Notify.uninit()
+            print('\n'+app.config['APPNAME']+" is shutting down...")
+        def openfile(file):
+            Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
+        def sendnote(iconpath, title, message, timeout):
+            notification.update(title,message,iconpath)
+            notification.show()
+            Timer(timeout, notification.close).start()
+            return notification
+        Notify.init(app.config['APPNAME'])
+        notification = Notify.Notification.new("Init")
+        notification.set_urgency(2)
+        if environ.get('XDG_DATA_HOME') is not None:
+            data_dir = path.expandvars('$XDG_DATA_HOME/'+app.config['APPNAME'])
+        else:
+            data_dir = path.expandvars('$HOME/.local/share/'+app.config['APPNAME'])
+    case _:
+        from webbrowser import open as openfile
+        data_dir = path.expanduser('~/.'+app.config['APPNAME'])
+        commons()
+
+if not path.exists(data_dir):
+    makedirs(data_dir)
+
+app.config.update(
+    SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(data_dir, "configs.db")}',
+    UPLOAD_FOLDER=path.join(data_dir, 'resources'),
+)
+
 db = SQLAlchemy(app)
 babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
+cache = Cache(app)
 
 
 class ThreadWithReturnValue(Thread):
@@ -197,6 +235,11 @@ def data_get(filename):
         else:
             return '', 204
 
+@app.get('/data/stdownconf/<int:program_id>')
+def stdownconf(program_id):
+    # todo: 真正在后台生成模拟器配置文件
+    return '', 200
+
 @app.post('/data/dbconf')
 def data_dbconf():
     for key, value in request.form.items():
@@ -215,7 +258,7 @@ def data_dbconf():
 @app.route('/data/upload/<path:program_id>', methods=['GET', 'POST'])
 def data_upload(program_id):
     try:
-        filedest = path.join(resources_dir, program_id.split('-')[-1])
+        filedest = path.join(app.config['UPLOAD_FOLDER'], program_id.split('-')[-1])
         if request.content_type == 'application/json':
             url = request.get_json().get('url')
             urlfile = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
@@ -271,7 +314,7 @@ def apps_add(program_realid):
                               prefix=prefix, command=command)
         db.session.add(new_program)
         db.session.commit()
-        new_program_dir = path.join(resources_dir, str(new_program.id))
+        new_program_dir = path.join(app.config['UPLOAD_FOLDER'], str(new_program.id))
         new_program_dirbak = path.join(new_program_dir + '.bak')
         try:
             makedirs(new_program_dir)
@@ -284,8 +327,8 @@ def apps_add(program_realid):
             makedirs(new_program_dir)
     else:
         program = Program.query.get_or_404(program_realid)
-        program_dir = path.join(resources_dir, str(program_realid))
-        program_destdir = path.join(resources_dir, str(id))
+        program_dir = path.join(app.config['UPLOAD_FOLDER'], str(program_realid))
+        program_destdir = path.join(app.config['UPLOAD_FOLDER'], str(id))
         # 在更改id的时候移动资源文件夹
         if str(program_realid) == id:
             pass
@@ -312,7 +355,7 @@ def apps_add(program_realid):
 
 @app.get('/apps/del/<int:program_id>')
 def apps_del(program_id):
-    respath = path.join(resources_dir, str(program_id))
+    respath = path.join(app.config['UPLOAD_FOLDER'], str(program_id))
     resbakpath = path.join(respath + '.bak')
     try:
         rename(respath, resbakpath)
@@ -325,15 +368,19 @@ def apps_del(program_id):
     db.session.delete(program)
     db.session.commit()
     return redirect(request.referrer)
-    # return redirect(url_for('index'))
 
 
 @app.post('/apps/launch/<int:program_id>')
 def apps_launch(program_id):
     with_achi = request.form.get('withAchi')
+    achipath = Config.query.filter_by(name='config_achipath').first()
+    if not path.exists(achipath.value):
+        return gettext('"Achievement" path not found'), 400
+    else:
+        achipath = achipath.value
     # 环境变量
     program = Program.query.get_or_404(program_id)
-    pdatadir = path.join(resources_dir, str(program.id))
+    pdatadir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
     iconpath = path.join(pdatadir, 'icon.ico')
     if not path.exists(iconpath):
         iconpath = path.join(app.root_path, 'static/pic/logo.png')
@@ -349,11 +396,11 @@ def apps_launch(program_id):
 
     if with_achi == 'true':
         appproc.start()
-        achi = achiwatcher(program_id)
+        achi = achiwatcher(program_id, achipath)
         appreturn = appproc.join()
         achi.kill()
     elif with_achi == 'onlyAchi':
-        achi = achiwatcher(program_id)
+        achi = achiwatcher(program_id, achipath)
         appreturn = achi.wait()
     else:
         appproc.start()
@@ -367,10 +414,10 @@ def apps_launch(program_id):
         # todo: 这里改一下，如果失败则在模板里显示提示 
         return str(appreturn), 200
 
-def achiwatcher(program_id):
+def achiwatcher(program_id, achipath):
     process = Popen(['python',
-        path.join(app.root_path, '__achievements__/window.py'), str(program_id)],
-        cwd=path.join(app.root_path, '__achievements__'),
+        path.join(achipath, 'window.py'), str(program_id)],
+        cwd=achipath,
         stdout=DEVNULL, stderr=DEVNULL)
     return process
 
@@ -436,7 +483,7 @@ def api_urls():
 
 @app.get('/api/openresdir/<int:program_id>')
 def api_openresdir(program_id):
-    openfolder(path.join(resources_dir, str(program_id)))
+    openfolder(path.join(app.config['UPLOAD_FOLDER'], str(program_id)))
     return '', 204
 
 @app.post('/api/opendir')
@@ -477,16 +524,4 @@ def file_serviceworker():
     return etag(response)
 
 
-if __name__ == '__main__':
-    db.create_all()
-    # 向 Config 表中插入默认配置项
-    for name in config_names:
-        if Config.query.filter_by(name=name).first() is None:
-            config = Config(name=name, value='')
-            db.session.add(config)
-    db.session.commit()
-    for program in Program.query.all():
-        program_dir = path.join(resources_dir, str(program.id))
-        if not path.exists(program_dir):
-            makedirs(program_dir)
-    app.run(host='::', port=2023, debug=True)
+if __name__ == '__main__': app.run(host='::', port=2023, debug=False)
