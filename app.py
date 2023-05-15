@@ -143,10 +143,11 @@ match uname().system:
             print('\n'+app.config['APPNAME']+" is shutting down...")
         def openfile(file):
             Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
-        def sendnote(iconpath, title, message, timeout):
+        def sendnote(iconpath, title, message, timeout: int):
             notification.update(title,message,iconpath)
             notification.show()
-            Timer(timeout, notification.close).start()
+            if timeout > 0:
+                Timer(timeout, notification.close).start()
             return notification
         Notify.init(app.config['APPNAME'])
         notification = Notify.Notification.new("Init")
@@ -390,29 +391,32 @@ def apps_launch(program_id):
             sendnote(iconpath, program.name,
                 'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
     except:
-        return 'too often', 204
+        return 'TooOften!', 200
 
     appproc = ThreadWithReturnValue(target=launchapp, args=(program, pdatadir))
 
-    if with_achi == 'true':
-        appproc.start()
-        achi = achiwatcher(program_id, achipath)
-        appreturn = appproc.join()
-        achi.kill()
-    elif with_achi == 'onlyAchi':
-        achi = achiwatcher(program_id, achipath)
-        appreturn = achi.wait()
-    else:
-        appproc.start()
-        appreturn = appproc.join()
+    def launchit():
+        if with_achi == 'true':
+            appproc.start()
+            achi = achiwatcher(program_id, achipath)
+            appreturn = appproc.join()
+            achi.kill()
+        elif with_achi == 'onlyAchi':
+            achi = achiwatcher(program_id, achipath)
+            appreturn = achi.wait()
+        else:
+            appproc.start()
+            appreturn = appproc.join()
+        # todo: 这里改一下，如果失败则在模板里显示提示
+        if appreturn == 0:
+            sendnote(iconpath, program.name,
+                    'ID: ' + str(program.id) + '\n' + gettext('App exited normally'), 5)
+        else:
+            sendnote(iconpath, program.name,
+                    'ID: ' + str(program.id) + '\n' + gettext('Something abnormal')+': '+str(appreturn), 10)
 
-    if appreturn == 0:
-        return '', 201
-    else:
-        sendnote(iconpath, program.name,
-                gettext('Something abnormal')+':\n'+str(appreturn), 10)
-        # todo: 这里改一下，如果失败则在模板里显示提示 
-        return str(appreturn), 200
+    Thread(target=launchit).start()
+    return 'Sueecss!', 200
 
 def achiwatcher(program_id, achipath):
     process = Popen(['python',

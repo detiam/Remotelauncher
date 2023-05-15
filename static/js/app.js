@@ -247,7 +247,9 @@ function uploadFile(file, id) {
 }
 
 function launchapp(id, withAchi) {
-    $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi})
+    $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi}, (data) => {
+      console.log(data);
+    }, 'text')
     .fail(function(jqXHR, textStatus, errorThrown) {
       alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
     })
