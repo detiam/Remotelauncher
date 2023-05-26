@@ -1,0 +1,24 @@
+:root {
+    --in-out-transition: cubic-bezier(0.68, -0.55, 0.27, 1.55)
+}
+
+html {
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select: none;
+}
+
+.btn-pathSelect {
+    transform: translate(-0.5em, -2.8rem);
+    transition: opacity 0.2s var(--in-out-transition), transform 0.5s var(--in-out-transition)
+}
+
+#program_workdir:focus + .btn-pathSelect {
+    transform: translate(-0.5em, -8em) rotate(0.5turn);
+}
+
+.input-pathSelect:focus + .btn-pathSelect {
+    pointer-events: none;
+    opacity: 0;
+}

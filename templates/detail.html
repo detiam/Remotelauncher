@@ -2,13 +2,14 @@
 <html lang="{{ get_locale() }}">
 
 <head>
-  <title>{{ program.name }}</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#FFFFFF" />
+  <title>{{ program.name }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/page-detail.css') }}">
   <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
@@ -23,42 +24,26 @@
     <div class="btn-group btn-group-justified" role="group" aria-label="Actions">
       <div class="btn-group" role="group">
         <a href="#" class="btn btn-default btn-sm btn-primary dropdown-toggle" role="button" id="dropdownMenuchengicon"
-          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{ _("Change Icon or Picture") }}
-          <span style="margin-left: 2px;" class="caret"></span>
-        </a>
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ _("Change Icon or Picture") }}</a>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuchengicon">
           <li class="dropdown-header">
             <span class=" glyphicon glyphicon-globe" aria-hidden="true"></span>
             <label for="imgurl">{{ _("Enter a URL of an Image") }}:</label>
           </li>
-          <form id="ImageUrlUpload" onsubmit="handleUrlBox(event, {{ program.id }});">
-            <li class="input-group input-group-sm" style="margin: 0em 1em 0em;">
-              <input
-                spellcheck="false"
-                class="form-control"
-                type="url"
-                id="imgurl"
-                name="imgurl"
-                autocomplete="off"
-                placeholder="http://..."
-                aria-label="Image url"
-                aria-describedby="Image url input box"
-                required
-              />
+          <form id="ImageUrlUpload" onsubmit="handleUrlBox(event, '{{ program.id }}');">
+            <div class="input-group input-group-sm">
+              <input spellcheck="false" class="form-control" type="url" id="imgurl" name="imgurl" autocomplete="off"
+                placeholder="http://..." aria-label="Image url" aria-describedby="Image url input box" required />
               <span class="input-group-btn">
-                <input
-                  class="btn btn-default"
-                  type="submit"
-                  value='{{ _("Submit") }}'>
+                <input class="btn btn-default" type="submit" value='{{ _("Submit") }}'>
               </span>
-            </li>
+            </div>
           </form>
           <li role="separator" class="divider"></li>
           <li>
-            <input type="file" style="display: none;" id="detail-file-input">
-            <a href="#" onclick="handleFileSelect(event, {{ program.id }})">
-              <span class="glyphicon glyphicon-folder-open" style="margin-right: 4px;" aria-hidden="true"></span>
+            <input id="detail-file-input" type="file" title="detail-file-input-hiden">
+            <a href="#" onclick="handleFileSelect(event, '{{ program.id }}')">
+              <span id="detail-file-input-span" class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
               {{ _("Select a local file to upload") }}
             </a>
           </li>
@@ -75,28 +60,24 @@
     </button>
     <div class="collapse" id="edit-program">
       <br />
-      <form id="detailForm" method="POST" onsubmit="return checkToResetFav()" action="{{ url_for('apps_add', program_realid=program.id) }}">
+      <form id="detailForm" method="POST" onsubmit="return checkToResetFav()"
+        action="{{ url_for('apps_add', program_realid=program.id) }}">
         <div class="form-group row">
           <div class="col-xs-4">
             <label for="program_id">{{ _("ID") }}:</label>
             <input type="number" max="2147483647" min="1" class="{% if alert %} error {% endif %} form-control"
               id="program_id" name="program_id" {% if alert %} value="{{ formerid }}" {% else %}
-              value="{{ program.id }}" {% endif %} autocomplete="off" onclick="this.classList.remove('error')"
-              required spellcheck="false" />
+              value="{{ program.id }}" {% endif %} autocomplete="off" onclick="this.classList.remove('error')" required
+              spellcheck="false" />
           </div>
           <div id="from-program_name" class="col-xs-8">
             <label for="program_name">{{ _("Name") }}:</label>
             <div class="input-group">
               <input type="text" class="form-control" id="program_name" name="program_name" value="{{ program.name }}"
-              autocomplete="off" spellcheck="false" required />
+                autocomplete="off" spellcheck="false" required />
               <div class="input-group-btn">
-                <button
-                  type="button"
-                  class="btn btn-default dropdown-toggle"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false" title="datailName-dropdown">
                   <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
@@ -108,19 +89,13 @@
         </div>
         <div class="form-group">
           <label for="program_workdir">{{ _("Working directory") }}:</label>
-          <a
-            id="btn-genschema"
-            class="btn btn-default btn-xs pull-right block"
-            role="button"
-          >
-            {{ _("Select") }}
-          </a>
-          <input type="text" class="form-control" id="program_workdir" name="program_workdir"
-            autocomplete="off" spellcheck="false" value={{ program.workdir }}>
+          <input type="text" class="form-control" id="program_workdir" name="program_workdir" autocomplete="off"
+            spellcheck="false" value="{{ program.workdir }}">
+          <a for="program_workdir" class="btn btn-pathSelect btn-default btn-xs pull-right block" role="button">{{ _("Select") }}</a>
         </div>
         <div class="form-group">
           <label for="program_prefix">{{ _("Prefix ( gamescope, mangohud, etc...)") }}:</label>
-          <textarea type="text" class="form-control" id="program_prefix" rows="2" name="program_prefix"
+          <textarea type="text" class="form-control" id="program_prefix" rows="1" name="program_prefix"
             autocomplete="off" spellcheck="false">{{ program.prefix }}</textarea>
         </div>
         <div class="form-group">
@@ -128,22 +103,18 @@
           <textarea type="text" class="form-control" id="program_command" rows="1" name="program_command"
             autocomplete="off" spellcheck="false" required>{{ program.command }}</textarea>
         </div>
-        <center>
+        <div class="text-center">
           {% if alert == '1' %}
-          <div id="alert" style="position: fixed; z-index: 2; left: 30%; right: 30%" class="alert alert-danger"
-            role="alert">
+          <div id="alert" class="alert alert-danger" role="alert">
             {{ _("ID already exists.") }}
           </div>
           {% elif alert == '2' %}
-          <div id="alert" style="position: fixed; z-index: 2; left: 30%; right: 30%" class="alert alert-danger"
-            role="alert">
+          <div id="alert" class="alert alert-danger" role="alert">
             {{ _("Data folder for {id} already exists.").format(id=formerid) }}
           </div>
           {% endif %}
-          <button id="detail-save-button" type="submit" style="position: relative; z-index: 1" class="btn btn-default">
-            {{ _("Save") }}
-          </button>
-        </center>
+          <button id="detail-save-button" type="submit" class="btn btn-default">{{ _("Save") }}</button>
+        </div>
       </form>
     </div>
   </div>

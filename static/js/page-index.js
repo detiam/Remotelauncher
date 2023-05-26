@@ -41,3 +41,16 @@ window.addEventListener('beforeunload', () => {
     localStorage.setItem("ScrollPositionMainpage", window.pageYOffset);
   }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('#config_achipath').on('focusin', e => {
+    const selectbtn = e.target.parentElement.nextElementSibling;
+    selectbtn.style.pointerEvents = 'none';
+    selectbtn.style.opacity = 0;
+  });
+  $('#config_achipath').on('focusout', e => {
+    const selectbtn = e.target.parentElement.nextElementSibling;
+    selectbtn.style.pointerEvents = '';
+    selectbtn.style.opacity = '';
+  });
+});

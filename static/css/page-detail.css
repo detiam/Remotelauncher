@@ -1,9 +1,24 @@
-#btn-genschema {
-  transform: translateY(-0.2em);
-  margin-right: 0.2em;
-}
 #from-program_name {
   padding-left: 0;
+}
+#ImageUrlUpload {
+  margin: 0em 1em 0em;
+}
+#detail-file-input {
+  display: none;
+}
+#detail-file-input-span {
+  margin-right: 4px;
+}
+#detail-save-button {
+  position: relative;
+  z-index: 1
+}
+#alert {
+  position: fixed;
+  z-index: 2;
+  left: 30%;
+  right: 30%
 }
 /* 添加红色边框样式 */
 .error {

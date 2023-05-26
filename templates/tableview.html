@@ -4,7 +4,7 @@
             <tr>
                 <th>{{ _("Icon") }}</th>
                 <th class="idRow">#{{ _("ID") }}</th>
-                <th>{{ _("Name") }}</th>
+                <th class="nameRow">{{ _("Name") }}</th>
             </tr>
         </thead>
         <col width="1%" />
@@ -15,7 +15,6 @@
             <tr
                 id="table-{{ program.id }}"
                 class="tableViewRow"
-                title="{{ program.name }}"
             >
                 <td>
                     <img
@@ -26,7 +25,7 @@
                     >
                 </td>
                 <td class="idRow">{{ program.id }}</td>
-                <td>{{ program.name }}</td>
+                <td class="nameRow" title="{{ program.name }}">{{ program.name }}</td>
             </tr>
             {% endfor %}
         </tbody>

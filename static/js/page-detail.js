@@ -5,7 +5,7 @@ function detailOpener_reload() {
     localStorage.ScrollPositionMainpage = window.opener.pageYOffset;
     window.opener.mainHTML_reload()
   }
-}
+};
 
 function checkToResetFav() {
   const realid = $('#detailForm').attr('action').match(/\d+/)
@@ -16,16 +16,24 @@ function checkToResetFav() {
     favoritelist[newid] = 'true'
     favSave(favoritelist)
   }
-}
+};
 
 // 获取当前 URL 中的查询参数
 const params = new URLSearchParams(window.location.search);
 // 检查参数是否存在，以及其值是否符合条件
 if (params.get('need_reload') === '1') {
   detailOpener_reload()
-}
+};
 
 document.addEventListener('DOMContentLoaded', () => {
+  // https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
+  $("textarea").each(function () {
+    this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+  }).on("input", function () {
+    this.style.height = 0;
+    this.style.height = (this.scrollHeight) + "px";
+  });
+
   // 显示警告框
   $("#alert").fadeIn();
   // 定时隐藏警告框

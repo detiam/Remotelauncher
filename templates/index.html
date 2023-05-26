@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/BootstrapMenu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page-index.css') }}">
     <script src="{{ url_for('static', filename='js/jquery-3.6.4.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
@@ -58,7 +59,7 @@
                         <div class="form-group">
                             <label for="program_name">{{ _("Name") }}:</label>
                             <input type="text" class="form-control" id="program_name" name="program_name"
-                                autocomplete="off" required>
+                                autocomplete="new-password" required>
                         </div>
                         <div class="form-group">
                             <label for="program_workdir">{{ _("Working directory") }}:</label>
@@ -75,10 +76,10 @@
                             <input type="text" class="form-control" id="program_command" name="program_command"
                                 autocomplete="off" required>
                         </div>
-                        <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
+                        <button type="submit" class="btn btn-sm btn-default">{{ _("Save") }}</button>
                     </form>
                 </div><br \>
-                <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#edit-config"
+                <button class="btn btn-block" style="z-index:2; position: relative;" type="button" data-toggle="collapse" data-target="#edit-config"
                     aria-expanded="false" aria-controls="edit-config">
                     {{ _("Settings") }}
                 </button>
@@ -87,11 +88,36 @@
                         {% for config in configs %}
                         <div class="form-group">
                             <label for="{{ config.name }}">{{ configlocalizedname(config) }}:</label>
-                            <input type="text" class="form-control" id="{{ config.name }}" name="{{ config.name }}"
-                                value="{{ config.value }}" autocomplete="off">
+                            {% if config.name == 'config_achipath'%}
+                            <div class="input-group">
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" title="datailName-dropdown">
+                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-left">
+                                        <li><a href="#">{{ _("Generate schemas") }}</a></li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" id="{{ config.name }}" name="{{ config.name }}"
+                                    value="{{ config.value }}" spellcheck="false" autocomplete="off">
+                            </div>
+                            {% else %}
+                            <input
+                                type="text"
+                                class="{% if config.name.endswith('path') %}input-pathSelect {% endif %}form-control"
+                                id="{{ config.name }}"
+                                name="{{ config.name }}"
+                                value="{{ config.value }}"
+                                spellcheck="false"
+                                autocomplete="off">
+                            {% endif %}
+                            {% if config.name.endswith('path') %}
+                            <a for="{{ config.name }}" class="btn btn-zIndex3 btn-pathSelect btn-default btn-xs pull-right" role="button">{{ _("Select") }}</a>
+                            {% endif %}
                         </div>
                         {% endfor %}
-                        <center><button type="submit" class="btn btn-default">{{ _("Save") }}</button></center>
+                        <button type="submit" class="btn btn-sm btn-default">{{ _("Save") }}</button>
                     </form>
                 </div><br \>
             </div>

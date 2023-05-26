@@ -247,12 +247,31 @@ function uploadFile(file, id) {
 }
 
 function launchapp(id, withAchi) {
+  try {
     $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi}, (data) => {
-      console.log(data);
+      // 太奇怪了，如果点开始应用的下面的带着成就查看器启动的话会无效，直接点击下面的event
+      // 直接给他遮起来
+      if (data === 'Sueecss!') {
+        showLoading()
+        setTimeout(hideLoading, 2000); 
+      }
     }, 'text')
     .fail(function(jqXHR, textStatus, errorThrown) {
       alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
     })
+  } catch (error) {
+    alert(error)
+  }
+}
+
+function selectFolderInFlask() {
+  return $.get(flaskUrl.get("api_askpath")(), function(path, status){
+    if (status === 'success') {
+      return path;
+    } else {
+      console.log('selectFolderInFlask(): User aborted the request.')
+    }
+  });
 }
 
 function fullPicview(useCase) {
@@ -402,6 +421,16 @@ function bsmenu_reload() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  $('.btn-pathSelect').on('click', e => {
+    selectFolderInFlask().then(path => {
+      $('#'+e.target.getAttribute('for')).attr('value', path)
+    });
+  });
+
+  if (document.location.hostname !== 'localhost') {
+    $('.btn-pathSelect').css('display', 'none');
+  }
+
   // 保存页面collapse状态
   $('.collapse').on('hidden.bs.collapse shown.bs.collapse', function () {
     const id = this.id;

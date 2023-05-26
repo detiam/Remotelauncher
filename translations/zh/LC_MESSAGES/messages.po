@@ -8,107 +8,130 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-05-13 08:52+0800\n"
-"PO-Revision-Date: 2023-05-13 08:55+0800\n"
+"POT-Creation-Date: 2023-05-26 00:46+0800\n"
+"PO-Revision-Date: 2023-05-17 00:15+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
 "Language-Team: Chinese <kde-i18n-doc@kde.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
-"X-Generator: Lokalize 23.04.1\n"
 
-#: app.py:54
-msgid "RemoteLauncher"
-msgstr "远程启动器"
-
-#: app.py:55
-msgid "A launcher to launch program."
-msgstr "一个启动应用的启动器。"
-
-#: app.py:126
+#: app.py:87
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: app.py:128
+#: app.py:89
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: app.py:231
+#: app.py:91
+msgid "\"Achievements\" path"
+msgstr "成就查看器路径"
+
+#: app.py:93
+msgid "Schema generate tool path"
+msgstr "成就配置生成工具路径"
+
+#: app.py:121
+msgid "RemoteLauncher"
+msgstr "远程启动器"
+
+#: app.py:122
+msgid "A launcher to launch program."
+msgstr "一个启动应用的启动器。"
+
+#: app.py:295
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: app.py:256 app.py:258
+#: app.py:320 app.py:322
 msgid "File type not supported"
 msgstr "不支持此文件类型"
 
-#: app.py:342
+#: app.py:399
+msgid "\"Achievement\" path not found"
+msgstr "成就查看器路径未找到"
+
+#: app.py:412
 msgid "Just been launched"
 msgstr "刚刚被启动了"
 
-#: app.py:365
+#: app.py:449
+msgid "App exited normally"
+msgstr "应用正常退出"
+
+#: app.py:449
 msgid "Something abnormal"
 msgstr "有什么不正常"
 
-#: app.py:447
+#: app.py:531
 msgid "Path not found"
 msgstr "未找到路径"
 
-#: templates/detail.html:27
+#: templates/detail.html:26
 msgid "Change Icon or Picture"
 msgstr "修改图标和图片"
 
-#: templates/detail.html:33
+#: templates/detail.html:30
 msgid "Enter a URL of an Image"
 msgstr "输入指向图片的网址"
 
-#: templates/detail.html:53
+#: templates/detail.html:37
 msgid "Submit"
 msgstr "提交"
 
-#: templates/detail.html:62
+#: templates/detail.html:46
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: templates/detail.html:69 templates/js/app.js:123
+#: templates/detail.html:53 templates/js/app.js:123
 msgid "Open data folder"
 msgstr "打开配置文件夹"
 
-#: templates/detail.html:74
+#: templates/detail.html:58
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: templates/detail.html:81 templates/tableview.html:6
+#: templates/detail.html:66 templates/tableview.html:6
 msgid "ID"
 msgstr "ID"
 
-#: templates/detail.html:88 templates/index.html:59 templates/tableview.html:7
+#: templates/detail.html:73 templates/index.html:59 templates/tableview.html:7
 msgid "Name"
 msgstr "名称"
 
-#: templates/detail.html:94 templates/index.html:64
+#: templates/detail.html:83
+msgid "Generate schemas"
+msgstr "生成成就配置"
+
+#: templates/detail.html:90 templates/index.html:64
 msgid "Working directory"
 msgstr "工作目录"
 
-#: templates/detail.html:99 templates/index.html:69
+#: templates/detail.html:93
+msgid "Select"
+msgstr "选择"
+
+#: templates/detail.html:96 templates/index.html:69
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: templates/detail.html:104 templates/index.html:74
+#: templates/detail.html:101 templates/index.html:74
 msgid "Command"
 msgstr "执行命令"
 
-#: templates/detail.html:112
+#: templates/detail.html:108
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: templates/detail.html:117
+#: templates/detail.html:112
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: templates/detail.html:121 templates/index.html:78 templates/index.html:94
+#: templates/detail.html:115 templates/index.html:78 templates/index.html:94
 msgid "Save"
 msgstr "保存"
 

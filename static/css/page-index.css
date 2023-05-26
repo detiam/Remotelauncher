@@ -1,9 +1,5 @@
 /* for all page */
 html {
-    -webkit-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    user-select: none;
     scrollbar-width: thin;
     scrollbar-color: inherit;
     overflow-y: hidden;
@@ -12,11 +8,10 @@ html {
 {
     width:5px;
     height: 5px;
-    background-color: inherit;
 }
 ::-webkit-scrollbar-track
 {
-    background-color: inherit;
+    opacity: 0;
 }
 ::-webkit-scrollbar-thumb
 {
@@ -26,7 +21,7 @@ html {
 
 /* for main page */
 #program-table {
-    margin-bottom: 2em;
+    margin-bottom: 5em;
 }
 #overlay {
     position: fixed;
@@ -35,7 +30,7 @@ html {
     width: 100%;
     height: 100%;
     background: inherit;
-    z-index: 9999;
+    z-index: 10001;
 }
 #centerIcon {
     position: absolute;
@@ -51,6 +46,10 @@ html {
 }
 .collapseTitleText {
     margin-left: 2px;
+}
+.btn-zIndex3 {
+    position: relative;
+    z-index: 3;
 }
 #fullPicviewIcon{
     border: 0px;
@@ -111,6 +110,9 @@ td,th {
 .table>tbody>tr>td {
     border-top: none;
 }
+.nameRow {
+    text-align: center;
+}
 .idRow {
     transform: translateX(-8px);
     text-align: start;
@@ -156,7 +158,6 @@ td,th {
     backface-visibility: hidden;
     position: relative;
     padding: 0;
-    z-index: 9;
     transition: filter 0.2s ease-in-out, transform .4s cubic-bezier(.075, .82, .165, 1) 0ms, box-shadow .4s cubic-bezier(.075, .82, .165, 1) 0ms, opacity .4s cubic-bezier(.075, .82, .165, 1) 0ms, border-color .4s cubic-bezier(.075, .82, .165, 1) 0ms;
     background-color: var(--theme-section-bg-gray);
     color: var(--theme-page-fg);
@@ -212,11 +213,31 @@ td,th {
 @media (max-width: 991px) {
     .cover {
         width: 50%;
+        float: left;
+    }
+    .custom-contextmenu {
+        transform: scale(1.4);
+    }
+    .custom-contextmenu:hover {
+        transform: scale(1.6);
+    }
+    .nameRow {
+        text-align: end;
     }
 }
 @media (min-width: 661px) and (max-width: 991px) {
     .cover {
         width: 25%;
+        float: left;
+    }
+    .custom-contextmenu {
+        transform: scale(1.4);
+    }
+    .custom-contextmenu:hover {
+        transform: scale(1.6);
+    }
+    .nameRow {
+        text-align: end;
     }
 }
 @media (min-width: 991px) and (max-width: 1351px) {
@@ -226,7 +247,7 @@ td,th {
 }
 @media (min-width: 1351px) and (max-width: 1920px) {
     .fullpagecover {
-        width: 10%;
+        width: 20%;
     }
 }
 @media (min-width: 1920px) {

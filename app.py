@@ -6,7 +6,7 @@ from flask_caching import Cache
 from threading import Thread
 from io import BytesIO
 from selectors import DefaultSelector, EVENT_READ
-from subprocess import Popen, PIPE, DEVNULL
+from subprocess import Popen, PIPE, DEVNULL, getstatusoutput
 from flask_babel import Babel, gettext
 from urllib.request import Request, urlopen
 from PIL.Image import open as imgopen
@@ -26,7 +26,7 @@ from sys import stderr
 
 config_names = [
     'config_wideprefix',
-    'config_wideworkdir',
+    'config_wideworkdirpath',
     'config_achipath',
     'config_downconfpath'
 ]
@@ -43,19 +43,6 @@ def prepareapp():
         program_dir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
         if not path.exists(program_dir):
             makedirs(program_dir)
-
-def commons():
-    from plyer import notification
-    global sendnote
-    def sendnote(iconpath, title, message, timeout):
-        kwargs = {
-            "app_name": app.config['APPNAME'],
-            "app_icon": iconpath,
-            "title": title,
-            "message": message,
-            "timeout": timeout
-        }
-        return notification.notify(**kwargs)
 
 def etag(kwargs):
     response = make_response(kwargs)
@@ -86,7 +73,7 @@ def openfolder(folder):
 def get_locale():
     if 'lang' in request.cookies:
         app.config['LANGUAGE'] = request.cookies.get("lang")
-    else:
+    elif request.accept_languages:
         app.config['LANGUAGE'] = request.accept_languages.best_match(app.config['LANGUAGES'])
     return app.config['LANGUAGE']
 
@@ -108,6 +95,25 @@ def configlocalizedname(config):
 
     # 烂到要死的解决方法
     # return eval(''.join(['config.', get_locale(), '_name']))
+
+def commons():
+    global sendnote, askdirectory
+    from plyer import notification, filechooser
+    def askdirectory():
+        ret = filechooser.choose_dir()
+        if ret:
+            return ret[0]
+        else:
+            return False
+    def sendnote(iconpath, title, message, timeout):
+        kwargs = {
+            "app_name": app.config['APPNAME'],
+            "app_icon": iconpath,
+            "title": title,
+            "message": message,
+            "timeout": timeout
+        }
+        return notification.notify(**kwargs)
 
 
 app = Flask(__name__)
@@ -134,7 +140,8 @@ match uname().system:
     case 'Linux':
         from gi import require_version
         require_version('Notify', '0.7')
-        from gi.repository import Notify
+        require_version('Gtk', '3.0')
+        from gi.repository import Notify, Gtk#, GLib
         from atexit import register as register_exit
         from threading import Timer
         @register_exit
@@ -143,15 +150,29 @@ match uname().system:
             print('\n'+app.config['APPNAME']+" is shutting down...")
         def openfile(file):
             Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
+        def askdirectory():
+            dialog = Gtk.FileChooserNative(
+                #title="请选择一个文件夹...",
+                action=Gtk.FileChooserAction.SELECT_FOLDER
+            )
+            response = dialog.run()
+            if response == Gtk.ResponseType.ACCEPT:
+                ret =  dialog.get_filename()
+            else:
+                ret =  False
+            dialog.destroy()
+            return ret
         def sendnote(iconpath, title, message, timeout: int):
             notification.update(title,message,iconpath)
             notification.show()
             if timeout > 0:
+                #notification.set_timeout(timeout)
                 Timer(timeout, notification.close).start()
             return notification
         Notify.init(app.config['APPNAME'])
         notification = Notify.Notification.new("Init")
-        notification.set_urgency(2)
+        notification.set_urgency(Notify.Urgency.CRITICAL)
+        #notification.set_hint('resident', GLib.Variant("b", True))
         if environ.get('XDG_DATA_HOME') is not None:
             data_dir = path.expandvars('$XDG_DATA_HOME/'+app.config['APPNAME'])
         else:
@@ -393,42 +414,52 @@ def apps_launch(program_id):
     except:
         return 'TooOften!', 200
 
-    appproc = ThreadWithReturnValue(target=launchapp, args=(program, pdatadir))
+    appproc = ThreadWithReturnValue(target=launchapp, name='launchapp', args=(program, pdatadir))
 
-    def launchit():
-        if with_achi == 'true':
-            appproc.start()
-            achi = achiwatcher(program_id, achipath)
-            appreturn = appproc.join()
-            achi.kill()
-        elif with_achi == 'onlyAchi':
-            achi = achiwatcher(program_id, achipath)
-            appreturn = achi.wait()
-        else:
-            appproc.start()
-            appreturn = appproc.join()
+    def achiwatcher():
+        if not path.exists(achipath):
+            raise Exception('Achievement path not valid')
+        env = environ
+        env['LnzAch_gamename'] = program.name
+        process = Popen([achipath, str(program_id)],
+            cwd=path.dirname(achipath),
+            env=env,
+            stderr=DEVNULL)
+        return process
+
+    def launchit(arg1, arg2):
+        try:
+            if with_achi == 'true':
+                appproc.start()
+                achi = achiwatcher()
+                appreturn = appproc.join()
+                achi.kill()
+            elif with_achi == 'onlyAchi':
+                achi = achiwatcher()
+                appreturn = achi.wait()
+            else:
+                appproc.start()
+                appreturn = appproc.join()
+        except Exception as e:
+            sendnote(iconpath, program.name,
+                'ID: '+str(program.id)+'\n'+arg2+': '+str(e), 0)
+            return
         # todo: 这里改一下，如果失败则在模板里显示提示
         if appreturn == 0:
             sendnote(iconpath, program.name,
-                    'ID: ' + str(program.id) + '\n' + gettext('App exited normally'), 5)
+                    'ID: '+str(program.id)+'\n'+arg1, 5)
         else:
             sendnote(iconpath, program.name,
-                    'ID: ' + str(program.id) + '\n' + gettext('Something abnormal')+': '+str(appreturn), 10)
+                    'ID: '+str(program.id)+'\n'+arg2+': '+str(appreturn), 10)
 
-    Thread(target=launchit).start()
+    Thread(target=launchit, name='launchit',
+           args=[gettext('App exited normally'), gettext('Something abnormal')]).start()
     return 'Sueecss!', 200
-
-def achiwatcher(program_id, achipath):
-    process = Popen(['python',
-        path.join(achipath, 'window.py'), str(program_id)],
-        cwd=achipath,
-        stdout=DEVNULL, stderr=DEVNULL)
-    return process
 
 def launchapp(program, pdatadir):
     # 命令环境变量
     wideprefix = Config.query.filter_by(name='config_wideprefix').first()
-    wideworkdir = Config.query.filter_by(name='config_wideworkdir').first()
+    wideworkdir = Config.query.filter_by(name='config_wideworkdirpath').first()
 
     command = " ".join(
         [program.prefix, wideprefix.value, program.command])
@@ -485,6 +516,14 @@ def api_urls():
         url_dict[rule.endpoint] = rule.rule
     return etag(jsonify(url_dict))
 
+@app.get('/api/askpath')
+def api_askpath():
+    dirpath = askdirectory()
+    if dirpath:
+        return dirpath, 200
+    else:
+        return '', 204
+
 @app.get('/api/openresdir/<int:program_id>')
 def api_openresdir(program_id):
     openfolder(path.join(app.config['UPLOAD_FOLDER'], str(program_id)))
@@ -528,4 +567,7 @@ def file_serviceworker():
     return etag(response)
 
 
-if __name__ == '__main__': app.run(host='::', port=2023, debug=False)
+if __name__ == '__main__':
+    print('Please do not directly run this file!')
+    #prepareapp()
+    #app.run(host='::', port=2023)
