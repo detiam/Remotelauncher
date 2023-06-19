@@ -3,7 +3,7 @@ from app import prepareapp, app
 from asyncio import run
 from hypercorn.config import Config as hypercornConfig
 from hypercorn.asyncio import serve
-from hypercorn.middleware import AsyncioWSGIMiddleware
+#from hypercorn.middleware import AsyncioWSGIMiddleware
 from argparse import ArgumentParser
 
 parser = ArgumentParser(
@@ -27,6 +27,6 @@ if args.debug == 'flask':
     app.run(host='::', port=2023, debug=True)
 elif args.debug == 'hypercorn' or args.debug == None:
     hypercornconfig.accesslog = '-'
-    run(serve(AsyncioWSGIMiddleware(app), hypercornconfig, mode='asgi'), debug=True)
+    run(serve(app, hypercornconfig), debug=True)
 else:
-    run(serve(AsyncioWSGIMiddleware(app), hypercornconfig, mode='asgi'))
+    run(serve(app, hypercornconfig), debug=False)
