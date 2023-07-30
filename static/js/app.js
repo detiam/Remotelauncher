@@ -249,9 +249,8 @@ function uploadFile(file, id) {
 function launchapp(id, withAchi) {
   try {
     $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi}, (data) => {
-      // 太奇怪了，如果点开始应用的下面的带着成就查看器启动的话会无效，直接点击下面的event
-      // 直接给他遮起来
       if (data === 'Sueecss!') {
+        // 显示加载遮罩
         showLoading()
         setTimeout(hideLoading, 2000); 
       }
@@ -289,14 +288,20 @@ function fullPicview(useCase) {
     });
   }
   if (useCase === 'enterPicview') {
+    // 保存图片视图的滚动位置
     localStorage.ScrollPositionMainpage = window.pageYOffset;
-    sessionStorage.mainpageclone = $('#mainpage').html();
+    // 保存#mainpage以备之后使用
+    const mainpageclone = $('#mainpage').clone();
+    mainpageclone.find('.dropdown.bootstrapMenu').remove(); // 防止某些元素无限增多
+    sessionStorage.mainpageclone = mainpageclone.html();
+    // 保存原页面的某些信息
     sessionStorage.mainpageinfo = JSON.stringify({
       origTitle: document.title,
       origColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     })
-    $('#mainpage').html($('#p-icview').clone())
-    postTuning()
+    // 进入图片视图
+    $('#mainpage').html($('#p-icview').clone()); postTuning()
+  
   } else if (useCase === 'reLoad') {
     localStorage.ScrollPositionPicview = window.pageYOffset
     $('#mainpage').load(flaskUrl.get("html_picview")(), function () {
@@ -330,9 +335,9 @@ function coverhandle_reload(handleEvent) {
     'dragover': false,
     'drop': e => {
       handleDrop(e.originalEvent)},
-    'error': e => {
+/** 'error': e => {
       // 现在已经不需要了
-      e.target.src=flaskUrl.get("static")('pic/fallback.png')},
+      e.target.src=flaskUrl.get("static")('pic/fallback.png')}, */
     'click': e => {
       launchapp(e.target.id.match(/\d+/))}
   });
@@ -396,7 +401,6 @@ function fav_reload() {
 }
 
 function bsmenu_reload() {
-  $('.dropdown.bootstrapMenu').remove();
   new BootstrapMenu('.img-thumbnail', {
     fetchElementData: function($rowElem) {
       return {
