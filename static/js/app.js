@@ -274,8 +274,7 @@ function selectFolderInFlask() {
 
 function fullPicview(useCase) {
   function postTuning() {
-    bsmenu_reload()
-    coverhandle_reload('.custom-img')
+    bsmenu_reload(true)
     scrollToPage('ScrollPositionPicview')
     document.title = flaskStr.get("i18n_picviewTitle");
     document.querySelector('meta[name="theme-color"]').setAttribute('content', "#686868");
@@ -286,7 +285,6 @@ function fullPicview(useCase) {
       element.classList.add('fullpagecover');
     });
   }
-  $('.dropdown.bootstrapMenu').remove(); // 防止某些元素无限增多
   if (useCase === 'enterPicview') {
     // 保存图片视图的滚动位置
     localStorage.ScrollPositionMainpage = window.pageYOffset;
@@ -313,7 +311,7 @@ async function back2Mainpage() {
   $('#mainpage').html(sessionStorage.mainpageclone);
   scrollToPage('ScrollPositionMainpage');
   if (sessionStorage.needReloadWhenGoBack)
-    {mainHTML_reload()} else {bsmenu_reload()};
+    {mainHTML_reload()} else {bsmenu_reload(true)};
   coverhandle_reload('.custom-img')
   Mainpage_js()
   document.body.style = '';
@@ -337,6 +335,12 @@ function coverhandle_reload(handleEvent) {
       e.target.src=flaskUrl.get("static")('pic/fallback.png')}, */
     'click': e => {
       launchapp(e.target.id.match(/\d+/))}
+  }).tooltip().hover(e => {
+    if ($(e.target).hasClass('custom-contextmenu')) {
+      $(e.target).tooltip('disable');
+    } else {
+      $(e.target).tooltip('enable');
+    }
   });
 }
 
@@ -357,6 +361,7 @@ async function mainHTML_reload() {
       // 默认加载Overlay，到这里主页面加载完毕隐藏Overlay
       hideLoading()
     });
+    coverhandle_reload('img[id^="p-"]')
     fav_reload()
   });
   $('#collapseThree').load(flaskUrl.get('html_tableview')(), () =>{
@@ -370,7 +375,7 @@ async function mainHTML_reload() {
         handleDrop(e.originalEvent)
       });
   });
-  bsmenu_reload()
+  bsmenu_reload(true)
 }
 
 function fav_reload() {
@@ -387,18 +392,13 @@ function fav_reload() {
   $('#collapseOne').html(favCollapse).find('[id]').attr('id', function(_, id) {
     return 'f-' + id;
   });
-  coverhandle_reload('.custom-img')
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="tooltip"]').hover(e => {
-    if ($(e.target).hasClass('custom-contextmenu')) {
-      $(e.target).tooltip('disable');
-    } else {
-      $(e.target).tooltip('enable');
-    }
-  });
+  coverhandle_reload('img[id^="f-p-"]')
 }
 
-function bsmenu_reload() {
+function bsmenu_reload(remove) {
+  if (remove === true ) {
+    $('.dropdown.bootstrapMenu').remove(); // 防止某些元素无限增多
+  };
   new BootstrapMenu('.img-thumbnail', {
     fetchElementData: function($rowElem) {
       return {
