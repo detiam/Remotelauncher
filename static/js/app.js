@@ -12,13 +12,13 @@ function scrollToPage(page) {
 }
 
 function showLoading() {
-  $('#overlay').fadeIn('100')
-  $('html').css('overflow-y', 'hidden');
+  $('#overlay').fadeIn('100');
+  // $('html').css('overflow-y', 'hidden');
 }
 
 function hideLoading() {
-  $('#overlay').fadeOut('100')
-  $('html').css('overflow-y', 'overlay');
+  $('#overlay').fadeOut('100');
+  // $('html').css('overflow-y', 'overlay');
 }
 
 function isfavorite(id) {
@@ -254,8 +254,7 @@ function launchapp(id, withAchi) {
         showLoading()
         setTimeout(hideLoading, 2000); 
       }
-    }, 'text')
-    .fail(function(jqXHR, textStatus, errorThrown) {
+    }, 'text').fail((jqXHR, textStatus, errorThrown) => {
       alert(errorThrown+': '+textStatus+', '+jqXHR.responseText);
     })
   } catch (error) {
@@ -287,26 +286,24 @@ function fullPicview(useCase) {
       element.classList.add('fullpagecover');
     });
   }
+  $('.dropdown.bootstrapMenu').remove(); // 防止某些元素无限增多
   if (useCase === 'enterPicview') {
     // 保存图片视图的滚动位置
     localStorage.ScrollPositionMainpage = window.pageYOffset;
     // 保存#mainpage以备之后使用
-    const mainpageclone = $('#mainpage').clone();
-    mainpageclone.find('.dropdown.bootstrapMenu').remove(); // 防止某些元素无限增多
-    sessionStorage.mainpageclone = mainpageclone.html();
+    sessionStorage.mainpageclone = $('#mainpage').html();
     // 保存原页面的某些信息
     sessionStorage.mainpageinfo = JSON.stringify({
       origTitle: document.title,
       origColor: document.querySelector('meta[name="theme-color"]').getAttribute('content'),
     })
     // 进入图片视图
-    $('#mainpage').html($('#p-icview').clone()); postTuning()
-  
+    $('#mainpage .container:first').replaceWith($('#p-icview')); postTuning()
   } else if (useCase === 'reLoad') {
     localStorage.ScrollPositionPicview = window.pageYOffset
-    $('#mainpage').load(flaskUrl.get("html_picview")(), function () {
-      postTuning()
-    });
+    $.get(flaskUrl.get("html_picview")(), function (data) {
+      $('#mainpage .picview:first').replaceWith(data); postTuning()
+    })
   }
 }
 
@@ -357,6 +354,7 @@ async function mainHTML_reload() {
     });
     $.when.apply(null, promises).done(() => {
       scrollToPage('ScrollPositionMainpage')
+      // 默认加载Overlay，到这里主页面加载完毕隐藏Overlay
       hideLoading()
     });
     fav_reload()
