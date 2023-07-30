@@ -1,11 +1,14 @@
 [Unit]
-Description=the service for running launcher background
-After=network.target iptables.service ip6tables.service
-Wants=network.target
+Description=The service for running remotelauncher background.
+StartLimitIntervalSec=500
+StartLimitBurst=5
+Wants=xdg-desktop-autostart.target,graphical-session.target
+After=xdg-desktop-autostart.target,graphical-session.target
 
 [Service]
 ExecStart=%h/.local/opt/remotelauncher/entry.py
 Restart=on-failure
+RestartSec=5s
 
 [Install]
-WantedBy=default.target
+WantedBy=xdg-desktop-autostart.target
