@@ -1,9 +1,9 @@
 /* for all page */
-html {
-    /* scrollbar-width: thin;
-    scrollbar-color: inherit; */
+/* html {
+    scrollbar-width: thin;
+    scrollbar-color: inherit;
     overflow-y: hidden;
-}
+} */
 ::-webkit-scrollbar
 {
     width:5px;
