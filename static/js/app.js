@@ -11,8 +11,8 @@ function scrollToPage(page) {
   window.scrollTo(0, window.localStorage.getItem(page));
 }
 
-function showLoading() {
-  $('#overlay').fadeIn('100');
+function showLoading(color) {
+  $('#overlay').css('color', color).fadeIn('100');
   // $('html').css('overflow-y', 'hidden');
 }
 
@@ -251,7 +251,11 @@ function launchapp(id, withAchi) {
     $.post(flaskUrl.get("apps_launch")(id), {withAchi: withAchi}, (data) => {
       if (data === 'Sueecss!') {
         // 显示加载遮罩
-        showLoading()
+        if (window.document.title == flaskStr.get("i18n_picviewTitle")) {
+          showLoading('white')
+        } else {
+          showLoading('black')
+        }
         setTimeout(hideLoading, 2000); 
       }
     }, 'text').fail((jqXHR, textStatus, errorThrown) => {
