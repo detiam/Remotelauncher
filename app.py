@@ -6,7 +6,7 @@ from flask_caching import Cache
 from threading import Thread
 from io import BytesIO
 from selectors import DefaultSelector, EVENT_READ
-from subprocess import Popen, PIPE, DEVNULL, getstatusoutput
+from subprocess import Popen, PIPE, DEVNULL
 from flask_babel import Babel, gettext
 from urllib.request import Request, urlopen
 from PIL.Image import open as imgopen
@@ -277,7 +277,7 @@ def data_dbconf():
     return '', 204
     # return redirect(url_for('index'))
 
-@app.route('/data/upload/<path:program_id>', methods=['GET', 'POST'])
+@app.post('/data/upload/<path:program_id>')
 def data_upload(program_id):
     try:
         filedest = path.join(app.config['UPLOAD_FOLDER'], program_id.split('-')[-1])
@@ -290,8 +290,6 @@ def data_upload(program_id):
         else:
             file = request.files['file']
         return save_file(file, filedest)
-    except ValueError as e:
-        return str(e), 202
     except RequestEntityTooLarge:
         return gettext("File size exceeds the limit"), 413
     except Exception as e:
@@ -324,7 +322,7 @@ def save_file(file, filedest):
     return path.basename(savepath), 201
 
 
-@app.route('/apps/add/<int:program_realid>', methods=['GET', 'POST'])
+@app.post('/apps/add/<int:program_realid>')
 def apps_add(program_realid):
     id = request.form['program_id']
     name = request.form['program_name']
@@ -569,5 +567,3 @@ def file_serviceworker():
 
 if __name__ == '__main__':
     print('Please do not directly run this file!')
-    #prepareapp()
-    #app.run(host='::', port=2023)
