@@ -379,12 +379,20 @@ def apps_del(program_id):
 
 @app.post('/apps/launch/<int:program_id>')
 def apps_launch(program_id):
+
+    # 成就查看器路径
     with_achi = request.form.get('withAchi')
-    achipath = Config.query.filter_by(name='config_achipath').first()
-    if not path.exists(achipath.value):
-        return gettext('"Achievement" path not found'), 400
-    else:
-        achipath = achipath.value
+    if with_achi:
+        achipath = path.expandvars(
+            path.expanduser(
+                Config.query.filter_by(
+                    name='config_achipath'
+                ).first().value
+            )
+        )
+        if not path.exists(achipath):
+            return gettext('"Achievement" path not found'), 400
+
     # 环境变量
     program = Program.query.get_or_404(program_id)
     pdatadir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
@@ -395,7 +403,7 @@ def apps_launch(program_id):
         # 发送通知，顺便防止开多
         if with_achi != 'onlyAchi':
             sendnote(iconpath, program.name,
-                'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 5)
+                'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 10)
     except:
         return 'TooOften!', 200
 
@@ -432,10 +440,10 @@ def apps_launch(program_id):
         # todo: 这里改一下，如果失败则在模板里显示提示
         if appreturn == 0:
             sendnote(iconpath, program.name,
-                    'ID: '+str(program.id)+'\n'+arg1, 5)
+                    'ID: '+str(program.id)+'\n'+arg1, 10)
         else:
             sendnote(iconpath, program.name,
-                    'ID: '+str(program.id)+'\n'+arg2+': '+str(appreturn), 10)
+                    'ID: '+str(program.id)+'\n'+arg2+': '+str(appreturn), 20)
 
     Thread(target=launchit, name='launchit',
            args=[gettext('App exited normally'), gettext('Something abnormal')]).start()
