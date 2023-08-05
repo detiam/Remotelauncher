@@ -53,4 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
     selectbtn.style.pointerEvents = '';
     selectbtn.style.opacity = '';
   });
+  document.addEventListener('keydown', function (event) {
+    // 如果按下的是Ctrl + S, 则触发按钮的单击事件
+    if (event.ctrlKey && event.code === 'KeyS') {
+      event.preventDefault(); // 防止默认的保存操作
+      document.getElementById('settings-save-button').click(); // 触发按钮的单击事件
+    }
+  });
 });
