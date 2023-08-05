@@ -1,6 +1,4 @@
-messages.pot
+**/LC_MESSAGES/messages.mo
 __pycache__
-jsconfig.json
-.vscode
-__achievements__
 .venv
+
