@@ -1,15 +1,16 @@
 #!/bin/python3
-from remotelauncher import uname, app
-from asyncio import run
-from hypercorn.config import Config as hypercornConfig
-from hypercorn.asyncio import serve
-from hypercorn.middleware import AsyncioWSGIMiddleware
 from argparse import ArgumentParser
+from hypercorn.config import Config as hypercornConfig
+from hypercorn.middleware import AsyncioWSGIMiddleware
+from hypercorn.asyncio import serve
+from asyncio import run
+from remotelauncher import uname, app
 
 parser = ArgumentParser(
     prog=app.config['APPNAME'],
     description='Config and run programs from the web!'
 )
+
 parser.add_argument(
     '--debug',
     nargs='?',
@@ -17,6 +18,7 @@ parser.add_argument(
     choices=['hypercorn', 'flask'],
     help='enable debug mode'
 )
+
 args = parser.parse_args()
 
 hypercornconfig = hypercornConfig()
@@ -25,7 +27,6 @@ match uname().system:
         hypercornconfig.bind = ["[::]:2023"]
     case _:
         hypercornconfig.bind = ["[::]:2023", "0.0.0.0:2023"]
-    
 
 if args.debug == 'flask':
     app.run(host='::', port=2023, debug=True)
