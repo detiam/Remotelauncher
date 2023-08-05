@@ -31,19 +31,6 @@ config_names = [
     'config_downconfpath'
 ]
 
-def prepareapp():
-    db.create_all()
-    # 向 Config 表中插入默认配置项
-    for name in config_names:
-        if Config.query.filter_by(name=name).first() is None:
-            config = Config(name=name, value='')
-            db.session.add(config)
-    db.session.commit()
-    for program in Program.query.all():
-        program_dir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
-        if not path.exists(program_dir):
-            makedirs(program_dir)
-
 def etag(kwargs):
     response = make_response(kwargs)
     response.last_modified = dt.utcnow()

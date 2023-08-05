@@ -1,5 +1,5 @@
 #!/bin/python3
-from remotelauncher import prepareapp, uname, app
+from remotelauncher import uname, app
 from asyncio import run
 from hypercorn.config import Config as hypercornConfig
 from hypercorn.asyncio import serve
@@ -27,7 +27,6 @@ match uname().system:
         hypercornconfig.bind = ["[::]:2023", "0.0.0.0:2023"]
     
 
-prepareapp()
 if args.debug == 'flask':
     app.run(host='::', port=2023, debug=True)
 elif args.debug == 'hypercorn' or args.debug == None:
