@@ -1,5 +1,5 @@
 #!/bin/python3
-from app import prepareapp, uname, app
+from remotelauncher import prepareapp, uname, app
 from asyncio import run
 from hypercorn.config import Config as hypercornConfig
 from hypercorn.asyncio import serve
