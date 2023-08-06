@@ -36,3 +36,7 @@ label {
 ::-webkit-scrollbar {
   display: none;
 }
+textarea {
+  resize: none;
+  font-family: monospace;
+}

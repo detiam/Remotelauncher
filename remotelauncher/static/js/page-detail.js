@@ -25,15 +25,12 @@ if (params.get('need_reload') === '1') {
   detailOpener_reload()
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  // https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
-  $("textarea").each(function () {
-    this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
-  }).on("input", function () {
-    this.style.height = 0;
-    this.style.height = (this.scrollHeight) + "px";
-  });
+// https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
+$(document).on('input mouseenter mouseleave', 'textarea', function () {
+  $(this).outerHeight(36).outerHeight(this.scrollHeight);
+});
 
+document.addEventListener('DOMContentLoaded', () => {
   // 显示警告框
   $("#alert").fadeIn();
   // 定时隐藏警告框
