@@ -10,26 +10,18 @@ from subprocess import Popen, PIPE, DEVNULL
 from flask_babel import Babel, gettext
 from urllib.request import Request, urlopen
 from PIL.Image import open as imgopen
-from platform import uname
 from functools import wraps
 from filetype import guess
+from os import rename, makedirs, environ, path
 
-from os import (rename, makedirs,
-                environ, path)
+from flask import (Flask, make_response, redirect, render_template,
+                   url_for, send_from_directory, jsonify, g, request)
 
-from flask import (Flask, make_response, redirect, render_template, url_for,
-                   send_from_directory, jsonify, g, request)
+from .platforms import (askdirectory, openfolder, notify,
+                       APPNAME, CONFIGNAMES, DATA_DIR, RESOURCES_DIR)
 
 from shutil import rmtree
 from sys import stderr
-
-
-config_names = [
-    'config_wideprefix',
-    'config_wideworkdirpath',
-    'config_achipath',
-    'config_downconfpath'
-]
 
 def etag(kwargs):
     response = make_response(kwargs)
@@ -53,10 +45,6 @@ def cache_header(max_age, **ckwargs):
 
     return decorator
 
-def openfolder(folder):
-    if path.isdir(folder):
-        openfile(folder)
-
 def get_locale():
     if 'lang' in request.cookies:
         app.config['LANGUAGE'] = request.cookies.get("lang")
@@ -70,45 +58,28 @@ def get_timezone():
         return user.timezone
 
 def configlocalizedname(config):
-    if config.name == config_names[0]:
+    if config.name == CONFIGNAMES[0]:
         return gettext("Global prefix")
-    if config.name == config_names[1]:
+    if config.name == CONFIGNAMES[1]:
         return gettext("Default working directory")
-    if config.name == config_names[2]:
+    if config.name == CONFIGNAMES[2]:
         return gettext('"Achievements" path')
-    if config.name == config_names[3]:
+    if config.name == CONFIGNAMES[3]:
         return gettext("Schema generate tool path")
     return '!ErrorNoName!'
 
     # 烂到要死的解决方法
     # return eval(''.join(['config.', get_locale(), '_name']))
 
-def commons():
-    global sendnote, askdirectory
-    from plyer import notification, filechooser
-    def askdirectory():
-        ret = filechooser.choose_dir()
-        if ret:
-            return ret[0]
-        else:
-            return False
-    def sendnote(iconpath, title, message, timeout):
-        kwargs = {
-            "app_name": app.config['APPNAME'],
-            "app_icon": iconpath,
-            "title": title,
-            "message": message,
-            "timeout": timeout
-        }
-        return notification.notify(**kwargs)
-
 
 app = Flask(__name__)
 app.config.update(
-    APPNAME=gettext('RemoteLauncher'),
+    APPNAME=APPNAME,
     DESCRIPTION=gettext('A launcher to launch program.'),
     JSON_AS_ASCII=False,
+    SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(DATA_DIR, "configs.db")}',
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    UPLOAD_FOLDER=RESOURCES_DIR,
     MAX_CONTENT_LENGTH=2 * 1024 * 1024,
     CACHE_TYPE='SimpleCache',
     CACHE_DEFAULT_TIMEOUT=300,
@@ -117,64 +88,6 @@ app.config.update(
         'en': 'English',
         'zh': '中文'
     }
-)
-
-match uname().system:
-    case 'Windows':
-        from os import startfile as openfile
-        data_dir = path.join(environ['APPDATA'], app.config['APPNAME'])
-        commons()
-    case 'Linux':
-        from gi import require_version
-        require_version('Notify', '0.7')
-        require_version('Gtk', '3.0')
-        from gi.repository import Notify, Gtk#, GLib
-        from atexit import register as register_exit
-        from threading import Timer
-        @register_exit
-        def goodbye():
-            Notify.uninit()
-            print('\n'+app.config['APPNAME']+" is shutting down...")
-        def openfile(file):
-            Popen(['xdg-open', file], stdout=DEVNULL, stderr=DEVNULL)
-        def askdirectory():
-            dialog = Gtk.FileChooserNative(
-                #title="请选择一个文件夹...",
-                action=Gtk.FileChooserAction.SELECT_FOLDER
-            )
-            response = dialog.run()
-            if response == Gtk.ResponseType.ACCEPT:
-                ret =  dialog.get_filename()
-            else:
-                ret =  False
-            dialog.destroy()
-            return ret
-        def sendnote(iconpath, title, message, timeout: int):
-            notification.update(title,message,iconpath)
-            notification.show()
-            if timeout > 0:
-                #notification.set_timeout(timeout)
-                Timer(timeout, notification.close).start()
-            return notification
-        Notify.init(app.config['APPNAME'])
-        notification = Notify.Notification.new("Init")
-        notification.set_urgency(Notify.Urgency.CRITICAL)
-        #notification.set_hint('resident', GLib.Variant("b", True))
-        if environ.get('XDG_DATA_HOME') is not None:
-            data_dir = path.expandvars('$XDG_DATA_HOME/'+app.config['APPNAME'])
-        else:
-            data_dir = path.expandvars('$HOME/.local/share/'+app.config['APPNAME'])
-    case _:
-        from webbrowser import open as openfile
-        data_dir = path.expanduser('~/.'+app.config['APPNAME'])
-        commons()
-
-if not path.exists(data_dir):
-    makedirs(data_dir)
-
-app.config.update(
-    SQLALCHEMY_DATABASE_URI=f'sqlite:///{path.join(data_dir, "configs.db")}',
-    UPLOAD_FOLDER=path.join(data_dir, 'resources'),
 )
 
 db = SQLAlchemy(app)
@@ -213,13 +126,13 @@ class Program(db.Model):
 
 @app.get('/')
 def page_index():
-    return render_template('index.html', appname=app.config['APPNAME'], languages=app.config['LANGUAGES'], get_locale=get_locale,
+    return render_template('index.html', appname=APPNAME, languages=app.config['LANGUAGES'], get_locale=get_locale,
                            configlocalizedname=configlocalizedname, programs=Program.query.all(),
                            configs=Config.query.all())
 
 @app.get('/offline')
 def page_offline():
-    return render_template('offline.html', appname=app.config['APPNAME'], get_locale=get_locale)
+    return render_template('offline.html', appname=APPNAME, get_locale=get_locale)
 
 @app.get('/html/picview')
 def html_picview():
@@ -237,7 +150,7 @@ def page_detail(program_id):
 @app.get('/data/<path:filename>')
 def data_get(filename):
     try:
-        return send_from_directory(data_dir, filename)
+        return send_from_directory(DATA_DIR, filename)
     except:
         if filename.endswith(".jpg"):
             return send_from_directory(path.join(app.root_path, 'static'), 'pic/fallback.png')
@@ -267,7 +180,7 @@ def data_dbconf():
 @app.post('/data/upload/<path:program_id>')
 def data_upload(program_id):
     try:
-        filedest = path.join(app.config['UPLOAD_FOLDER'], program_id.split('-')[-1])
+        filedest = path.join(RESOURCES_DIR, program_id.split('-')[-1])
         if request.content_type == 'application/json':
             url = request.get_json().get('url')
             urlfile = urlopen(Request(url, headers={'User-Agent': 'Mozilla'}))
@@ -321,7 +234,7 @@ def apps_add(program_realid):
                               prefix=prefix, command=command)
         db.session.add(new_program)
         db.session.commit()
-        new_program_dir = path.join(app.config['UPLOAD_FOLDER'], str(new_program.id))
+        new_program_dir = path.join(RESOURCES_DIR, str(new_program.id))
         new_program_dirbak = path.join(new_program_dir + '.bak')
         try:
             makedirs(new_program_dir)
@@ -334,8 +247,8 @@ def apps_add(program_realid):
             makedirs(new_program_dir)
     else:
         program = Program.query.get_or_404(program_realid)
-        program_dir = path.join(app.config['UPLOAD_FOLDER'], str(program_realid))
-        program_destdir = path.join(app.config['UPLOAD_FOLDER'], str(id))
+        program_dir = path.join(RESOURCES_DIR, str(program_realid))
+        program_destdir = path.join(RESOURCES_DIR, str(id))
         # 在更改id的时候移动资源文件夹
         if str(program_realid) == id:
             pass
@@ -362,7 +275,7 @@ def apps_add(program_realid):
 
 @app.get('/apps/del/<int:program_id>')
 def apps_del(program_id):
-    respath = path.join(app.config['UPLOAD_FOLDER'], str(program_id))
+    respath = path.join(RESOURCES_DIR, str(program_id))
     resbakpath = path.join(respath + '.bak')
     try:
         rename(respath, resbakpath)
@@ -395,15 +308,17 @@ def apps_launch(program_id):
 
     # 环境变量
     program = Program.query.get_or_404(program_id)
-    pdatadir = path.join(app.config['UPLOAD_FOLDER'], str(program.id))
+    pdatadir = path.join(RESOURCES_DIR, str(program.id))
     iconpath = path.join(pdatadir, 'icon.ico')
     if not path.exists(iconpath):
         iconpath = path.join(app.root_path, 'static/pic/logo.png')
     try:
         # 发送通知，顺便防止开多
         if with_achi != 'onlyAchi':
-            sendnote(iconpath, program.name,
-                'ID: ' + str(program.id) + '\n' + gettext("Just been launched"), 10)
+            notify(title=program.name,
+                   message='ID: '+str(program.id)+'\n'+gettext("Just been launched"),
+                   app_icon=iconpath,
+                   timeout=10)
     except:
         return 'TooOften!', 200
 
@@ -434,16 +349,23 @@ def apps_launch(program_id):
                 appproc.start()
                 appreturn = appproc.join()
         except Exception as e:
-            sendnote(iconpath, program.name,
-                'ID: '+str(program.id)+'\n'+arg2+': '+str(e), 0)
+            notify(title=program.name,
+                   message='ID: '+str(program.id)+'\n'+arg2+': '+str(e),
+                   app_icon=iconpath,
+                   timeout=0,
+                   hints={"urgency": 2})
             return
         # todo: 这里改一下，如果失败则在模板里显示提示
         if appreturn == 0:
-            sendnote(iconpath, program.name,
-                    'ID: '+str(program.id)+'\n'+arg1, 10)
+            notify(title=program.name,
+                   message='ID: '+str(program.id)+'\n'+arg1,
+                   app_icon=iconpath,
+                   timeout=10)
         else:
-            sendnote(iconpath, program.name,
-                    'ID: '+str(program.id)+'\n'+arg2+': '+str(appreturn), 20)
+            notify(title=program.name,
+                   message='ID: '+str(program.id)+'\n'+arg2+': '+str(appreturn),
+                   app_icon=iconpath,
+                   timeout=20)
 
     Thread(target=launchit, name='launchit',
            args=[gettext('App exited normally'), gettext('Something abnormal')]).start()
@@ -519,7 +441,7 @@ def api_askpath():
 
 @app.get('/api/openresdir/<int:program_id>')
 def api_openresdir(program_id):
-    openfolder(path.join(app.config['UPLOAD_FOLDER'], str(program_id)))
+    openfolder(path.join(RESOURCES_DIR, str(program_id)))
     return '', 204
 
 @app.post('/api/opendir')
@@ -549,7 +471,7 @@ def file_favicon():
 
 @app.get('/app.webmanifest')
 def file_webmanifest():
-    return render_template('app.webmanifest', appname=app.config['APPNAME'],
+    return render_template('app.webmanifest', appname=APPNAME,
                            appdes=app.config['DESCRIPTION'], get_locale=get_locale)
 
 @app.get('/serviceworker.js')

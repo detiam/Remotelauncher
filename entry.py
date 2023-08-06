@@ -4,7 +4,8 @@ from hypercorn.config import Config as hypercornConfig
 from hypercorn.middleware import AsyncioWSGIMiddleware
 from hypercorn.asyncio import serve
 from asyncio import run
-from remotelauncher import uname, app
+from platform import uname
+from remotelauncher import app
 
 parser = ArgumentParser(
     prog=app.config['APPNAME'],
@@ -34,4 +35,4 @@ elif args.debug == 'hypercorn' or args.debug == None:
     hypercornconfig.accesslog = '-'
     run(serve(AsyncioWSGIMiddleware(app, max_body_size=app.config['MAX_CONTENT_LENGTH']), hypercornconfig, mode='asgi'), debug=True)
 else:
-    run(serve(AsyncioWSGIMiddleware(app, max_body_size=app.config['MAX_CONTENT_LENGTH']), hypercornconfig, mode='asgi'))
+    run(serve(AsyncioWSGIMiddleware(app, max_body_size=app.config['MAX_CONTENT_LENGTH']), hypercornconfig, mode='asgi'), debug=False)
