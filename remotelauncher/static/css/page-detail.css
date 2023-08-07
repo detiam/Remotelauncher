@@ -39,4 +39,5 @@ label {
 textarea {
   resize: none;
   font-family: monospace;
+  /*white-space: nowrap;*/
 }
