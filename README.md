@@ -1,7 +1,7 @@
 # Remotelauncher
 > [English](README.md) [中文](README_CN.md)
 
-![screenshot](static/pic/screenshot.png) <hr>
+![screenshot](remotelauncher/static/pic/screenshot.png) <hr>
 Simple launcher write with flask<br>
 Can be install as PWA app, add & edit & launch apps that on server in graphical interface. Also available on mobile. <br>
 I use this to launch games on my linux PC<hr>

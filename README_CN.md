@@ -1,7 +1,7 @@
 # Remotelauncher
 > [English](README.md) [中文](README_CN.md)
 
-![screenshot](static/pic/screenshot.png) <hr>
+![screenshot](remotelauncher/static/pic/screenshot.png) <hr>
 非常简单的用flask写的程序启动器。<br>
 可以安装成pwa应用然后用图形化界面添加-编辑-启动服务器上的程序。还可以在手机上用。<br>
 我用来在自己的linux机器上整理启动游戏或者什么别的。<hr>
