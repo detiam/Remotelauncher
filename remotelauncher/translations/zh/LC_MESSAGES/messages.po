@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-05 20:49+0800\n"
+"POT-Creation-Date: 2023-09-07 15:53+0800\n"
 "PO-Revision-Date: 2023-05-17 00:15+0800\n"
 "Last-Translator: detiam <dehe_tian@outlook.com>\n"
 "Language: zh\n"
@@ -19,129 +19,125 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:74
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:62
 msgid "Global prefix"
 msgstr "全局前缀"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:76
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:64
 msgid "Default working directory"
 msgstr "默认工作目录"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:78
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:66
 msgid "\"Achievements\" path"
 msgstr "成就查看器路径"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:80
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:68
 msgid "Schema generate tool path"
 msgstr "成就配置生成工具路径"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:108
-msgid "RemoteLauncher"
-msgstr "远程启动器"
-
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:109
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:78
 msgid "A launcher to launch program."
 msgstr "一个启动应用的启动器。"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:281
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:194
 msgid "File size exceeds the limit"
 msgstr "文件大小超出限制"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:306
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:308
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:219
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:221
 msgid "File type not supported"
 msgstr "不支持此文件类型"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:385
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:307
 msgid "\"Achievement\" path not found"
 msgstr "成就查看器路径未找到"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:398
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:319
 msgid "Just been launched"
 msgstr "刚刚被启动了"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:441
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:371
 msgid "App exited normally"
 msgstr "应用正常退出"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:441
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:371
 msgid "Something abnormal"
 msgstr "有什么不正常"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:523
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/app.py:453
 msgid "Path not found"
 msgstr "未找到路径"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:27
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:28
 msgid "Change Icon or Picture"
 msgstr "修改图标和图片"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:31
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:32
 msgid "Enter a URL of an Image"
 msgstr "输入指向图片的网址"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:38
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:39
 msgid "Submit"
 msgstr "提交"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:47
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:48
 msgid "Select a local file to upload"
 msgstr "选择本地图片上传"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:54
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:55
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/js/app.js:123
 msgid "Open data folder"
 msgstr "打开配置文件夹"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:59
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:60
 msgid "Modify Settings"
 msgstr "修改设置"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:67
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:68
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/tableview.html:6
 msgid "ID"
 msgstr "ID"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:74
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:75
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:60
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/tableview.html:7
 msgid "Name"
 msgstr "名称"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:84
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:85
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:99
 msgid "Generate schemas"
 msgstr "生成成就配置"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:91
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:92
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:65
 msgid "Working directory"
 msgstr "工作目录"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:94
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:95
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:116
 msgid "Select"
 msgstr "选择"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:97
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:98
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:70
 msgid "Prefix ( gamescope, mangohud, etc...)"
 msgstr "前缀 ( gamescope, mangohud, etc...)"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:102
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:103
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:75
 msgid "Command"
 msgstr "执行命令"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:109
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:110
 msgid "ID already exists."
 msgstr "此 ID 被占用"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:113
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:114
 msgid "Data folder for {id} already exists."
 msgstr "ID {id} 数据目录已存在"
 
-#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:116
+#: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/detail.html:117
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:79
 #: /home/detian/.local/opt/remotelauncher/remotelauncher/templates/index.html:120
 msgid "Save"
@@ -280,4 +276,7 @@ msgstr "更改此应用属性"
 
 #~ msgid "Detail"
 #~ msgstr "详情"
+
+#~ msgid "RemoteLauncher"
+#~ msgstr "远程启动器"
 
