@@ -386,7 +386,7 @@ def launchapp(program, pdatadir):
     # programenv =
 
     try:
-        with Popen(command, cwd=workdir, shell=True,
+        with Popen(command.split(), cwd=workdir, shell=False,
                 universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
             # 获取the_stdout, the_stderr, the_retcode
             the_stdout, the_stderr, the_retcode = printlog(process, program.name)
