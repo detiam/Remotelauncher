@@ -1,0 +1,1 @@
+wine pyinstaller -F --add-data "remotelauncher/static;remotelauncher/static" --add-data "remotelauncher/templates;remotelauncher/templates" --add-data "remotelauncher/translations;remotelauncher/translations" --hidden-import "plyer.platforms.win.notification" --hidden-import "plyer.platforms.win.filechooser" RemoteLauncher.py
