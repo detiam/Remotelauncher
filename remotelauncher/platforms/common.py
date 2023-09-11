@@ -1,6 +1,6 @@
 from plyer import notification, filechooser
-
-APPNAME='RemoteLauncher'
+from flask_babel import gettext
+APPNAME=gettext("RemoteLauncher")
 CONFIGNAMES = [
     'config_wideprefix',
     'config_wideworkdirpath',
