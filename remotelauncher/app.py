@@ -444,11 +444,11 @@ def api_openresdir(program_id):
 
 @app.post('/api/opendir')
 def api_opendir():
-    appath = request.form['path']
+    appath = path.expandvars(path.expanduser(request.form['path']))
     if path.exists(appath):
         openfolder(appath)
     else:
-        return gettext('Path not found'), 400
+        return gettext('Path not found')+': '+appath, 400
     return '', 204
 
 @app.get('/api/appinfo/<int:program_id>')
