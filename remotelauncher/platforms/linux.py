@@ -49,4 +49,7 @@ if environ.get('XDG_DATA_HOME') is not None:
 else:
     DATA_DIR = path.expandvars('$HOME/.local/share/'+APPNAME)
 
+if environ.get('TERM') is None:
+    environ['TERM'] = 'dumb'
+
 RESOURCES_DIR = path.join(DATA_DIR, 'resources')

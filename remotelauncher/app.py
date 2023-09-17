@@ -378,15 +378,13 @@ def launchapp(program, pdatadir):
 
     command = " ".join(
         [program.prefix, wideprefix.value, program.command])
-    workdir = path.expandvars(
-        program.workdir
-    ) or path.expandvars(
-        wideworkdir.value
-    ) or path.expanduser('~')
+    workdir = path.expandvars(path.expanduser(program.workdir)) \
+           or path.expandvars(path.expanduser(wideworkdir.value)) \
+           or path.expanduser('~')
     # programenv =
 
     try:
-        with Popen(command.split(), cwd=workdir, shell=False,
+        with Popen(command, cwd=workdir, shell=True,
                 universal_newlines=True, stdout=PIPE, stderr=PIPE) as process:
             # 获取the_stdout, the_stderr, the_retcode
             the_stdout, the_stderr, the_retcode = printlog(process, program.name)
